@@ -1,0 +1,78 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+env/
+venv/
+*.egg-info/
+*.egg
+dist/
+build/
+*.log
+*.sqlite3
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Environment variables and configuration files
+.env
+config.py
+config.json
+
+# Node.js (for frontend projects)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Python-specific
+*.py[cod]
+*.db
+*.DS_Store
+*.swp
+*.swo
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Coverage files
+.coverage
+coverage.xml
+*.cover
+
+# Testing
+backend/tests/__pycache__/
+tests/*.pyc
+*.pytest_cache/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Deployment files
+*.pem
+*.p12
+*.crt
+
+# Other
+Thumbs.db
+ehthumbs.db
+Icon?
+
+playground/
