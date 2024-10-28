@@ -1,13 +1,13 @@
+from typing import Iterable
+
 from .indicatorBase import Indicator
 
-class MovingAverageCrossover(Indicator):
-    name: str = "Moving Average Crossover"
-    image: str = "image_path"
 
+class MovingAverageCrossover(Indicator):
     @staticmethod
-    def run(data: list[int | float]) -> float:
+    def run(data: Iterable[int | float]) -> float:
         pass
 
     @staticmethod
-    def test_accuracy(data: list[int | float]) -> float:
+    def test_accuracy(data: Iterable[int | float]) -> float:
         pass

@@ -1,18 +1,21 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
+from typing import Iterable
 
 
-class Indicator:
-    @classmethod
-    def __init_subclass__(cls, **kwargs):
-        if not hasattr(cls, 'name') or not hasattr(cls, 'image'):
-            raise AttributeError(f"{cls.__name__} must have the attributes 'name' and 'image' defined")
+class Indicator(ABC):
+    """
+    Defines an abstract base class for indicators.
 
-    @abstractmethod
+    Methods:
+        - run(data: Iterable) -> float: Abstract method to run the indicator on the provided data.
+        - test_accuracy(data: Iterable) -> float: Abstract method to test the accuracy of the indicator on the provided data.
+    """
     @staticmethod
-    def run(data):
+    @abstractmethod
+    def run(data: Iterable) -> float:
         ...
 
-    @abstractmethod
     @staticmethod
-    def test_accuracy(data):
+    @abstractmethod
+    def test_accuracy(data: Iterable) -> float:
         ...
