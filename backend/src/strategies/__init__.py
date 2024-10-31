@@ -1,0 +1,1 @@
+from .simpleAverageCrossover import SimpleMovingAverageCrossover # type: ignore

@@ -6,3 +6,6 @@ class: ClassName
 func: func_name
 const: CONST_NAME
 var: var_name
+
+TODO:
+- [ ] check yfinance libary for fetching data

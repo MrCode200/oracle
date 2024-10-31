@@ -7,8 +7,8 @@ class Indicator(ABC):
     Defines an abstract base class for indicators.
 
     Methods:
-        - run(data: Iterable) -> float: Abstract method to run the indicator on the provided data.
-        - test_accuracy(data: Iterable) -> float: Abstract method to test the accuracy of the indicator on the provided data.
+        - run(database: Iterable) -> float: Abstract method to run the strategies on the provided database.
+        - test_accuracy(database: Iterable) -> float: Abstract method to test the accuracy of the strategies on the provided database.
     """
     @staticmethod
     @abstractmethod
@@ -17,5 +17,5 @@ class Indicator(ABC):
 
     @staticmethod
     @abstractmethod
-    def test_accuracy(data: Iterable) -> float:
+    def backtest(data: Iterable) -> float:
         ...

@@ -5,17 +5,17 @@ import time
 logger = logging.getLogger("oracle.app")  # Correct logger import
 
 def fetch_market_chart(coin_id: str, days_ago: str, interval: str = "daily", precision: str = "10",
-                       currency: str = 'usd') -> dict[str, list[list[int]]]:
+                       currency: str = 'usd') -> dict[str, list[list[int]]] | int:
     """
-    Fetch market chart data from the geckocoin api.
+    Fetch market chart database from the geckocoin api.
     On specific status error 429 it stops for 30 seconds and then returns None
 
     :param coin_id: The unique identifier of the coin
-    :param days_ago: Number of days ago to fetch data from
-    :key interval: The time interval for each data point (default: 10)
-    :key precision: The max number of decimal points fo each data point (default: 10)
+    :param days_ago: Number of days ago to fetch database from
+    :key interval: The time interval for each database point (default: 10)
+    :key precision: The max number of decimal points fo each database point (default: 10)
     :key currency: The value of each coin in the given currency (default: 'usd')
-    :return: A dictionary containing the fetched market chart data.
+    :return: A dictionary containing the fetched market chart database.
     """
     url: str = f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart"
     params: dict[str, str] = {
@@ -41,5 +41,5 @@ def fetch_market_chart(coin_id: str, days_ago: str, interval: str = "daily", pre
 
         return 429
     else:
-        logger.error(f"Error fetching data: {response.status_code}")  # Use error() instead of ERROR()
-        return None
+        logger.error(f"Error fetching database: {response.status_code}")
+        return -1
