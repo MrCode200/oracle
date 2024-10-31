@@ -1,45 +1,28 @@
 import logging
-import requests
-import time
+import yfinance as yf  # type: ignore
 
-logger = logging.getLogger("oracle.app")  # Correct logger import
+logger = logging.getLogger("oracle.app")
 
-def fetch_market_chart(coin_id: str, days_ago: str, interval: str = "daily", precision: str = "10",
-                       currency: str = 'usd') -> dict[str, list[list[int]]] | int:
+def fetch_market_chart(ticker: str, days: int, interval: str = "1d", currency: str = 'usd') -> dict | None:
     """
-    Fetch market chart database from the geckocoin api.
-    On specific status error 429 it stops for 30 seconds and then returns None
+    Fetch historical market chart data from Yahoo Finance using yfinance.
 
-    :param coin_id: The unique identifier of the coin
-    :param days_ago: Number of days ago to fetch database from
-    :key interval: The time interval for each database point (default: 10)
-    :key precision: The max number of decimal points fo each database point (default: 10)
-    :key currency: The value of each coin in the given currency (default: 'usd')
-    :return: A dictionary containing the fetched market chart database.
+    :param ticker: The ticker symbol of the coin (e.g., 'BTC-USD' for Bitcoin)
+    :param days: Number of days of historical data to fetch
+    :param interval: The time interval for each data point (default: '1d')
+    :param currency: The currency in which the data is represented (default: 'usd')
+    :return: A DataFrame containing the fetched market chart data or None on error
     """
-    url: str = f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart"
-    params: dict[str, str] = {
-        'vs_currency': currency,
-        'days': days_ago,
-        'interval': interval,
-        'precision': precision
-    }
+    try:
+        # Fetch historical market data
+        data = yf.download(ticker, period=f"{days}", interval=interval)
 
-    response = requests.get(url, params)
-
-    if response.status_code == 200:
-        data = response.json()
-        logger.info(f"Fetched Data: coin_id = {coin_id}; days_ago = {days_ago}; interval = {interval}; precision = {precision}; currency = {currency}")
-        return data
-    elif response.status_code == 429:
-        logger.warning(f"Request limit reached, waiting 30 seconds")
-        for sec in range(30):
-            print(f"{30 - sec} Remaining...", end='\r', flush=True)
-            time.sleep(1)
-        print("Rate limit refreshed!            ")
-        time.sleep(1)
-
-        return 429
-    else:
-        logger.error(f"Error fetching database: {response.status_code}")
-        return -1
+        if not data.empty:
+            logger.info(f"Fetched Data: ticker = {ticker}; days = {days}; interval = {interval}; currency = {currency}")
+            return data
+        else:
+            logger.error("No data fetched for the given parameters.")
+            return None
+    except Exception as e:
+        logger.error(f"Error fetching data: {e}")
+        return None
