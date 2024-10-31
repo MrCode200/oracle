@@ -1,0 +1,3 @@
+{"timestamp": "2024-10-31 13:11:07,268", "level": "ERROR", "file": "fetchData.py", "line_number": 24, "function": "fetch_market_chart", "message": "No data fetched for the given parameters."}
+{"timestamp": "2024-10-31 13:11:26,812", "level": "ERROR", "file": "fetchData.py", "line_number": 24, "function": "fetch_market_chart", "message": "No data fetched for the given parameters."}
+{"timestamp": "2024-10-31 13:12:04,538", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 5d; interval = 1d; currency = usd"}
