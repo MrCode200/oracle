@@ -30,6 +30,11 @@ class ColoredFormatter(Formatter):
             f"lineno({record.lineno}) | {record.funcName}]{reset}\n"
         )
 
+        # Append extra information if available, with labels underlined
+        formatted_message += (
+            f"{BOLD}{UNDERLINE}Strategy:{RESET_UNDERLINE} {record.strategy if 'strategy' in record.__dict__ else 'None'}\n"
+        )
+
         # Append the main log message
         formatted_message += f"{white}Message: {record.getMessage()}{reset}"
 

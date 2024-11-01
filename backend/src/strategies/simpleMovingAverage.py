@@ -3,7 +3,7 @@ from typing import Iterable
 from .indicatorBase import Indicator  # type: ignore
 
 
-class SimpleMovingAverageCrossover(Indicator):
+class SimpleMovingAverage(Indicator):
     @staticmethod
     def run(data: Iterable) -> float:
         pass

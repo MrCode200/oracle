@@ -14,12 +14,12 @@ def fetch_market_chart(ticker: str, days: int, interval: str = "1d", currency: s
     :return: A DataFrame containing the fetched market chart data or None on error
     """
     try:
-        # Fetch historical market data
-        data = yf.download(ticker, period=f"{days}", interval=interval)
+        # Fetch historical market data as pandas DataFrame
+        data_frame = yf.download(ticker, period=f"{days}", interval=interval)
 
-        if not data.empty:
+        if not data_frame.empty:
             logger.info(f"Fetched Data: ticker = {ticker}; days = {days}; interval = {interval}; currency = {currency}")
-            return data
+            return data_frame
         else:
             logger.error("No data fetched for the given parameters.")
             return None

@@ -9,7 +9,7 @@ from logging import Formatter
 from .loggingFormatters import ColoredFormatter, JsonFormatter  # type: ignore
 
 
-def setup_logger(stream_level, stream_in_color: bool = True, log_in_json: bool = True):
+def setup_logger(stream_level, log_file_name, stream_in_color: bool = True, log_in_json: bool = True):
     logger = getLogger('oracle.app')
     logger.setLevel(DEBUG)
 
@@ -22,7 +22,7 @@ def setup_logger(stream_level, stream_in_color: bool = True, log_in_json: bool =
     )
 
 
-    timed_rotating_file_handler = TimedRotatingFileHandler(f'logs/app.{'jsonl' if log_in_json else 'log'}', when='midnight', interval=1, backupCount=3)
+    timed_rotating_file_handler = TimedRotatingFileHandler(log_file_name, when='midnight', interval=1, backupCount=3)
     timed_rotating_file_handler.setLevel(DEBUG)
     timed_rotating_file_handler.setFormatter(
         JsonFormatter() if log_in_json else Formatter(
@@ -37,7 +37,7 @@ def setup_logger(stream_level, stream_in_color: bool = True, log_in_json: bool =
 
 
 if __name__ == '__main__':
-    setup_logger(DEBUG, log_in_json=False, stream_in_color=True)
+    setup_logger(DEBUG, '../../../logs/app.jsonl',log_in_json=False, stream_in_color=True)
 
     logger = getLogger('wobble.bot')
     logger.debug('Testing Logger: DEBUG', extra={'command': 'test', 'author': 'wobble', 'guild': 'wobble#0000'})
