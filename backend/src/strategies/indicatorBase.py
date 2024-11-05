@@ -12,7 +12,7 @@ class Indicator(ABC):
     """
     @staticmethod
     @abstractmethod
-    def run(data: Iterable) -> float:
+    def evaluate(data: Iterable) -> bool:
         ...
 
     @staticmethod

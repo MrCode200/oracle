@@ -1,42 +1,76 @@
-{"timestamp": "2024-11-01 17:14:47,130", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:14:47,859", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:16:26,803", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:16:27,145", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:19:50,808", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:19:51,029", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:21:41,630", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:21:41,893", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:24:01,929", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:24:02,191", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:26:22,327", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:26:22,631", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:26:38,839", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:26:39,081", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:26:59,050", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:26:59,269", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:27:21,364", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:27:21,615", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:28:36,167", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:28:36,409", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:29:25,024", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:29:25,477", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:35:43,141", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:35:43,382", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:39:56,052", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:39:56,319", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 3mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:40:05,047", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:40:05,320", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 6mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:40:34,777", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:40:35,040", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 6mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:40:41,502", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:40:41,789", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 6mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:41:31,342", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:41:31,591", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 6mo; interval = 1d; currency = usd"}
-{"timestamp": "2024-11-01 17:43:16,111", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:43:16,406", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
-{"timestamp": "2024-11-01 17:43:21,069", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:43:21,371", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
-{"timestamp": "2024-11-01 17:43:35,683", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:43:36,008", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
-{"timestamp": "2024-11-01 17:44:23,937", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
-{"timestamp": "2024-11-01 17:44:24,187", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:45:37,154", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:45:38,003", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:49:16,661", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:49:17,031", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:49:59,844", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:50:00,213", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:51:18,047", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:51:18,299", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:52:50,172", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:52:50,503", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:53:03,628", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:53:03,948", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:53:11,197", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:53:11,449", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:53:56,182", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:53:56,540", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:54:35,869", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:54:36,202", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:54:47,251", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:54:47,524", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:55:07,025", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:55:07,370", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:55:20,574", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:55:20,835", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:55:31,640", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:55:31,901", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:55:44,054", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:55:44,371", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:55:53,331", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:55:53,604", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:56:05,265", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:56:05,557", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:56:12,553", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:56:12,824", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:56:38,907", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:56:39,190", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:57:29,323", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:57:29,616", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 15:57:37,487", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 15:57:37,761", "level": "INFO", "file": "fetchData.py", "line_number": 21, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 16:51:00,250", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 16:51:00,572", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 16:51:19,529", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 16:51:19,824", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 16:51:35,504", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 16:51:35,795", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 16:52:15,933", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 16:52:16,235", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 16:52:23,351", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 16:52:23,708", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 16:52:45,211", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 16:52:45,510", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 16:53:29,401", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 16:53:29,714", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 17:19:22,259", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 17:19:22,565", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 17:19:31,385", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 17:19:31,665", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 17:20:16,541", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 17:20:16,837", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 17:20:26,924", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 17:20:27,227", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 17:20:53,570", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 17:20:53,888", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 17:21:04,326", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 17:21:04,663", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 17:21:11,655", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 17:21:11,960", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 17:21:25,134", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 17:21:25,379", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 17:21:38,597", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 17:21:38,891", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 17:23:12,573", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 17:23:12,804", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}
+{"timestamp": "2024-11-05 17:33:19,905", "level": "INFO", "file": "app.py", "line_number": 11, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-05 17:33:20,223", "level": "INFO", "file": "fetchData.py", "line_number": 23, "function": "fetch_market_chart", "message": "Fetched Data: ticker = BTC-USD; days = 1mo; interval = 1h; currency = usd"}

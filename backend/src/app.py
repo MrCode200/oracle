@@ -16,11 +16,12 @@ logger = init_app()
 # Fetch market chart data
 data_frame = fetch_market_chart("BTC-USD", '1mo', "1h")
 
+option = SimpleMovingAverage.run(data_frame)
 # ------------------------------------------------------------------------------
 
-import pandas as pd  # type: ignore
+"""import pandas as pd  # type: ignore
 import pandas_ta as ta  # type: ignore
 
-rsi = ta.rsi(close=data_frame['Close'], length=40)
 
-print(rsi)
+rsi_values = data_frame['SMA_14']
+print(rsi_values.tail(30))  # Display the last 30 RSI values"""

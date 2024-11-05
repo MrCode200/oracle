@@ -1,9 +1,11 @@
 import logging
+
 import yfinance as yf  # type: ignore
+from pandas import DataFrame
 
 logger = logging.getLogger("oracle.app")
 
-def fetch_market_chart(ticker: str, days: int, interval: str = "1d", currency: str = 'usd') -> dict | None:
+def fetch_market_chart(ticker: str, days: int, interval: str = "1d", currency: str = 'usd') -> DataFrame:
     """
     Fetch historical market chart data from Yahoo Finance using yfinance.
 
