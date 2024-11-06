@@ -16,7 +16,8 @@ logger = init_app()
 # Fetch market chart data
 data_frame = fetch_market_chart("BTC-USD", '1mo', "1h")
 
-option = SimpleMovingAverage.run(data_frame)
+option = SimpleMovingAverage.evaluate(data_frame)
+print(option)
 # ------------------------------------------------------------------------------
 
 """import pandas as pd  # type: ignore
