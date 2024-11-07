@@ -14,7 +14,9 @@ def init_app():
 logger = init_app()
 
 # Fetch market chart data
-data_frame = fetch_historical_data("BTC-USD", '1mo', "1h")
+data_frame = fetch_historical_data("TSLA", 'max', "1h")
+if data_frame is None:
+    exit(1)
 
-option = SimpleMovingAverage.evaluate(data_frame)
+option = SimpleMovingAverage.backtest(data_frame)
 print(option)
