@@ -29,4 +29,6 @@ def fetch_historical_data(ticker: str, period: str, interval: str = "1d") -> Dat
         return None
 
 if __name__ == '__main__':
-    print(fetch_historical_data("BTC-USD", '1mo', "1h")['Close'])
+    data_frame = fetch_historical_data("GOOG", '1mo', "1h")
+    print(data_frame.iloc[-1])
+    #print(dir(yf))
