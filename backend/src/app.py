@@ -20,4 +20,8 @@ if data_frame is None:
 
 signalSMA = SimpleMovingAverage.backtest(data_frame, short_period=3, long_period=10)
 signalRSI = RelativeStrengthIndex.backtest(data_frame, period=14, lower_band=15, upper_band=85)
-print(f"{signalRSI = }, {signalSMA = }")
+
+signalSMA = float(signalSMA)
+signalRSI = float(signalRSI)
+
+print(f"{signalRSI * 100 = }%, {signalSMA * 100 = }%")
