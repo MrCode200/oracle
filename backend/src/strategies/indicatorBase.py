@@ -44,11 +44,11 @@ class Indicator(ABC):
                 balance += shares * data_frame.iloc[i].Dividends
 
             if signal == 1 and balance >= data_frame.iloc[i]['Close']:
-                shares = balance // data_frame.iloc[i]['Close']
-                balance -= shares * data_frame.iloc[i]['Close']
-                logger.debug("Executed Buy of {} shares in iteration {}; date: {}".format(shares, i, data_frame.iloc[i]['Date']), extra={"strategy": "Unknown"})
+                shares = balance / data_frame.iloc[i]['Close']
+                balance = 0
+                logger.debug("Executed Buy of {} shares in iteration {}; date: {}".format(shares, i, data_frame.iloc[i]['Date']), extra={"strategy": "Indicator"})
             elif signal == 0 and shares > 0:
-                logger.debug("Executed Sell of {} shares in iteration {}; date: {}".format(shares,i, data_frame.iloc[i]['Date']), extra={"strategy": "Unknown"})
+                logger.debug("Executed Sell of {} shares in iteration {}; date: {}".format(shares,i, data_frame.iloc[i]['Date']), extra={"strategy": "Indicator"})
                 balance += shares * data_frame.iloc[i]['Close']
                 shares = 0
 
@@ -57,7 +57,7 @@ class Indicator(ABC):
         return_on_investment = balance / initial_balance
 
         logger.info(f"Backtest completed with Return on Investment of {return_on_investment:.2%}",
-                    extra={"strategy": "Unknown"})
+                    extra={"strategy": "Indicator"})
 
         return return_on_investment
 

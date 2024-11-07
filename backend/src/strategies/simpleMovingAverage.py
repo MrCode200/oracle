@@ -144,8 +144,8 @@ class SimpleMovingAverage(Indicator):
                 balance += shares * data_frame.iloc[i].Dividends
 
             if signal == 1 and balance >= data_frame.iloc[i].Close:
-                shares = balance // data_frame.iloc[i].Close
-                balance -= shares * data_frame.iloc[i].Close
+                shares = balance / data_frame.iloc[i].Close
+                balance = 0
                 logger.debug("Executed Buy of {} shares in iteration {}; date: {}".format(shares, i, data_frame.index[i]), extra={"strategy": "SMA"})
             elif signal == 0 and shares > 0:  # Sell
                 logger.debug("Executed Sell of {} shares in iteration {}; date: {}".format(shares,i, data_frame.index[i]), extra={"strategy": "SMA"})
