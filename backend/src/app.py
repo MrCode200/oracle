@@ -14,11 +14,11 @@ def init_app():
 logger = init_app()
 
 # Fetch market chart data
-data_frame = fetch_historical_data("BTC-USD", '1y', "1h")
+data_frame = fetch_historical_data("TSLA", '1y', "1h")
 if data_frame is None:
     exit(1)
 
-signalSMA = SimpleMovingAverage.backtest(data_frame, short_period=3, long_period=10)
+signalSMA = SimpleMovingAverage.backtest(data_frame, short_period=12, long_period=50)
 signalRSI = RelativeStrengthIndex.backtest(data_frame, period=14, lower_band=15, upper_band=85)
 
 signalSMA = float(signalSMA)
