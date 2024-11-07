@@ -9,6 +9,31 @@ from .indicatorBase import Indicator  # type: ignore
 logger = logging.getLogger("oracle.app")
 
 class SimpleMovingAverage(Indicator):
+    """
+    Implements the Simple Moving Average (SMA) trading strategy.
+
+    The Simple Moving Average (SMA) is a trend-following indicator that calculates the average of a
+    selected range of prices over a set period of time. In this strategy, the crossover of short-term
+    and long-term SMAs is used to generate trade signals:
+    - A Buy signal is generated when the short-term SMA crosses above the long-term SMA.
+    - A Sell signal is generated when the short-term SMA crosses below the long-term SMA.
+    - A Hold signal is returned when there is no crossover.
+
+    The strategy aims to capture price trends by entering long (buy) when upward momentum is detected
+    and exiting (sell) when momentum weakens.
+
+    Methods
+    -------
+    determine_trade_signal(short_sma_latest: float, short_sma_previous: float, long_sma_latest: float, long_sma_previous: float)
+        Determines the trade signal based on the crossover of short and long SMAs.
+
+    evaluate(data_frame: DataFrame, short_period: int = 14, long_period: int = 50) -> int | None
+        Evaluates the current SMA crossover and returns a trade signal.
+
+    backtest(data_frame: DataFrame, short_period: int = 14, long_period: int = 50) -> float
+        Backtests the strategy using historical data and calculates the Return on Investment (ROI).
+    """
+
     @staticmethod
     def determine_trade_signal(
             short_sma_latest: float,
