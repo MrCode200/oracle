@@ -103,6 +103,7 @@ class RelativeStrengthIndex(Indicator):
             signal = RelativeStrengthIndex.determine_trade_signal(rsi_series.iloc[i], lower_band, upper_band)
 
             if shares > 0:
+                logger.warning("IT WORKED, TELL NAVID IMIDIATLY")
                 balance += shares * data_frame.iloc[i].Dividends
 
             if signal == 1 and balance >= data_frame.iloc[i].Close:

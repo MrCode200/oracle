@@ -39,6 +39,10 @@ class Indicator(ABC):
 
             signal = ...
 
+            if shares > 0:
+                logger.warning("IT WORKED, TELL NAVID IMIDIATLY")
+                balance += shares * data_frame.iloc[i].Dividends
+
             if signal == 1 and balance >= data_frame.iloc[i]['Close']:
                 shares = balance // data_frame.iloc[i]['Close']
                 balance -= shares * data_frame.iloc[i]['Close']

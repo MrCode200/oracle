@@ -31,7 +31,7 @@ def fetch_historical_data(ticker: str, period: str, interval: str = "1d", start:
         return None
 
 if __name__ == '__main__':
-    data_frame = fetch_historical_data("RGP", '1mo', "1h")
+    data_frame = fetch_historical_data("RGP", '1mo', "1d")
     print(data_frame.Dividends)
     print(data_frame.iloc[-1].Dividends)
     #print(dir(yf))
