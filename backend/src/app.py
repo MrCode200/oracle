@@ -6,7 +6,7 @@ from strategies import SimpleMovingAverage, RelativeStrengthIndex  # type: ignor
 
 
 def init_app():
-    setup_logger(logging.DEBUG, 'logs/app.jsonl', stream_in_color=True, log_in_json=True)
+    setup_logger(logging.INFO, 'logs/app.jsonl', stream_in_color=True, log_in_json=True)
     logger = logging.getLogger("oracle.app")
     logger.info("Initialized Oracle...")
     return logger
@@ -14,7 +14,7 @@ def init_app():
 logger = init_app()
 
 # Fetch market chart data
-data_frame = fetch_historical_data("TSLA", '1y', "1h")
+data_frame = fetch_historical_data("TSLA", '10y', "1h")
 if data_frame is None:
     exit(1)
 

@@ -24,8 +24,12 @@ def fetch_historical_data(ticker: str, period: str, interval: str = "1d", start:
             logger.info(f"Fetched Data: {ticker = }; {period = }; {interval = };")
             return data_frame
         else:
-            logger.error("No data fetched for the given parameters.")
-            return None
+            if period == 'max':
+                logger.error("No data fetched for the given parameters.")
+
+            logger.error("No data fetched for the given parameters, Setting period to 'max'")
+            return fetch_historical_data(ticker, 'max', interval, start, end)
+    
     except Exception as e:
         logger.error(f"Error fetching data: {e}")
         return None
