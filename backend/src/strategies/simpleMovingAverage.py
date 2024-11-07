@@ -1,4 +1,5 @@
 import logging
+from unittest import skipIf
 
 from pandas import DataFrame, Series
 from pandas import isna
@@ -139,7 +140,7 @@ class SimpleMovingAverage(Indicator):
             )
 
             if shares > 0:
-                logger.warning("IT WORKED, TELL NAVID IMIDIATLY")
+                logger.warning("IT WORKED, TELL NAVID IMIDIATLY") if data_frame.iloc[i].Dividends != 0.0 else None
                 balance += shares * data_frame.iloc[i].Dividends
 
             if signal == 1 and balance >= data_frame.iloc[i].Close:
