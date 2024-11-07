@@ -5,7 +5,7 @@ from pandas import DataFrame
 
 logger = logging.getLogger("oracle.app")
 
-def fetch_market_chart(ticker: str, days: int, interval: str = "1d") -> DataFrame:
+def fetch_historical_data(ticker: str, period: str, interval: str = "1d") -> DataFrame:
     """
     Fetch historical market chart data from Yahoo Finance using yfinance.
 
@@ -16,10 +16,10 @@ def fetch_market_chart(ticker: str, days: int, interval: str = "1d") -> DataFram
     """
     try:
         # Fetch historical market data as pandas DataFrame
-        data_frame = yf.download(ticker, period=f"{days}", interval=interval)
+        data_frame = yf.Ticker(ticker).history(period=period, interval=interval)
 
         if not data_frame.empty:
-            logger.info(f"Fetched Data: ticker = {ticker}; days = {days}; interval = {interval};")
+            logger.info(f"Fetched Data: {ticker = }; {period = }; {interval = };")
             return data_frame
         else:
             logger.error("No data fetched for the given parameters.")
@@ -28,6 +28,5 @@ def fetch_market_chart(ticker: str, days: int, interval: str = "1d") -> DataFram
         logger.error(f"Error fetching data: {e}")
         return None
 
-
 if __name__ == '__main__':
-    print(fetch_market_chart("BTC-USD", '1mo', "1h").columns)
+    print(fetch_historical_data("BTC-USD", '1mo', "1h")['Close'])

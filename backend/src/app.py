@@ -1,7 +1,7 @@
 import logging
 
 from cst_logger import setup_logger  # type: ignore
-from api import fetch_market_chart  # type: ignore
+from api import fetch_historical_data  # type: ignore
 from strategies import SimpleMovingAverage  # type: ignore
 
 
@@ -14,15 +14,7 @@ def init_app():
 logger = init_app()
 
 # Fetch market chart data
-data_frame = fetch_market_chart("BTC-USD", '1mo', "1h")
+data_frame = fetch_historical_data("BTC-USD", '1mo', "1h")
 
 option = SimpleMovingAverage.evaluate(data_frame)
 print(option)
-# ------------------------------------------------------------------------------
-
-"""import pandas as pd  # type: ignore
-import pandas_ta as ta  # type: ignore
-
-
-rsi_values = data_frame['SMA_14']
-print(rsi_values.tail(30))  # Display the last 30 RSI values"""

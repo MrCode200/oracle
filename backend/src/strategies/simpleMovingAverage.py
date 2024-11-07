@@ -11,7 +11,6 @@ from .indicatorBase import Indicator  # type: ignore
 
 logger = logging.getLogger("oracle.app")
 
-
 class SimpleMovingAverage(Indicator):
     @staticmethod
     def determine_trade_signal(
@@ -57,8 +56,8 @@ class SimpleMovingAverage(Indicator):
         :return: The trade signal (1 for Buy, 0 for Sell, or None for Hold).
         """
         # Calculate SMAs
-        short_sma_series = data_frame.ta.sma(close=data_frame[('Close', 'BTC-USD')], length=short_period)
-        long_sma_series = data_frame.ta.sma(close=data_frame[('Close', 'BTC-USD')], length=long_period)
+        short_sma_series = data_frame.ta.sma(close=data_frame['Close'], length=short_period)
+        long_sma_series = data_frame.ta.sma(close=data_frame['Close'], length=long_period)
 
         # Get latest and previous SMA values
         short_sma_latest = short_sma_series.iloc[-1]
@@ -99,8 +98,8 @@ class SimpleMovingAverage(Indicator):
         shares = 0
 
         # Calculate SMAs
-        short_sma_series = data_frame.ta.sma(close=data_frame[('Close', 'BTC-USD')], length=short_period)
-        long_sma_series = data_frame.ta.sma(close=data_frame[('Close', 'BTC-USD')], length=long_period)
+        short_sma_series = data_frame.ta.sma(close=data_frame['Close'], length=short_period)
+        long_sma_series = data_frame.ta.sma(close=data_frame['Close'], length=long_period)
 
         for i in range(1, len(short_sma_series)):  # Start from 1 to access the previous value without error
             # Skip if either the current or previous value is NaN in either SMA series
@@ -119,15 +118,15 @@ class SimpleMovingAverage(Indicator):
 
             if trade_signal == 1:  # Buy
                 logger.debug("Executed Buy in iteration {}".format(i), extra={"strategy": "SMA"})
-                shares = balance // data_frame.iloc[i][('Close', 'BTC-USD')]
-                balance -= shares * data_frame.iloc[i][('Close', 'BTC-USD')]
+                shares = balance // data_frame.iloc[i]['Close']
+                balance -= shares * data_frame.iloc[i]['Close']
             elif trade_signal == 0 and shares > 0:  # Sell
                 logger.debug("Executed Sell in iteration {}".format(i), extra={"strategy": "SMA"})
-                balance += shares * data_frame.iloc[i][('Close', 'BTC-USD')]
+                balance += shares * data_frame.iloc[i]['Close']
                 shares = 0
 
         # Log the result of the backtest
-        balance += shares * data_frame.iloc[-1][('Close', 'BTC-USD')]
+        balance += shares * data_frame.iloc[-1]['Close']
         final_return = balance / initial_balance
 
         logger.info(f"Backtest completed with final return: {final_return:.2%} of the initial balance",
