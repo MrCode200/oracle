@@ -78,8 +78,8 @@ class SimpleMovingAverage(Indicator):
         :return: The trade signal (1 for Buy, 0 for Sell, or None for Hold).
         """
         # Calculate SMAs
-        short_sma_series = sma(close=data_frame['Close'], length=short_period)
-        long_sma_series = sma(close=data_frame['Close'], length=long_period)
+        short_sma_series = sma(close=data_frame.Close, length=short_period)
+        long_sma_series = sma(close=data_frame.Close, length=long_period)
 
         # Get latest and previous SMA values
         short_sma_latest = short_sma_series.iloc[-1]
@@ -120,8 +120,8 @@ class SimpleMovingAverage(Indicator):
         shares = 0
 
         # Calculate SMAs
-        short_sma_series = sma(close=data_frame['Close'], length=short_period)
-        long_sma_series = sma(close=data_frame['Close'], length=long_period)
+        short_sma_series = sma(close=data_frame.Close, length=short_period)
+        long_sma_series = sma(close=data_frame.Close, length=long_period)
 
         for i in range(1, len(short_sma_series)):  # Start from 1 to access the previous value without error
             # Skip if either the current or previous value is NaN in either SMA series
@@ -138,16 +138,16 @@ class SimpleMovingAverage(Indicator):
                 short_sma_latest, short_sma_previous, long_sma_latest, long_sma_previous
             )
 
-            if signal == 1 and balance >= data_frame.iloc[i]['Close']:
-                shares = balance // data_frame.iloc[i]['Close']
-                balance -= shares * data_frame.iloc[i]['Close']
+            if signal == 1 and balance >= data_frame.iloc[i].Close:
+                shares = balance // data_frame.iloc[i].Close
+                balance -= shares * data_frame.iloc[i].Close
                 logger.debug("Executed Buy of {} shares in iteration {}; date: {}".format(shares, i, data_frame.index[i]), extra={"strategy": "SMA"})
             elif signal == 0 and shares > 0:  # Sell
                 logger.debug("Executed Sell of {} shares in iteration {}; date: {}".format(shares,i, data_frame.index[i]), extra={"strategy": "SMA"})
-                balance += shares * data_frame.iloc[i]['Close']
+                balance += shares * data_frame.iloc[i].Close
                 shares = 0
 
-        balance += shares * data_frame.iloc[-1]['Close']
+        balance += shares * data_frame.iloc[-1].Close
         return_on_investment = balance / initial_balance
 
         logger.info(f"Backtest completed with Return on Investment of {return_on_investment:.2%}",

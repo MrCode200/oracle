@@ -67,7 +67,7 @@ class RelativeStrengthIndex(Indicator):
 
         :return: The trade signal (1 for Buy, 0 for Sell, or None for Hold).
         """
-        rsi_series = rsi(close=data_frame['Close'], length=period)
+        rsi_series = rsi(close=data_frame.Close, length=period)
         signal = RelativeStrengthIndex.determine_trade_signal(rsi_series.iloc[-1])
 
         decision = "hold" if signal is None else "buy" if signal == 1 else "sell"
@@ -94,7 +94,7 @@ class RelativeStrengthIndex(Indicator):
         balance = initial_balance
         shares = 0
 
-        rsi_series = rsi(close=data_frame['Close'], length=period)
+        rsi_series = rsi(close=data_frame.Close, length=period)
 
         for i in range(len(rsi_series)):
             if isna(rsi_series.iloc[i]):
@@ -102,9 +102,12 @@ class RelativeStrengthIndex(Indicator):
 
             signal = RelativeStrengthIndex.determine_trade_signal(rsi_series.iloc[i], lower_band, upper_band)
 
-            if signal == 1 and balance >= data_frame.iloc[i]['Close']:
-                shares = balance // data_frame.iloc[i]['Close']
-                balance -= shares * data_frame.iloc[i]['Close']
+            if shares > 0:
+                balance += shares * data_frame.iloc[i].Dividends
+
+            if signal == 1 and balance >= data_frame.iloc[i].Close:
+                shares = balance // data_frame.iloc[i].Close
+                balance -= shares * data_frame.iloc[i].Close
                 logger.debug(
                     "Executed Buy of {} shares in iteration {}; date: {}".format(shares, i, data_frame.index[i]),
                     extra={"strategy": "RSI"})
@@ -112,10 +115,10 @@ class RelativeStrengthIndex(Indicator):
                 logger.debug(
                     "Executed Sell of {} shares in iteration {}; date: {}".format(shares, i, data_frame.index[i]),
                     extra={"strategy": "RSI"})
-                balance += shares * data_frame.iloc[i]['Close']
+                balance += shares * data_frame.iloc[i].Close
                 shares = 0
 
-        balance += shares * data_frame.iloc[-1]['Close']
+        balance += shares * data_frame.iloc[-1].Close
         return_on_investment = balance / initial_balance
 
         logger.info(f"Backtest completed with Return on Investment of {return_on_investment:.2%}",
