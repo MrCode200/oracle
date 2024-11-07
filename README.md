@@ -8,4 +8,4 @@ const: CONST_NAME
 var: var_name
 
 TODO:
-- [ ] check yfinance libary for fetching data
+- [x] check yfinance libary for fetching data
