@@ -10,7 +10,7 @@ def fetch_historical_data(ticker: str, period: str, interval: str = "1d") -> Dat
     Fetch historical market chart data from Yahoo Finance using yfinance.
 
     :param ticker: The ticker symbol of the coin (e.g., 'BTC-USD' for Bitcoin)
-    :param days: Number of days of historical data to fetch
+    :param period: Number of days of historical data to fetch
     :param interval: The time interval for each data point (default: '1d')
     :return: A DataFrame containing the fetched market chart data or None on error
     """
