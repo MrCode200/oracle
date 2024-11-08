@@ -6,7 +6,7 @@ from strategies import SimpleMovingAverage, RelativeStrengthIndex  # type: ignor
 
 
 def init_app():
-    setup_logger(logging.DEBUG, 'logs/app.jsonl', stream_in_color=True, log_in_json=True)
+    setup_logger(logging.DEBUG, '../../logs/app.jsonl', stream_in_color=True, log_in_json=True)
     logger = logging.getLogger("oracle.app")
     logger.info("Initialized Oracle...")
     return logger
@@ -14,10 +14,10 @@ def init_app():
 logger = init_app()
 
 # Fetch market chart data
-data_frame = fetch_historical_data("BTC-USD", '1y', "1h")
+data_frame = fetch_historical_data("ETH-USD", '1y', "1h")
 if data_frame is None:
     exit(1)
 
-signalSMA = SimpleMovingAverage.backtest(data_frame, short_period=3, long_period=10)
-signalRSI = RelativeStrengthIndex.backtest(data_frame, period=14, lower_band=15, upper_band=85)
+signalSMA = SimpleMovingAverage.backtest(data_frame, short_period=9, long_period=21)
+signalRSI = 0 #RelativeStrengthIndex.backtest(data_frame, period=14, lower_band=15, upper_band=85)
 print(f"{signalRSI = }, {signalSMA = }")

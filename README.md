@@ -9,3 +9,4 @@ var: var_name
 
 TODO:
 - [ ] check yfinance libary for fetching data
+- [ ] Postgresql

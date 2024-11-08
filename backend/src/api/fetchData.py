@@ -5,7 +5,7 @@ from pandas import DataFrame
 
 logger = logging.getLogger("oracle.app")
 
-def fetch_historical_data(ticker: str, period: str, interval: str = "1d", start: str = None, end: str = None) -> DataFrame:
+def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d", start: str = None, end: str = None) -> DataFrame:
     """
     Fetch historical market chart data from Yahoo Finance using yfinance.
 
@@ -31,7 +31,4 @@ def fetch_historical_data(ticker: str, period: str, interval: str = "1d", start:
         return None
 
 if __name__ == '__main__':
-    data_frame = fetch_historical_data("RGP", '1mo', "1d")
-    print(data_frame.Dividends)
-    print(data_frame.iloc[-1].Dividends)
-    #print(dir(yf))
+    print(fetch_historical_data("INVALID_TICKER", "1mo", "1d"))
