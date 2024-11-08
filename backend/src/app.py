@@ -14,14 +14,17 @@ def init_app():
 logger: logging.Logger = init_app()
 
 tickers: list[str] = ["ETH-USD", "BTC-USD", "AAPL"]
-results: dict[str, float] = {}
+results_sma: dict[str, float] = {}
+results_rsi: dict[str, float] = {}
 
 for ticker in tickers:
     data_frame = fetch_historical_data(ticker, '3mo', "1h")
 
     signalSMA = SimpleMovingAverage.backtest(data_frame, short_period=9, long_period=21)
-    #signalRSI = 0 #RelativeStrengthIndex.backtest(data_frame, period=14, lower_band=15, upper_band=85)
+    signalRSI = RelativeStrengthIndex.backtest(data_frame, period=14, lower_band=15, upper_band=85)
 
-    results[ticker] = str(signalSMA * 100)
+    results_sma[ticker] = str(signalSMA * 100)
+    results_rsi[ticker] = str(signalRSI * 100)
 
-print(results)
+print(results_sma)
+print(results_rsi)
