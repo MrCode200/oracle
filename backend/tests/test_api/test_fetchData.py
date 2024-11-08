@@ -1,10 +1,11 @@
 import pytest
 from pandas import DataFrame
-from unittest.mock import patch
-from backend.src.api import fetch_historical_data  # Replace with the actual module name
+
+from backend.src.api import fetch_historical_data
+from backend.src.exceptions import DataFetchError
 
 import logging
-#logging.disable(logging.CRITICAL)
+logging.disable(logging.CRITICAL)
 
 # Mock data for successful response
 MOCK_DATA = DataFrame({
@@ -35,8 +36,27 @@ def test_fetch_successful(ticker, period, interval, start, end, caplog):
         assert f"Fetched Data: ticker = '{ticker}'; period = '{period}'; interval = '{interval}'" in caplog.text
 
 
-def test_fetch_no_data(caplog):
+def test_fetch_invalid_ticker(caplog):
+    ticker = "INVALID_TICKER"
+
     with caplog.at_level(logging.ERROR):
-        result = fetch_historical_data("INVALID_TICKER", "1mo", "1d")
-        assert result is None
-        assert "No data fetched for the given parameters." in caplog.text
+        try:
+            result = fetch_historical_data(ticker, "1mo", "1d")
+        except DataFetchError as e:
+            assert result is None
+            assert str(e) == f"Invalid Ticker: {ticker}"
+            assert "Invalid Ticker: INVALID_TICKER" in caplog.text
+
+@pytest.mark.parametrize(
+    "ticker, period, interval, start, end",
+    [
+        ("BTC-USD", "100d", "1d", None, None),
+        ("AAPL", "1mo", "1d", "1700-01-01", "1700-01-31"),
+    ]
+)
+def test_fetch_invalid_arguments(ticker, period, interval, start, end, caplog):
+    with caplog.at_level(logging.ERROR):
+        try:
+            result = fetch_historical_data(ticker, period, interval, start, end)
+        except DataFetchError as e:
+            assert result is None

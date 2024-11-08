@@ -7,7 +7,7 @@ from pandas_ta import sma
 
 from .indicatorBase import Indicator  # type: ignore
 
-logger = logging.getLogger("oracle.app")
+logger: logging.Logger = logging.getLogger("oracle.app")
 
 class SimpleMovingAverage(Indicator):
     """

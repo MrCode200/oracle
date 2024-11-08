@@ -3,9 +3,11 @@ import logging
 import yfinance as yf  # type: ignore
 from pandas import DataFrame
 
-logger = logging.getLogger("oracle.app")
+from backend.src.exceptions import DataFetchError
+logger: logging.Logger = logging.getLogger("oracle.app")
 
-def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d", start: str = None, end: str = None) -> DataFrame:
+
+def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d", start: str = None, end: str = None) -> DataFrame | int:
     """
     Fetch historical market chart data from Yahoo Finance using yfinance.
 
@@ -17,22 +19,35 @@ def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d",
     :return: A DataFrame containing the fetched market chart data or None on error
     """
     try:
+        ticker_obj  = yf.Ticker(ticker)
+
+        if ticker_obj.info.get("longName") is None:
+            logger.error(f"Invalid Ticker: {ticker}")
+            raise AttributeError(f"Invalid Ticker: {ticker}")
+    except Exception as e:
+        if not isinstance(e, AttributeError):
+            logger.error(f"Error fetching info data: {e}")
+            raise DataFetchError(f"Failed to fetch info data: {e}", ticker=ticker)
+        raise
+
+    try:
         # Fetch historical market data as pandas DataFrame
-        data_frame = yf.Ticker(ticker).history(period=period, interval=interval, start=start, end=end)
+        data_frame = ticker_obj .history(period=period, interval=interval, start=start, end=end)
 
         if not data_frame.empty:
             logger.info(f"Fetched Data: {ticker = }; {period = }; {interval = };")
             return data_frame
         else:
-            if period == 'max':
-                logger.error("No data fetched for the given parameters.")
-
-            logger.error("No data fetched for the given parameters, Setting period to 'max'")
-            return fetch_historical_data(ticker, 'max', interval, start, end)
+            logger.error("No data fetched for the given parameters, try using max for period")
+            raise DataFetchError(message="Data Frame is empty. No data fetched for the given parameters",
+                                 ticker=ticker,
+                                 period=period,
+                                 interval=interval,
+                                 start=start,
+                                 end=end)
     
     except Exception as e:
-        logger.error(f"Error fetching data: {e}")
-        return None
-
-if __name__ == '__main__':
-    print(fetch_historical_data("INVALID_TICKER", "1mo", "1d"))
+        if not isinstance(e, DataFetchError):
+            logger.error(f"Error fetching history data: {e}")
+            raise DataFetchError(f"Failed to fetch history data: {e}")
+        raise

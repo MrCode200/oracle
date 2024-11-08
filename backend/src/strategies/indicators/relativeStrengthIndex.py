@@ -5,7 +5,7 @@ from pandas_ta import rsi
 
 from .indicatorBase import Indicator
 
-logger = logging.getLogger("oracle.app")
+logger: logging.Logger = logging.getLogger("oracle.app")
 
 
 class RelativeStrengthIndex(Indicator):
