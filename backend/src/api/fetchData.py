@@ -10,7 +10,7 @@ def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d",
     Fetch historical market chart data from Yahoo Finance using yfinance.
 
     :param ticker: The ticker symbol of the coin (e.g., 'BTC-USD' for Bitcoin)
-    :param period: Number of days of historical data to fetch
+    :param period: Number of days of historical data to fetch, this will be ignored if start and end are passed.
     :param interval: The time interval for each data point (default: '1d')
     :param start: The start date of the historical data (default: None)
     :param end: The end date of the historical data (default: None)
@@ -24,8 +24,12 @@ def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d",
             logger.info(f"Fetched Data: {ticker = }; {period = }; {interval = };")
             return data_frame
         else:
-            logger.error("No data fetched for the given parameters.")
-            return None
+            if period == 'max':
+                logger.error("No data fetched for the given parameters.")
+
+            logger.error("No data fetched for the given parameters, Setting period to 'max'")
+            return fetch_historical_data(ticker, 'max', interval, start, end)
+    
     except Exception as e:
         logger.error(f"Error fetching data: {e}")
         return None

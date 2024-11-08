@@ -32,7 +32,8 @@ class ColoredFormatter(Formatter):
 
         # Append extra information if available, with labels underlined
         formatted_message += (
-            f"{BOLD}{UNDERLINE}Strategy:{RESET_UNDERLINE} {record.strategy if 'strategy' in record.__dict__ else 'None'}\n"
+            f"{BOLD}"
+            f"{UNDERLINE}Strategy:{RESET_UNDERLINE} {record.strategy if 'strategy' in record.__dict__ else 'None'}\n"
         )
 
         # Append the main log message
