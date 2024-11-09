@@ -53,6 +53,6 @@ def compress_data(data_frame: pd.DataFrame, interval: str) -> pd.DataFrame:
             "Dividends": [0]
         }
 
-        new_data_frame: pd.DataFrame = new_data_frame.append(pd.DataFrame(data,index=pd.Index(idx)))
+        new_data_frame: pd.DataFrame = new_data_frame._append(pd.DataFrame(data,index=pd.Index(idx)))
 
     return new_data_frame
