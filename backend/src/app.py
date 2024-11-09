@@ -6,7 +6,7 @@ from strategies.indicators import SimpleMovingAverage, RelativeStrengthIndex  # 
 
 
 def init_app():
-    setup_logger('oracle.app', logging.INFO, 'logs/app.jsonl', stream_in_color=True, log_in_json=True)
+    setup_logger('oracle.app', logging.INFO, '../../logs/app.jsonl', stream_in_color=True, log_in_json=True)
     logger = logging.getLogger("oracle.app")
     logger.info("Initialized Oracle...")
     return logger
@@ -19,9 +19,9 @@ results_rsi: dict[str, list[float]] = {}
 
 
 for ticker in tickers:
-    data_frame = fetch_historical_data(ticker, '1y', "1h")
+    data_frame = fetch_historical_data(ticker, '1y', "5d")
 
-    signalSMA: list[float] = SimpleMovingAverage.backtest(data_frame, short_period=9, long_period=21, partition_frequency=31*24)
+    signalSMA: list[float] = SimpleMovingAverage.backtest(data_frame, short_period=9, long_period=21, partition_frequency=6)
     signalRSI: list[float] = RelativeStrengthIndex.backtest(data_frame, period=14, lower_band=15, upper_band=85, partition_frequency=31*24)
 
     results_sma[ticker] = signalSMA
