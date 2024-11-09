@@ -77,7 +77,7 @@ class RelativeStrengthIndex(Indicator):
         return signal
 
     @staticmethod
-    def backtest(data_frame: DataFrame, period: int = 14, lower_band: int = 30, upper_band: int = 70) -> float:
+    def backtest(data_frame: DataFrame, partition_frequency: int = 31, period: int = 14, lower_band: int = 30, upper_band: int = 70) -> list[float]:
         """
         Backtests the RSI strategy on historical data.
 
@@ -85,6 +85,7 @@ class RelativeStrengthIndex(Indicator):
         It tracks the balance and number of shares owned and calculates the final Return on Investment (ROI).
 
         :param data_frame: The DataFrame containing the market data with a 'Close' column.
+        :key partition_frequency: The frequency at which to recalculate the Return on Investiment (default is 31).
         :param period: The period to use for RSI calculation (default is 14).
         :param lower_band: The lower RSI threshold for a buy signal (default is 30).
         :param upper_band: The upper RSI threshold for a sell signal (default is 70).
@@ -92,34 +93,28 @@ class RelativeStrengthIndex(Indicator):
         :return: The Return on Investment (ROI) as a float.
         """
         initial_balance: int = 1_000_000
-        balance: float = initial_balance
+        base_balance: float = initial_balance
         shares: float = 0
+        net_worth_history: list[float] = []
 
         rsi_series: pandas.Series = rsi(close=data_frame.Close, length=period)
 
-        for i in range(len(rsi_series)):
-            if isna(rsi_series.iloc[i]):
-                continue
+        for i in range(period + 1, len(rsi_series)):
+            trade_signal: int | None = RelativeStrengthIndex.determine_trade_signal(rsi_series.iloc[i], lower_band, upper_band)
 
-            signal: int | None = RelativeStrengthIndex.determine_trade_signal(rsi_series.iloc[i], lower_band, upper_band)
+            is_partition_cap_reached = (i - period) % partition_frequency == 0
 
-            if signal == 1 and balance >= data_frame.iloc[i].Close:
-                shares = balance / data_frame.iloc[i].Close
-                balance = 0
-                logger.debug(
-                    "Executed Buy of {} shares in iteration {}; date: {}".format(shares, i, data_frame.index[i]),
-                    extra={"strategy": "RSI"})
-            elif signal == 0 and shares > 0:
-                logger.debug(
-                    "Executed Sell of {} shares in iteration {}; date: {}".format(shares, i, data_frame.index[i]),
-                    extra={"strategy": "RSI"})
-                balance += shares * data_frame.iloc[i].Close
-                shares = 0
+            initial_balance, base_balance, shares = Indicator.process_trade_signal(
+                initial_balance, base_balance, shares,
+                data_frame.iloc[i].Close, trade_signal,
+                net_worth_history, is_partition_cap_reached,
+                "RSI"
+            )
 
-        balance += shares * data_frame.iloc[-1].Close
-        return_on_investment: float = balance / initial_balance
+        total_net_worth = base_balance +shares * data_frame.iloc[-1].Close
+        net_worth_history.append(total_net_worth / initial_balance)
 
-        logger.info(f"Backtest completed with Return on Investment of {return_on_investment:.2%}",
+        logger.info(f"Backtest completed with Return on Investment of {[str(roi * 100) for roi in net_worth_history]}",
                     extra={"strategy": "RSI"})
 
-        return return_on_investment
+        return net_worth_history
