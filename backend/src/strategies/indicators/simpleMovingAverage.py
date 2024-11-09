@@ -1,6 +1,7 @@
 import logging
 from unittest import skipIf
 
+import pandas
 from pandas import DataFrame, Series
 from pandas import isna
 from pandas_ta import sma
@@ -78,15 +79,13 @@ class SimpleMovingAverage(Indicator):
 
         :return: The trade signal (1 for Buy, 0 for Sell, or None for Hold).
         """
-        # Calculate SMAs
-        short_sma_series = sma(close=data_frame.Close, length=short_period)
-        long_sma_series = sma(close=data_frame.Close, length=long_period)
+        short_sma_series: pandas.Series = sma(close=data_frame.Close, length=short_period)
+        long_sma_series: pandas.Series = sma(close=data_frame.Close, length=long_period)
 
-        # Get latest and previous SMA values
-        short_sma_latest = short_sma_series.iloc[-1]
-        long_sma_latest = long_sma_series.iloc[-1]
-        short_sma_previous = short_sma_series.iloc[-2]
-        long_sma_previous = long_sma_series.iloc[-2]
+        short_sma_latest: float = short_sma_series.iloc[-1]
+        long_sma_latest: float = long_sma_series.iloc[-1]
+        short_sma_previous: float = short_sma_series.iloc[-2]
+        long_sma_previous: float = long_sma_series.iloc[-2]
 
         logger.debug(f"Latest short SMA: {short_sma_latest}, Latest long SMA: {long_sma_latest}",
                      extra={"strategy": "SMA"})
@@ -94,10 +93,10 @@ class SimpleMovingAverage(Indicator):
                      extra={"strategy": "SMA"})
 
         # Determine trade signal
-        signal = SimpleMovingAverage.determine_trade_signal(short_sma_latest, short_sma_previous, long_sma_latest,
+        signal: int | None = SimpleMovingAverage.determine_trade_signal(short_sma_latest, short_sma_previous, long_sma_latest,
                                                                   long_sma_previous)
 
-        decision = "hold" if signal is None else "buy" if signal == 1 else "sell"
+        decision: str = "hold" if signal is None else "buy" if signal == 1 else "sell"
         logger.info(f"SMA evaluation result: {decision}", extra={"strategy": "SMA"})
         return signal
 
@@ -116,13 +115,12 @@ class SimpleMovingAverage(Indicator):
 
         :return: The final return of the strategy as a fraction of the initial balance.
         """
-        initial_balance = 1_000_000
-        balance = initial_balance
-        shares = 0
+        initial_balance: int = 1_000_000
+        balance: float = initial_balance
+        shares: float = 0
 
-        # Calculate SMAs
-        short_sma_series = sma(close=data_frame.Close, length=short_period)
-        long_sma_series = sma(close=data_frame.Close, length=long_period)
+        short_sma_series: pandas.Series = sma(close=data_frame.Close, length=short_period)
+        long_sma_series: pandas.Series = sma(close=data_frame.Close, length=long_period)
 
         for i in range(1, len(short_sma_series)):  # Start from 1 to access the previous value without error
             # Skip if either the current or previous value is NaN in either SMA series
@@ -130,12 +128,12 @@ class SimpleMovingAverage(Indicator):
                     isna(short_sma_series.iloc[i - 1]) or isna(long_sma_series.iloc[i - 1]):
                 continue
 
-            short_sma_latest = short_sma_series.iloc[i]
-            long_sma_latest = long_sma_series.iloc[i]
-            short_sma_previous = short_sma_series.iloc[i - 1]
-            long_sma_previous = long_sma_series.iloc[i - 1]
+            short_sma_latest: float = short_sma_series.iloc[-1]
+            long_sma_latest: float = long_sma_series.iloc[-1]
+            short_sma_previous: float = short_sma_series.iloc[-2]
+            long_sma_previous: float = long_sma_series.iloc[-2]
 
-            signal = SimpleMovingAverage.determine_trade_signal(
+            signal: int | None = SimpleMovingAverage.determine_trade_signal(
                 short_sma_latest, short_sma_previous, long_sma_latest, long_sma_previous
             )
 
@@ -153,7 +151,7 @@ class SimpleMovingAverage(Indicator):
                 shares = 0
 
         balance += shares * data_frame.iloc[-1].Close
-        return_on_investment = balance / initial_balance
+        return_on_investment: float = balance / initial_balance
 
         logger.info(f"Backtest completed with Return on Investment of {return_on_investment:.2%}",
                     extra={"strategy": "SMA"})

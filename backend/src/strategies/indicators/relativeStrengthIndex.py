@@ -1,5 +1,6 @@
 import logging
 
+import pandas
 from pandas import DataFrame, isna
 from pandas_ta import rsi
 
@@ -67,10 +68,10 @@ class RelativeStrengthIndex(Indicator):
 
         :return: The trade signal (1 for Buy, 0 for Sell, or None for Hold).
         """
-        rsi_series = rsi(close=data_frame.Close, length=period)
-        signal = RelativeStrengthIndex.determine_trade_signal(rsi_series.iloc[-1])
+        rsi_series: pandas.Series = rsi(close=data_frame.Close, length=period)
+        signal: int | None = RelativeStrengthIndex.determine_trade_signal(rsi_series.iloc[-1])
 
-        decision = "hold" if signal is None else "buy" if signal == 1 else "sell"
+        decision: str = "hold" if signal is None else "buy" if signal == 1 else "sell"
         logger.info("RSI evaluation result: {}".format(decision), extra={"strategy": "RSI"})
 
         return signal
@@ -90,21 +91,17 @@ class RelativeStrengthIndex(Indicator):
 
         :return: The Return on Investment (ROI) as a float.
         """
-        initial_balance = 1_000_000
-        balance = initial_balance
-        shares = 0
+        initial_balance: int = 1_000_000
+        balance: float = initial_balance
+        shares: float = 0
 
-        rsi_series = rsi(close=data_frame.Close, length=period)
+        rsi_series: pandas.Series = rsi(close=data_frame.Close, length=period)
 
         for i in range(len(rsi_series)):
             if isna(rsi_series.iloc[i]):
                 continue
 
-            signal = RelativeStrengthIndex.determine_trade_signal(rsi_series.iloc[i], lower_band, upper_band)
-
-            if shares > 0:
-                logger.warning("IT WORKED, TELL NAVID IMIDIATLY") if data_frame.iloc[i].Dividends != 0.0 else None
-                balance += shares * data_frame.iloc[i].Dividends
+            signal: int | None = RelativeStrengthIndex.determine_trade_signal(rsi_series.iloc[i], lower_band, upper_band)
 
             if signal == 1 and balance >= data_frame.iloc[i].Close:
                 shares = balance / data_frame.iloc[i].Close
@@ -120,7 +117,7 @@ class RelativeStrengthIndex(Indicator):
                 shares = 0
 
         balance += shares * data_frame.iloc[-1].Close
-        return_on_investment = balance / initial_balance
+        return_on_investment: float = balance / initial_balance
 
         logger.info(f"Backtest completed with Return on Investment of {return_on_investment:.2%}",
                     extra={"strategy": "RSI"})
