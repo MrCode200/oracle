@@ -21,23 +21,23 @@ class Indicator(ABC):
 
     @staticmethod
     @abstractmethod
-    def evaluate(data_frame: DataFrame) -> int | None:
+    def evaluate(data_frame: DataFrame) -> float | int | None:
         ...
 
     @staticmethod
     @abstractmethod
     def backtest(data_frame: DataFrame) -> float:
-        initial_balance = 100_000
-        balance = initial_balance
-        shares = 0
+        initial_balance: int = 100_000
+        balance: float = initial_balance
+        shares: float = 0
 
         ... # Evaluate the indicator
 
-        for i in len(data_frame):
+        for i in range(len(data_frame)):
             if isna(data_frame.iloc[i]['Close']):
                 continue
 
-            signal = ...
+            signal: int | None = ...
 
             if shares > 0:
                 logger.warning("IT WORKED, TELL NAVID IMIDIATLY") if data_frame.iloc[i].Dividends != 0.0 else None
@@ -54,7 +54,7 @@ class Indicator(ABC):
 
         # Log the result of the backtest
         balance += shares * data_frame.iloc[-1]['Close']
-        return_on_investment = balance / initial_balance
+        return_on_investment: float = balance / initial_balance
 
         logger.info(f"Backtest completed with Return on Investment of {return_on_investment:.2%}",
                     extra={"strategy": "Indicator"})

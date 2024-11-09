@@ -12,7 +12,7 @@ class DataFetchError(Exception):
         :param message: The error message to be raised with the exception. (optional)
         :key kwargs: Additional parameters to be passed to the exception message. They will be appended to the error message
         """
-        message = message if message is not None else DataFetchError.default_exception_message
+        message: str = message if message is not None else DataFetchError.default_exception_message
 
         message += "\nArguments passed: " + str(kwargs)
 

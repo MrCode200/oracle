@@ -1,9 +1,9 @@
-from logging import Formatter
+from logging import Formatter, LogRecord
 import json
 
 
 # ANSI color codes for different log levels
-LOG_COLORS = {
+LOG_COLORS: dict[str: str] = {
     'DEBUG': '\033[94m',      # Blue
     'INFO': '\033[92m',       # Green
     'WARNING': '\033[93m',    # Yellow
@@ -12,19 +12,19 @@ LOG_COLORS = {
     'MSG': '\033[97m',  # Bright White
     'RESET': '\033[0m',       # Reset to default color
 }
-BOLD = '\033[1m'
-UNDERLINE = '\033[4m'
-RESET_UNDERLINE = '\033[24m'   # Resets underline only
+BOLD: str = '\033[1m'
+UNDERLINE: str = '\033[4m'
+RESET_UNDERLINE: str = '\033[24m'   # Resets underline only
 
 
 class ColoredFormatter(Formatter):
-    def format(self, record):
-        log_color = LOG_COLORS.get(record.levelname, LOG_COLORS['RESET'])
-        reset = LOG_COLORS['RESET']
-        white = LOG_COLORS['MSG']
+    def format(self, record) -> str:
+        log_color: str = LOG_COLORS.get(record.levelname, LOG_COLORS['RESET'])
+        reset: str = LOG_COLORS['RESET']
+        white: str = LOG_COLORS['MSG']
 
         # Assemble the final log message format
-        formatted_message = (
+        formatted_message: str = (
             f"{log_color}{BOLD}[{UNDERLINE}{self.formatTime(record)}{RESET_UNDERLINE}] "
             f"{log_color}{BOLD}[{record.levelname} | {record.filename} | "
             f"lineno({record.lineno}) | {record.funcName}]{reset}\n"
@@ -42,8 +42,8 @@ class ColoredFormatter(Formatter):
         return formatted_message
 
 class JsonFormatter(Formatter):
-    def format(self, record):
-        log_record = {
+    def format(self, record) -> str:
+        log_record: dict[str, any] = {
             "timestamp": self.formatTime(record),
             "level": record.levelname,
             "file": record.filename,
