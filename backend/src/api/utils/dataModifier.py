@@ -52,5 +52,7 @@ def compress_data(data_frame: pd.DataFrame, interval: str) -> pd.DataFrame:
             "Low": [data_frame.Low.iloc[n:n+n_interval].min()],
             "Dividends": [0]
         }
+
         new_data_frame: pd.DataFrame = new_data_frame.append(pd.DataFrame(data,index=pd.Index(idx)))
-        return new_data_frame
+
+    return new_data_frame
