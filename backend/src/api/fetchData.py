@@ -32,7 +32,7 @@ def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d",
 
     try:
         # Fetch historical market data as pandas DataFrame
-        data_frame = ticker_obj .history(period=period, interval=interval, start=start, end=end)
+        data_frame = ticker_obj.history(period=period, interval=interval, start=start, end=end)
 
         if not data_frame.empty:
             logger.info(f"Fetched Data: {ticker = }; {period = }; {interval = };")

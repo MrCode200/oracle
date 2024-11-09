@@ -25,9 +25,10 @@ class RelativeStrengthIndex(Indicator):
     evaluate(data_frame: DataFrame, period: int = 14, lower_band: int = 30, upper_band: int = 70) -> int | None
         Evaluates the RSI for the provided DataFrame and returns a buy, sell, or hold signal.
 
-    backtest(data_frame: DataFrame, period: int = 14, lower_band: int = 30, upper_band: int = 70) -> float
+    backtest(data_frame: DataFrame, period: int = 14, lower_band: int = 30, upper_band: int = 70, partition_frequency: int = 31) -> float
         Backtests the RSI strategy on historical data and calculates the Return on Investment (ROI).
     """
+    _EA_RANGE: tuple[int, int] = (0, 100)
 
     @staticmethod
     def determine_trade_signal(rsi_value: float, lower_band: int = 30, upper_band: int = 70) -> int | None:
@@ -92,8 +93,8 @@ class RelativeStrengthIndex(Indicator):
 
         :return: The Return on Investment (ROI) as a float.
         """
-        initial_balance: int = 1_000_000
-        base_balance: float = initial_balance
+        base_balance: int = 1_000_000
+        balance: float = base_balance
         shares: float = 0
         net_worth_history: list[float] = []
 
@@ -104,15 +105,15 @@ class RelativeStrengthIndex(Indicator):
 
             is_partition_cap_reached = (i - period) % partition_frequency == 0
 
-            initial_balance, base_balance, shares = Indicator.process_trade_signal(
-                initial_balance, base_balance, shares,
+            base_balance, balance, shares = Indicator.process_trade_signal(
+                base_balance, balance, shares,
                 data_frame.iloc[i].Close, trade_signal,
                 net_worth_history, is_partition_cap_reached,
                 "RSI"
             )
 
-        total_net_worth = base_balance +shares * data_frame.iloc[-1].Close
-        net_worth_history.append(total_net_worth / initial_balance)
+        total_net_worth = balance +shares * data_frame.iloc[-1].Close
+        net_worth_history.append(total_net_worth / base_balance)
 
         logger.info(f"Backtest completed with Return on Investment of {[str(roi * 100) for roi in net_worth_history]}",
                     extra={"strategy": "RSI"})
