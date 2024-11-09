@@ -27,8 +27,13 @@ for ticker in tickers:
     results_sma[ticker] = signalSMA
     results_rsi[ticker] = signalRSI
 
-print("\n ".join([f"{ticker}: [{', '.join([f"{value:.2%}" for value in total_value])}]"
-                  for ticker, total_value in results_sma.items()]))
+from functools import reduce
+print("\n".join(
+    f"{ticker}: [{', '.join(f'{value:.2%}' for value in total_value)}] == {reduce(lambda x, y: x * y, total_value):.2%}"
+    for ticker, total_value in results_sma.items()
+))
 
-print("\n ".join([f"{ticker}: [{', '.join([f"{value:.2%}" for value in total_value])}]"
-                  for ticker, total_value in results_rsi.items()]))
+print("\n".join(
+    f"{ticker}: [{', '.join(f'{value:.2%}' for value in total_value)}] == {reduce(lambda x, y: x * y, total_value):.2%}"
+    for ticker, total_value in results_rsi.items()
+))
