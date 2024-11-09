@@ -8,13 +8,14 @@ import logging
 logging.disable(logging.CRITICAL)
 
 # Mock data for successful response
-MOCK_DATA = DataFrame({
+MOCK_DATA: DataFrame = DataFrame({
     'Open': [100, 102, 101],
     'High': [103, 104, 105],
     'Low': [99, 100, 100],
     'Close': [102, 103, 104],
     'Volume': [1000, 1500, 1200]
 })
+
 
 @pytest.mark.parametrize(
     "ticker, period, interval, start, end",
@@ -24,8 +25,7 @@ MOCK_DATA = DataFrame({
         ("TSLA", "1y", "1h", None, None)
     ]
 )
-
-def test_fetch_successful(ticker, period, interval, start, end, caplog):
+def test_fetch_successful(ticker: str, period: str, interval: str, start: str, end: str, caplog: pytest.LogCaptureFixture):
     with caplog.at_level(logging.INFO):
         result = fetch_historical_data(ticker, period, interval, start, end)
         assert isinstance(result, DataFrame)
@@ -36,7 +36,7 @@ def test_fetch_successful(ticker, period, interval, start, end, caplog):
         assert f"Fetched Data: ticker = '{ticker}'; period = '{period}'; interval = '{interval}'" in caplog.text
 
 
-def test_fetch_invalid_ticker(caplog):
+def test_fetch_invalid_ticker(caplog: pytest.LogCaptureFixture):
     ticker = "INVALID_TICKER"
 
     with caplog.at_level(logging.ERROR):
@@ -47,6 +47,7 @@ def test_fetch_invalid_ticker(caplog):
             assert str(e) == f"Invalid Ticker: {ticker}"
             assert "Invalid Ticker: INVALID_TICKER" in caplog.text
 
+
 @pytest.mark.parametrize(
     "ticker, period, interval, start, end",
     [
@@ -54,7 +55,7 @@ def test_fetch_invalid_ticker(caplog):
         ("AAPL", "1mo", "1d", "1700-01-01", "1700-01-31"),
     ]
 )
-def test_fetch_invalid_arguments(ticker, period, interval, start, end, caplog):
+def test_fetch_invalid_arguments(ticker: str, period: str, interval: str, start: str, end: str, caplog: pytest.LogCaptureFixture):
     with caplog.at_level(logging.ERROR):
         try:
             result = fetch_historical_data(ticker, period, interval, start, end)

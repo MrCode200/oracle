@@ -1,29 +1,39 @@
 import logging
 
-from backend.src.api.utils.dataAnalyse import getData
-from backend.src.strategies.indicators import RelativeStrengthIndex, SimpleMovingAverage
 from cst_logger import setup_logger  # type: ignore
 from api import fetch_historical_data  # type: ignore
-
+from strategies.indicators import SimpleMovingAverage, RelativeStrengthIndex  # type: ignore
 
 
 def init_app():
-    setup_logger(logging.INFO, 'logs/app.jsonl', stream_in_color=True, log_in_json=True)
+    setup_logger('oracle.app', logging.INFO, 'logs/app.jsonl', stream_in_color=True, log_in_json=True)
     logger = logging.getLogger("oracle.app")
     logger.info("Initialized Oracle...")
     return logger
 
-logger = init_app()
+logger: logging.Logger = init_app()
 
-# Fetch market chart data
-data_frame = getData("AVAX-USD", '6mo', "001h") #fetch_historical_data("ADA-USD", '3mo', "1h")
-if data_frame is None:
-    exit(1)
+tickers: list[str] = ["ETH-USD", "AAPL", "BTC-USD"]
+results_sma: dict[str, list[float]] = {}
+results_rsi: dict[str, list[float]] = {}
 
-signalSMA = SimpleMovingAverage.backtest(data_frame, short_period=9, long_period=21)
-signalRSI = RelativeStrengthIndex.backtest(data_frame, period=14, lower_band=15, upper_band=85)
 
-signalSMA = float(signalSMA)
-signalRSI = float(signalRSI)
+for ticker in tickers:
+    data_frame = fetch_historical_data(ticker, '1y', "1h")
 
-print(f"{signalRSI * 100 = }%, {signalSMA * 100 = }%")
+    signalSMA: list[float] = SimpleMovingAverage.backtest(data_frame, short_period=9, long_period=21, partition_frequency=31*24)
+    signalRSI: list[float] = RelativeStrengthIndex.backtest(data_frame, period=14, lower_band=15, upper_band=85, partition_frequency=31*24)
+
+    results_sma[ticker] = signalSMA
+    results_rsi[ticker] = signalRSI
+
+from functools import reduce
+print("\n".join(
+    f"{ticker}: [{', '.join(f'{value:.2%}' for value in total_value)}] == {reduce(lambda x, y: x * y, total_value):.2%}"
+    for ticker, total_value in results_sma.items()
+))
+
+print("\n".join(
+    f"{ticker}: [{', '.join(f'{value:.2%}' for value in total_value)}] == {reduce(lambda x, y: x * y, total_value):.2%}"
+    for ticker, total_value in results_rsi.items()
+))

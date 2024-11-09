@@ -21,46 +21,117 @@ class Indicator(ABC):
 
     @staticmethod
     @abstractmethod
-    def evaluate(data_frame: DataFrame) -> int | None:
+    def evaluate(data_frame: DataFrame) -> float | int | None:
         ...
 
     @staticmethod
     @abstractmethod
-    def backtest(data_frame: DataFrame) -> float:
-        initial_balance = 100_000
-        balance = initial_balance
-        shares = 0
+    def backtest(data_frame: DataFrame, partition_frequency: int = 31) -> list[float]:
+        """
+
+        :param data_frame: The DataFrame containing the market data with a 'Close' column.
+        :key partition_frequency: The frequency at which to recalculate the Return on Investiment (default is 31).
+        :return:
+        """
+        initial_balance: float = 1_000_000
+        base_balance: float = initial_balance
+        shares: float = 0
+        net_worth_history: list[float] = []
 
         ... # Evaluate the indicator
 
-        for i in len(data_frame):
+        for i in range(len(data_frame)):
             if isna(data_frame.iloc[i]['Close']):
                 continue
+                # !!!
+                # should be removed and set to the value where no NaN is present based on the period
 
-            signal = ...
+            trade_signal: int | None = ...
 
-            if shares > 0:
-                logger.warning("IT WORKED, TELL NAVID IMIDIATLY") if data_frame.iloc[i].Dividends != 0.0 else None
-                balance += shares * data_frame.iloc[i].Dividends
+            is_partition_cap_reached: bool = (i - 1) % partition_frequency == 0
+            # !!!
+            # should be changed to fit the range starting value in the for loop
+            # NOTE: in the first iteration it should start at one (i - 1) % partition_frequency == 1
 
-            if signal == 1 and balance >= data_frame.iloc[i]['Close']:
-                shares = balance / data_frame.iloc[i]['Close']
-                balance = 0
-                logger.debug("Executed Buy of {} shares in iteration {}; date: {}".format(shares, i, data_frame.iloc[i]['Date']), extra={"strategy": "Indicator"})
-            elif signal == 0 and shares > 0:
-                logger.debug("Executed Sell of {} shares in iteration {}; date: {}".format(shares,i, data_frame.iloc[i]['Date']), extra={"strategy": "Indicator"})
-                balance += shares * data_frame.iloc[i]['Close']
-                shares = 0
+            initial_balance, base_balance, shares = Indicator.process_trade_signal(
+                initial_balance, base_balance, shares,
+                data_frame.iloc[i].Close, trade_signal,
+                net_worth_history, is_partition_cap_reached,
+                "NotNamed"
+            )
 
-        # Log the result of the backtest
-        balance += shares * data_frame.iloc[-1]['Close']
-        return_on_investment = balance / initial_balance
 
-        logger.info(f"Backtest completed with Return on Investment of {return_on_investment:.2%}",
-                    extra={"strategy": "Indicator"})
+        total_net_worth = base_balance + shares * data_frame.iloc[-1].Close
+        net_worth_history.append(total_net_worth / initial_balance)
 
-        return return_on_investment
+        logger.info(f"Backtest completed with Return on Investment of {[str(roi * 100) for roi in net_worth_history]}",
+                    extra={"strategy": "BaseClass"})
 
+        return net_worth_history
+
+    @staticmethod
+    def process_trade_signal(
+            initial_balance: float,
+            base_balance: float,
+            shares: float,
+            latest_price: float,
+            trade_signal: int,
+            net_worth_history: list[float],
+            is_partition_cap_reached: bool,
+            strategy_name: str
+    ) -> tuple[float, float, float]:
+        """
+        Applies a trade signal to update the portfolio's cash balance, owned shares, and records the ROI.
+
+        This method processes the buy or sell signal based on the current portfolio state, executing a trade
+        if the signal and conditions allow. It updates the cash balance, owned shares, and records the portfolio
+        value at regular intervals (as specified by the `should_record_roi` flag).
+
+        :param original_balance: The initial cash balance used for ROI calculations.
+        :param cash_balance: The current cash balance available for trading.
+        :param owned_shares: The number of shares currently owned in the portfolio.
+        :param latest_price: The latest market price of the asset being traded.
+        :param trade_signal: The trade signal, where 1 represents a buy signal and 0 represents a sell signal.
+        :param portfolio_value_history: A list storing the historical values of the portfolio for ROI tracking.
+        :param should_record_roi: A flag indicating whether the ROI should be recorded for the current period.
+        :param strategy_name: The name of the strategy used for logging purposes.
+
+        :return: A tuple containing:
+            - updated `original_balance` (float): The updated balance after executing the trade.
+            - updated `cash_balance` (float): The updated cash balance after the trade.
+            - updated `owned_shares` (float): The updated number of owned shares after the trade.
+
+        :note:
+            - A buy signal (1) will convert available cash into shares, and the cash balance will become 0.
+            - A sell signal (0) will sell all owned shares for cash, and the shares will be reset to 0.
+            - If `should_record_roi` is True, the method will record the portfolio's total value at that point,
+              updating the `portfolio_value_history` with the current ROI.
+        """
+        if trade_signal == 1 and base_balance >= latest_price:
+            shares = base_balance / latest_price
+            base_balance = 0
+            logger.debug(
+                "Executed Buy of {} shares at date: {}".format(shares, latest_price),
+                extra={"strategy": strategy_name})
+
+        elif trade_signal == 0 and shares > 0:  # Sell
+            logger.debug(
+                "Executed Sell of {} shares at date: {}".format(shares, latest_price),
+                extra={"strategy": strategy_name})
+            base_balance += shares * latest_price
+            shares = 0
+
+        if is_partition_cap_reached:
+            total_net_worth: float = base_balance + shares * latest_price
+
+            net_worth_history.append(total_net_worth / initial_balance)
+            initial_balance = total_net_worth
+
+            logger.debug(
+                f"Appended ROI, Total Net Worth:{total_net_worth}; ROI: {net_worth_history[-1]}",
+                extra={"strategy": "BaseClass"})
+
+        return initial_balance, base_balance, shares
 
 if __name__ == '__main__':
     print(help(ta.Strategy))

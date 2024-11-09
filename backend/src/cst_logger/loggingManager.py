@@ -1,3 +1,4 @@
+import logging
 from logging import getLogger
 
 from logging import StreamHandler
@@ -9,11 +10,11 @@ from logging import Formatter
 from .loggingFormatters import ColoredFormatter, JsonFormatter  # type: ignore
 
 
-def setup_logger(stream_level, log_file_name, stream_in_color: bool = True, log_in_json: bool = True):
-    logger = getLogger('oracle.app')
+def setup_logger(logger_name: str, stream_level: int, log_file_name: str, stream_in_color: bool = True, log_in_json: bool = True):
+    logger: logging.Logger = getLogger(logger_name)
     logger.setLevel(DEBUG)
 
-    stream_handler = StreamHandler()
+    stream_handler: logging.Handler = StreamHandler()
     stream_handler.setLevel(stream_level)
     stream_handler.setFormatter(
         ColoredFormatter() if stream_in_color else Formatter(
@@ -22,7 +23,7 @@ def setup_logger(stream_level, log_file_name, stream_in_color: bool = True, log_
     )
 
 
-    timed_rotating_file_handler = TimedRotatingFileHandler(log_file_name, when='midnight', interval=1, backupCount=3)
+    timed_rotating_file_handler: logging.Handler = TimedRotatingFileHandler(log_file_name, when='midnight', interval=1, backupCount=3)
     timed_rotating_file_handler.setLevel(DEBUG)
     timed_rotating_file_handler.setFormatter(
         JsonFormatter() if log_in_json else Formatter(
@@ -37,9 +38,9 @@ def setup_logger(stream_level, log_file_name, stream_in_color: bool = True, log_
 
 
 if __name__ == '__main__':
-    setup_logger(DEBUG, '../../../logs/app.jsonl',log_in_json=False, stream_in_color=True)
+    setup_logger('oracle.app', DEBUG, '../../../logs/app.jsonl',log_in_json=False, stream_in_color=True)
 
-    logger = getLogger('wobble.bot')
+    logger = getLogger('oracle.app')
     logger.debug('Testing Logger: DEBUG', extra={'command': 'test', 'author': 'wobble', 'guild': 'wobble#0000'})
     logger.info('Testing Logger: INFO', extra={'command': 'test', 'author': 'wobble'})
     logger.warning('Testing Logger: WARNING')
