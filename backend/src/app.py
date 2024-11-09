@@ -6,7 +6,7 @@ from strategies.indicators import SimpleMovingAverage, RelativeStrengthIndex  # 
 
 
 def init_app():
-    setup_logger(logging.DEBUG, 'logs/app.jsonl', stream_in_color=True, log_in_json=True)
+    setup_logger('oracle.app', logging.DEBUG, 'logs/app.jsonl', stream_in_color=True, log_in_json=True)
     logger = logging.getLogger("oracle.app")
     logger.info("Initialized Oracle...")
     return logger
