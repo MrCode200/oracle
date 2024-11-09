@@ -3,7 +3,7 @@ import logging
 import yfinance as yf  # type: ignore
 from pandas import DataFrame
 
-from backend.src.api import getData, determine_interval
+from backend.src.api.utils.dataModifier import compress_data, determine_interval
 from backend.src.exceptions import DataFetchError
 logger: logging.Logger = logging.getLogger("oracle.app")
 
@@ -38,7 +38,7 @@ def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d",
         # Fetch historical market data as pandas DataFrame
         data_frame = ticker_obj.history(period=period, interval=determine_interval(interval), start=start, end=end)
 
-        getData(data_frame, interval)
+        data_frame = compress_data(data_frame, interval)
 
         if not data_frame.empty:
             logger.info(f"Fetched Data: {ticker = }; {period = }; {interval = };")
