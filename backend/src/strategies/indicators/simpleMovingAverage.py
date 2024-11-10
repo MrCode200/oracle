@@ -1,9 +1,7 @@
 import logging
-from unittest import skipIf
 
 import pandas
-from pandas import DataFrame, Series
-from pandas import isna
+from pandas import DataFrame
 from pandas_ta import sma
 
 from .indicatorBase import Indicator  # type: ignore
@@ -35,6 +33,11 @@ class SimpleMovingAverage(Indicator):
     backtest(data_frame: DataFrame, short_period: int = 14, long_period: int = 50) -> float
         Backtests the strategy using historical data and calculates the Return on Investment (ROI).
     """
+    _EA_SETTINGS: dict[str, dict[str, int|float]] = {
+        "short_period": {"start": 1, "stop": 200, "step": 1},
+        "long_period": {"start": 1, "stop": 200, "step": 1},
+    }
+
 
     @staticmethod
     def determine_trade_signal(
@@ -116,8 +119,8 @@ class SimpleMovingAverage(Indicator):
 
         :return: The final return of the strategy as a fraction of the initial balance.
         """
-        initial_balance: float = 1_000_000
-        base_balance: float = initial_balance
+        base_balance: float = 1_000_000
+        balance: float = base_balance
         shares: float = 0
         net_worth_history: list[float] = []
 
@@ -136,15 +139,15 @@ class SimpleMovingAverage(Indicator):
 
             is_partition_cap_reached: bool = (i - long_period) % partition_frequency == 0
 
-            initial_balance, base_balance, shares = SimpleMovingAverage.process_trade_signal(
-                initial_balance, base_balance, shares,
+            base_balance, balance, shares = SimpleMovingAverage.process_trade_signal(
+                base_balance, balance, shares,
                 data_frame.iloc[i].Close, trade_signal,
                 net_worth_history, is_partition_cap_reached,
                 "SMA"
             )
 
-        total_net_worth = base_balance +shares * data_frame.iloc[-1].Close
-        net_worth_history.append(total_net_worth / initial_balance)
+        total_net_worth = balance +shares * data_frame.iloc[-1].Close
+        net_worth_history.append(total_net_worth / base_balance)
 
         logger.info(f"Backtest completed with Return on Investment of {[str(roi * 100) for roi in net_worth_history]}",
                     extra={"strategy": "SMA"})
