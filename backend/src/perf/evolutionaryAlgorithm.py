@@ -3,30 +3,6 @@ from statistics import mean
 
 from pandas import DataFrame
 
-
-def create_mutation_range(funckwargs, mutation_strength) -> dict[str, int | float]:
-    mutation_ranges: dict[str, int | float] = {
-        key: (value["stop"] - value["start"]) * mutation_strength
-        for key, value in funckwargs.items()
-    }
-
-    return mutation_ranges
-
-
-def init_generation(childs: int, funckwargs: dict[str, dict[str, int | float]]) -> dict[float, dict[str, int | float]]:
-    gen_statistics: dict[float, dict[str, int | float]] = []
-
-    for child in range(childs):
-        starting_args: dict[str, int | float] = {
-            key: randrange(value["start"], value["stop"], value["step"])
-            for key, value in funckwargs.items(),
-        }
-
-        gen_statistics[child] = starting_args
-        gen_statistics[child]["total_net_worth"] = 1
-
-    return gen_statistics
-
 def evolve(data_frame: DataFrame,
            func: callable,
            func_settings: dict[str, dict[str, int | float]],
@@ -80,3 +56,27 @@ gen_statistics = {
         "performance": float
     }
 }
+
+
+def create_mutation_range(funckwargs, mutation_strength) -> dict[str, int | float]:
+    mutation_ranges: dict[str, int | float] = {
+        key: (value["stop"] - value["start"]) * mutation_strength
+        for key, value in funckwargs.items()
+    }
+
+    return mutation_ranges
+
+
+def init_generation(childs: int, funckwargs: dict[str, dict[str, int | float]]) -> dict[float, dict[str, int | float]]:
+    gen_statistics: dict[float, dict[str, int | float]] = []
+
+    for child in range(childs):
+        starting_args: dict[str, int | float] = {
+            key: randrange(value["start"], value["stop"], value["step"])
+            for key, value in funckwargs.items(),
+        }
+
+        gen_statistics[child] = starting_args
+        gen_statistics[child]["total_net_worth"] = 1
+
+    return gen_statistics
