@@ -28,7 +28,11 @@ class RelativeStrengthIndex(Indicator):
     backtest(data_frame: DataFrame, period: int = 14, lower_band: int = 30, upper_band: int = 70, partition_frequency: int = 31) -> float
         Backtests the RSI strategy on historical data and calculates the Return on Investment (ROI).
     """
-    _EA_RANGE: tuple[int, int] = (0, 100)
+    _EA_SETTINGS: dict[str, dict[str, int|float]] = {
+        "period": {"start": 1, "stop": 200, "step": 1},
+        "lower_band": {"start": 1, "stop": 200, "step": 0.1},
+        "upper_band": {"start": 1, "stop": 200, "step": 0.1}
+    }
 
     @staticmethod
     def determine_trade_signal(rsi_value: float, lower_band: int = 30, upper_band: int = 70) -> int | None:

@@ -18,12 +18,16 @@ class Indicator(ABC):
     """
     @classmethod
     def __init_subclass__(cls, **kwargs):
-        if not hasattr(cls, "_EA_RANGE"):
-            raise ValueError(f"Subclass {cls.__name__} must define EA_RANGE")
+        if (
+            not hasattr(cls, "_EA_SETTINGS") and
+            type(cls._EA_SETTINGS) != type(dict) and
+            cls._EA_SETTINGS.keys() != {"start", "end", "step"}
+        ):
+            raise ValueError(f"Subclass {cls.__name__} must define _EA_SETTINGS as a dictionary with keys 'start', 'end', and 'step'")
 
     @classmethod
-    def EA_RANGE(cls) -> tuple[int, int]:
-        return cls._EA_RANGE
+    def _EA_SETTINGS(cls) -> tuple[int, int]:
+        return cls._EA_SETTINGS
 
     @staticmethod
     @abstractmethod

@@ -1,6 +1,6 @@
 import logging
 
-from cst_logger import setup_logger  # type: ignore
+from custom_logger import setup_logger  # type: ignore
 from api import fetch_historical_data  # type: ignore
 from strategies.indicators import SimpleMovingAverage, RelativeStrengthIndex  # type: ignore
 

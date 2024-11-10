@@ -33,7 +33,11 @@ class SimpleMovingAverage(Indicator):
     backtest(data_frame: DataFrame, short_period: int = 14, long_period: int = 50) -> float
         Backtests the strategy using historical data and calculates the Return on Investment (ROI).
     """
-    _EA_RANGE: tuple[int, int] = (1, 200)
+    _EA_SETTINGS: dict[str, dict[str, int|float]] = {
+        "short_period": {"start": 1, "stop": 200, "step": 1},
+        "long_period": {"start": 1, "stop": 200, "step": 1},
+    }
+
 
     @staticmethod
     def determine_trade_signal(
