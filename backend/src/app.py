@@ -19,10 +19,10 @@ results_rsi: dict[str, list[float]] = {}
 
 
 for ticker in tickers:
-    data_frame = fetch_historical_data(ticker, '1y', "1h")
+    data_frame = fetch_historical_data(ticker, '3mo', "1d")
 
-    signalSMA: list[float] = SimpleMovingAverage.backtest(data_frame, short_period=9, long_period=21, partition_frequency=31*24)
-    signalRSI: list[float] = RelativeStrengthIndex.backtest(data_frame, period=14, lower_band=25, upper_band=85, partition_frequency=31*24)
+    signalSMA: list[float] = SimpleMovingAverage.backtest(data_frame, short_period=9, long_period=21, parition_amount=1)
+    signalRSI: list[float] = RelativeStrengthIndex.backtest(data_frame, period=14, lower_band=25, upper_band=85, parition_amount=1)
 
     results_sma[ticker] = signalSMA
     results_rsi[ticker] = signalRSI
@@ -32,6 +32,4 @@ print("\n ".join([f"{ticker}: [{', '.join([f"{value:.2%}" for value in total_val
 
 print("\n ".join([f"{ticker}: [{', '.join([f"{value:.2%}" for value in total_value])}]"
                   for ticker, total_value in results_rsi.items()]))
-
-print(SimpleMovingAverage.EA_RANGE())
 
