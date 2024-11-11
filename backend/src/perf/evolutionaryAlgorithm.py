@@ -156,7 +156,7 @@ def evolve_child(child_id: int, child: dict[str, int | float], func: callable, d
         {
             key: values + randfloat(-mutation_ranges[key], mutation_ranges[key], func_settings[key]["step"])
             for key, values in child.items() if
-            key != "performance" and random.random() < mutation_probability
+            key != "performance" and random.random() <= mutation_probability
         }
 
     mutated_args = \

@@ -12,14 +12,12 @@ def determine_interval(interval: str) -> str:
     if interval in valid_intervals:
         return interval
 
-    elif interval[-1] == "m":
-        return "1m"
-    elif interval[-1] == "h":
-        return "1h"
-    elif interval[-1] == "d":
-        return "1d"
+    if interval[-1] == "o":
+        return "1mo"
+    elif interval[-1] == "k":
+        return "1wk"
     else:
-        return "1y"
+        return "1" + interval[-1]
 
 
 def compress_data(data_frame: pd.DataFrame, interval: str) -> pd.DataFrame:
