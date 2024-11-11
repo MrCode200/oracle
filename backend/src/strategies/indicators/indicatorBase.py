@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+from math import ceil
 
 from pandas import DataFrame, isna
 import pandas_ta as ta
@@ -11,9 +12,25 @@ class Indicator(ABC):
     Defines an abstract base class for indicators.
 
     Methods
-        - run(database: Iterable) -> float: Abstract method to run the strategies on the provided database.
-        - test_accuracy(database: Iterable) -> float: Abstract method to test the accuracy of the strategies on the provided database.
+        - classmethod EA_RANGE(cls) -> tuple[int, int]: Returns the range of the indicator.
+        - evaluate(database: Iterable) -> float: Abstract method to run the strategies on the provided database.
+        - backtest(database: Iterable) -> float: Abstract method to test the accuracy of the strategies on the provided database.
+        - process_trade_signal(database: Iterable) -> float: Abstract method to buy and sell as well as append for all backtest functions.
+
+    :raises Attribute Error: If the subclass does not define _EA_SETTINGS and _EA_SETTINGS does not contain 'start', 'stop', 'step' and 'type'.
     """
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        required_keys: set = {"start", "stop", "step", "type"}
+        for key, setting in cls._EA_SETTINGS.items():
+            if not required_keys <= set(setting.keys()):  # Checks if all required keys are present
+                raise AttributeError(
+                    f"func_settings must contain dictionaries with the keys 'start', 'stop', and 'step'. Argument missing those keys: {key}")
+
+    @classmethod
+    def EA_SETTINGS(cls) -> dict[str, dict[str, int | float]]:
+        return cls._EA_SETTINGS
+
     @staticmethod
     @abstractmethod
     def determine_trade_signal():
@@ -26,21 +43,29 @@ class Indicator(ABC):
 
     @staticmethod
     @abstractmethod
-    def backtest(data_frame: DataFrame, partition_frequency: int = 31) -> list[float]:
+    def backtest(data_frame: DataFrame, parition_amount: int = 1) -> list[float]:
         """
 
         :param data_frame: The DataFrame containing the market data with a 'Close' column.
-        :key partition_frequency: The frequency at which to recalculate the Return on Investiment (default is 31).
-        :return:
+        :key parition_amount: The amount of paritions which get returned at which to recalculate the Return on Investiment (default is 12).
+        :return: A list of parition_amount times of the Return on Investiment.
+        :raises ValueError: If parition_amount is less than or equal to 0
         """
-        initial_balance: float = 1_000_000
-        base_balance: float = initial_balance
+        if parition_amount <= 0:
+            raise ValueError("Parition amount must be greater than 0")
+
+        base_balance: float = 1_000_000
+        balance: float = base_balance
         shares: float = 0
         net_worth_history: list[float] = []
 
-        ... # Evaluate the indicator
+        nan_padding = ...
 
-        for i in range(len(data_frame)):
+        indicator_series = ... # Evaluate the indicator
+
+        parition_amount = ceil((len(indicator_series) - nan_padding) / parition_amount) if parition_amount > 1 else 1
+
+        for i in range(nan_padding, len(indicator_series)):
             if isna(data_frame.iloc[i]['Close']):
                 continue
                 # !!!
@@ -48,21 +73,19 @@ class Indicator(ABC):
 
             trade_signal: int | None = ...
 
-            is_partition_cap_reached: bool = (i - 1) % partition_frequency == 0
-            # !!!
-            # should be changed to fit the range starting value in the for loop
-            # NOTE: in the first iteration it should start at one (i - 1) % partition_frequency == 1
+            is_partition_cap_reached: bool = ((i - nan_padding + 1) % parition_amount == 0) if parition_amount > 1 else False
 
-            initial_balance, base_balance, shares = Indicator.process_trade_signal(
-                initial_balance, base_balance, shares,
+            base_balance, balance, shares = Indicator.process_trade_signal(
+                base_balance, balance, shares,
                 data_frame.iloc[i].Close, trade_signal,
                 net_worth_history, is_partition_cap_reached,
-                "NotNamed"
+                "BaseClass"
             )
 
 
-        total_net_worth = base_balance + shares * data_frame.iloc[-1].Close
-        net_worth_history.append(total_net_worth / initial_balance)
+        if not is_partition_cap_reached:
+            total_net_worth = balance + shares * data_frame.iloc[-1].Close
+            net_worth_history.append(total_net_worth / base_balance)
 
         logger.info(f"Backtest completed with Return on Investment of {[str(roi * 100) for roi in net_worth_history]}",
                     extra={"strategy": "BaseClass"})
@@ -71,8 +94,8 @@ class Indicator(ABC):
 
     @staticmethod
     def process_trade_signal(
-            initial_balance: float,
             base_balance: float,
+            balance: float,
             shares: float,
             latest_price: float,
             trade_signal: int,
@@ -88,7 +111,7 @@ class Indicator(ABC):
         value at regular intervals (as specified by the `should_record_roi` flag).
 
         :param original_balance: The initial cash balance used for ROI calculations.
-        :param cash_balance: The current cash balance available for trading.
+        :param balance: The current cash balance available for trading.
         :param owned_shares: The number of shares currently owned in the portfolio.
         :param latest_price: The latest market price of the asset being traded.
         :param trade_signal: The trade signal, where 1 represents a buy signal and 0 represents a sell signal.
@@ -107,9 +130,9 @@ class Indicator(ABC):
             - If `should_record_roi` is True, the method will record the portfolio's total value at that point,
               updating the `portfolio_value_history` with the current ROI.
         """
-        if trade_signal == 1 and base_balance >= latest_price:
-            shares = base_balance / latest_price
-            base_balance = 0
+        if trade_signal == 1 and balance >= latest_price:
+            shares = balance / latest_price
+            balance = 0
             logger.debug(
                 "Executed Buy of {} shares at date: {}".format(shares, latest_price),
                 extra={"strategy": strategy_name})
@@ -118,20 +141,20 @@ class Indicator(ABC):
             logger.debug(
                 "Executed Sell of {} shares at date: {}".format(shares, latest_price),
                 extra={"strategy": strategy_name})
-            base_balance += shares * latest_price
+            balance += shares * latest_price
             shares = 0
 
         if is_partition_cap_reached:
-            total_net_worth: float = base_balance + shares * latest_price
+            total_net_worth: float = balance + shares * latest_price
 
-            net_worth_history.append(total_net_worth / initial_balance)
-            initial_balance = total_net_worth
+            net_worth_history.append(total_net_worth / base_balance)
+            base_balance = total_net_worth
 
             logger.debug(
                 f"Appended ROI, Total Net Worth:{total_net_worth}; ROI: {net_worth_history[-1]}",
-                extra={"strategy": "BaseClass"})
+                extra={"strategy": strategy_name})
 
-        return initial_balance, base_balance, shares
+        return base_balance, balance, shares
 
 if __name__ == '__main__':
     print(help(ta.Strategy))
