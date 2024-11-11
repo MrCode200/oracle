@@ -6,11 +6,12 @@ from pandas import DataFrame
 import sys
 sys.path.append("/workspaces/oracle/backend")
 
+from backend.src.api.utils.dataModifier import compress_data, determine_interval
 from backend.src.exceptions import DataFetchError
 logger: logging.Logger = logging.getLogger("oracle.app")
 
 
-def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d", start: str = None, end: str = None) -> DataFrame | int:
+def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d", start: str = None, end: str = None) -> DataFrame:
     """
     Fetch historical market chart data from Yahoo Finance using yfinance.
 
@@ -20,6 +21,9 @@ def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d",
     :param start: The start date of the historical data (default: None)
     :param end: The end date of the historical data (default: None)
     :return: A DataFrame containing the fetched market chart data or None on error
+
+    :raises AttributeError: If the ticker is invalid
+    :raises DataFetchError: If an error occurs while fetching data
     """
     try:
         ticker_obj  = yf.Ticker(ticker)
@@ -35,7 +39,9 @@ def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d",
 
     try:
         # Fetch historical market data as pandas DataFrame
-        data_frame = ticker_obj.history(period=period, interval=interval, start=start, end=end)
+        data_frame = ticker_obj.history(period=period, interval=determine_interval(interval), start=start, end=end)
+
+        data_frame = compress_data(data_frame, interval)
 
         if not data_frame.empty:
             logger.info(f"Fetched Data: {ticker = }; {period = }; {interval = };")
