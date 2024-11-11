@@ -1,3 +1,5 @@
+import random
+
 from .mathutils import randfloat
 from statistics import mean
 import logging
@@ -12,7 +14,8 @@ def evolve(func: callable,
            childs: int = 9,
            generations: int = 10,
            survivers: int = 3,
-           mutation_strength: float = 0.1) -> dict[float, dict[str, int | float]]:
+           mutation_strength: float = 0.1,
+           mutation_probability: float = 0.5) -> dict[float, dict[str, int | float]]:
     """
     Evolves the optimal arguments for a given indicator function over multiple generations using a genetic algorithm approach.
 
@@ -48,6 +51,9 @@ def evolve(func: callable,
 
     :param mutation_strength: The factor that determines the extent of mutation applied to the arguments during the evolution process.
         A higher value leads to more significant mutations. Default is 0.1 (i.e., 10% of the range).
+
+    :param mutation_probability: The probability of mutating an argument during the evolution process.
+        A higher value means that more arguments will be mutated. Default is 0.5 (i.e., 50% of the arguments will be mutated).
 
     :raises ValueError: If `func_settings` does not contain the required keys ("start", "end", "step", "type") for each argument,
         or if `childs` is not a multiple of `survivers`.
@@ -101,7 +107,7 @@ def evolve(func: callable,
             mutated_args: dict[str, float] = \
             {
                 key: values + randfloat(-mutation_ranges[key], mutation_ranges[key], func_settings[key]["step"])
-                for key, values in gen_statistics[child].items() if key != "performance"
+                for key, values in gen_statistics[child].items() if key != "performance" and random.random() < mutation_probability
             }
 
             mutated_args = \

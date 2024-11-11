@@ -21,7 +21,13 @@ results_rsi: dict[str, list[float]] = {}
 
 data_frame = fetch_historical_data("BTC-USD", '1y', "1h")
 const_arguments: dict[str, any] = {"data_frame": data_frame}
-print(evolve(func=SimpleMovingAverage.backtest, func_settings=SimpleMovingAverage.EA_SETTINGS(), default_arguments=const_arguments, childs=9, generations=30, survivers=3, mutation_strength=0.1))
+print(evolve(func=RelativeStrengthIndex.backtest, func_settings=RelativeStrengthIndex.EA_SETTINGS(),
+             default_arguments=const_arguments,
+             childs=12,
+             generations=30,
+             survivers=3,
+             mutation_strength=0.05,
+             mutation_probability=0.5))
 
 """for ticker in tickers:
     data_frame = fetch_historical_data(ticker, '3mo', "1d")
