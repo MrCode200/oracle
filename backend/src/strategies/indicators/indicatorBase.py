@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+from math import ceil
 
 from pandas import DataFrame, isna
 import pandas_ta as ta
@@ -15,18 +16,19 @@ class Indicator(ABC):
         - evaluate(database: Iterable) -> float: Abstract method to run the strategies on the provided database.
         - backtest(database: Iterable) -> float: Abstract method to test the accuracy of the strategies on the provided database.
         - process_trade_signal(database: Iterable) -> float: Abstract method to buy and sell as well as append for all backtest functions.
+
+    :raises Attribute Error: If the subclass does not define _EA_SETTINGS and _EA_SETTINGS does not contain 'start', 'stop', 'step' and 'type'.
     """
     @classmethod
     def __init_subclass__(cls, **kwargs):
-        if (
-            not hasattr(cls, "_EA_SETTINGS") and
-            type(cls._EA_SETTINGS) != type(dict) and
-            cls._EA_SETTINGS.keys() != {"start", "end", "step"}
-        ):
-            raise ValueError(f"Subclass {cls.__name__} must define _EA_SETTINGS as a dictionary with keys 'start', 'end', and 'step'")
+        required_keys: set = {"start", "stop", "step", "type"}
+        for key, setting in cls._EA_SETTINGS.items():
+            if not required_keys <= set(setting.keys()):  # Checks if all required keys are present
+                raise AttributeError(
+                    f"func_settings must contain dictionaries with the keys 'start', 'stop', and 'step'. Argument missing those keys: {key}")
 
     @classmethod
-    def _EA_SETTINGS(cls) -> tuple[int, int]:
+    def EA_SETTINGS(cls) -> dict[str, dict[str, int | float]]:
         return cls._EA_SETTINGS
 
     @staticmethod
@@ -41,21 +43,29 @@ class Indicator(ABC):
 
     @staticmethod
     @abstractmethod
-    def backtest(data_frame: DataFrame, partition_frequency: int = 31) -> list[float]:
+    def backtest(data_frame: DataFrame, parition_amount: int = 1) -> list[float]:
         """
 
         :param data_frame: The DataFrame containing the market data with a 'Close' column.
-        :key partition_frequency: The frequency at which to recalculate the Return on Investiment (default is 31).
-        :return:
+        :key parition_amount: The amount of paritions which get returned at which to recalculate the Return on Investiment (default is 12).
+        :return: A list of parition_amount times of the Return on Investiment.
+        :raises ValueError: If parition_amount is less than or equal to 0
         """
+        if parition_amount <= 0:
+            raise ValueError("Parition amount must be greater than 0")
+
         base_balance: float = 1_000_000
         balance: float = base_balance
         shares: float = 0
         net_worth_history: list[float] = []
 
-        ... # Evaluate the indicator
+        nan_padding = ...
 
-        for i in range(len(data_frame)):
+        indicator_series = ... # Evaluate the indicator
+
+        parition_amount = ceil((len(indicator_series) - nan_padding) / parition_amount) if parition_amount > 1 else 1
+
+        for i in range(nan_padding, len(indicator_series)):
             if isna(data_frame.iloc[i]['Close']):
                 continue
                 # !!!
@@ -63,21 +73,19 @@ class Indicator(ABC):
 
             trade_signal: int | None = ...
 
-            is_partition_cap_reached: bool = (i - 1) % partition_frequency == 0
-            # !!!
-            # should be changed to fit the range starting value in the for loop
-            # NOTE: in the first iteration it should start at one (i - 1) % partition_frequency == 1
+            is_partition_cap_reached: bool = ((i - nan_padding + 1) % parition_amount == 0) if parition_amount > 1 else False
 
             base_balance, balance, shares = Indicator.process_trade_signal(
                 base_balance, balance, shares,
                 data_frame.iloc[i].Close, trade_signal,
                 net_worth_history, is_partition_cap_reached,
-                "NotNamed"
+                "BaseClass"
             )
 
 
-        total_net_worth = balance + shares * data_frame.iloc[-1].Close
-        net_worth_history.append(total_net_worth / base_balance)
+        if not is_partition_cap_reached:
+            total_net_worth = balance + shares * data_frame.iloc[-1].Close
+            net_worth_history.append(total_net_worth / base_balance)
 
         logger.info(f"Backtest completed with Return on Investment of {[str(roi * 100) for roi in net_worth_history]}",
                     extra={"strategy": "BaseClass"})
@@ -144,7 +152,7 @@ class Indicator(ABC):
 
             logger.debug(
                 f"Appended ROI, Total Net Worth:{total_net_worth}; ROI: {net_worth_history[-1]}",
-                extra={"strategy": "BaseClass"})
+                extra={"strategy": strategy_name})
 
         return base_balance, balance, shares
 
