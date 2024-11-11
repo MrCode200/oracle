@@ -30,9 +30,9 @@ class RelativeStrengthIndex(Indicator):
         Backtests the RSI strategy on historical data and calculates the Return on Investment (ROI).
     """
     _EA_SETTINGS: dict[str, dict[str, int|float]] = {
-        "period": {"start": 1, "stop": 200, "step": 1},
-        "lower_band": {"start": 1, "stop": 200, "step": 0.1},
-        "upper_band": {"start": 1, "stop": 200, "step": 0.1}
+        "period": {"start": 1, "stop": 200, "step": 1, "type": "int"},
+        "lower_band": {"start": 1, "stop": 200, "step": 0.1, "type": "float"},
+        "upper_band": {"start": 1, "stop": 200, "step": 0.1, "type": "float"}
     }
 
     @staticmethod

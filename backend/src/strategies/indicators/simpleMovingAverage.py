@@ -35,8 +35,8 @@ class SimpleMovingAverage(Indicator):
         Backtests the strategy using historical data and calculates the Return on Investment (ROI).
     """
     _EA_SETTINGS: dict[str, dict[str, int|float]] = {
-        "short_period": {"start": 1, "stop": 200, "step": 1},
-        "long_period": {"start": 1, "stop": 200, "step": 1},
+        "short_period": {"start": 10, "stop": 100, "step": 1, "type": "int"},
+        "long_period": {"start": 50, "stop": 200, "step": 1, "type": "int"},
     }
 
 
@@ -134,6 +134,10 @@ class SimpleMovingAverage(Indicator):
 
         short_sma_series: pandas.Series = sma(close=data_frame.Close, length=short_period)
         long_sma_series: pandas.Series = sma(close=data_frame.Close, length=long_period)
+
+        # Needed for the evolutionary Algorithm as some arguments may set the series to None and break the algorithm
+        if short_sma_series is None or long_sma_series is None:
+            return [0 for _ in range(parition_amount)]
 
         parition_amount = ceil((len(long_sma_series) - nan_padding) / parition_amount) if parition_amount > 1 else 1
 

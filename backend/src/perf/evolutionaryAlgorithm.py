@@ -1,19 +1,18 @@
-from random import randrange
+from .mathutils import randfloat
 from statistics import mean
 import logging
 
-
-from pandas import DataFrame
+from numpy.ma.core import arange
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 
-def evolve(data_frame: DataFrame,
-           func: callable,
+def evolve(func: callable,
            func_settings: dict[str, dict[str, int | float]],
+           default_arguments: dict[str, any],
            childs: int = 9,
            generations: int = 10,
            survivers: int = 3,
-           mutation_strength: float = 0.1) -> list[any]:
+           mutation_strength: float = 0.1) -> dict[float, dict[str, int | float]]:
     """
     Evolves the optimal arguments for a given indicator function over multiple generations using a genetic algorithm approach.
 
@@ -25,7 +24,7 @@ def evolve(data_frame: DataFrame,
     In each generation, a subset of the best-performing individuals (survivors) are selected, and their arguments are mutated to produce offspring.
     The performance of each set of arguments is evaluated using the provided indicator function, and the process repeats for the specified number of generations.
 
-    :param data_frame: A Pandas DataFrame containing the financial data used as input for the indicator function.
+    :param default_arguments: Arguments which will be always used and won't be mutated.
 
     :param func: The indicator function to optimize. This function should accept keyword arguments corresponding to the argument names in `func_settings`
     and return a list of performance metrics (e.g., returns or profit/loss values).
@@ -50,10 +49,10 @@ def evolve(data_frame: DataFrame,
     :param mutation_strength: The factor that determines the extent of mutation applied to the arguments during the evolution process.
         A higher value leads to more significant mutations. Default is 0.1 (i.e., 10% of the range).
 
-    :raises ValueError: If `func_settings` does not contain the required keys ("start", "end", "step") for each argument,
+    :raises ValueError: If `func_settings` does not contain the required keys ("start", "end", "step", "type") for each argument,
         or if `childs` is not a multiple of `survivers`.
 
-    :return: A list containing the best set of arguments found across all generations along with their performance score.
+    :return: A a dict containing n-survivers best arguments for the function `func`.
 
     :example:
 
@@ -64,12 +63,12 @@ def evolve(data_frame: DataFrame,
             # Example usage
             data = pd.read_csv('financial_data.csv')
             settings = {
-                "short_period": {"start": 5, "end": 15, "step": 1},
-                "long_period": {"start": 20, "end": 50, "step": 5}
+                "short_period": {"start": 5, "end": 15, "step": 1, "type": "int"},
+                "long_period": {"start": 20, "end": 50, "step": 5, "type": "int"},
             }
 
             best_args = evolve(
-                data_frame=data,
+                default_arguments=dict_of_default_arguments,
                 func=relative_strength_index,
                 func_settings=settings,
                 childs=10,
@@ -81,8 +80,11 @@ def evolve(data_frame: DataFrame,
     This function is useful for optimizing financial trading strategies by tuning the parameters of technical indicators
     like moving averages, RSI, or custom indicators to maximize profitability or accuracy.
     """
-    if {"start", "end", "step"} not in func_settings.values():
-        raise ValueError(f"func_settings must contain a str, dictionary where the dictionary contains the keys 'start', 'end', and 'step'")
+    required_keys = {"start", "stop", "step", "type"}
+    for key, setting in func_settings.items():
+        if not required_keys <= set(setting.keys()):  # Checks if all required keys are present
+            raise ValueError(f"func_settings must contain dictionaries with the keys 'start', 'stop', and 'step'. Argument missing those keys: {key}")
+
     if childs % survivers != 0:
         raise ValueError("Childs must be a multiple of survivers")
 
@@ -90,30 +92,46 @@ def evolve(data_frame: DataFrame,
     gen_statistics = init_generation(childs, func_settings)
 
     for gen in range(generations):
-        new_gen_statistics: dict[float, dict[str, int | float]] = {}
-        child_id: int = 0
+        if gen > 0:
+            gen_statistics = select_top_performers_and_reproduce(gen_statistics, survivers, childs)
 
-        gen_statistics = sorted(gen_statistics.items(), key=lambda item: item[1]["performance"], reverse=True)
-
-        for mother in range(survivers):
-            for offspring in range(childs / survivers):
-                new_gen_statistics[child_id] = gen_statistics[mother][1]
-                child_id += 1
-
-        gen_statistics = new_gen_statistics
+        logger.error(f"Started generation {gen}/{generations} with candidates {gen_statistics}")
 
         for child in range(childs):
-            mutated_args: dict[str, int | float] = \
+            mutated_args: dict[str, float] = \
             {
-                key: values + randrange(-mutation_ranges[key], mutation_ranges[key], func_settings[key]["step"])
-                for key, values in gen_statistics[child].items() if key != "total_net_worth"
+                key: values + randfloat(-mutation_ranges[key], mutation_ranges[key], func_settings[key]["step"])
+                for key, values in gen_statistics[child].items() if key != "performance"
             }
 
-            performance: list[float] = func(data_frame, **{key: value for key, value in mutated_args if key != "total_net_worth"})
+            mutated_args = \
+            {
+                key: int(value) if func_settings[key]["type"] == "int" else value
+                for key, value in mutated_args.items()
+            }
+
+
+
+            performance: list[float] = func(**default_arguments, **{key: value for key, value in mutated_args.items() if key != "performance"})
             true_performance: float = mean(performance)
 
             gen_statistics[child] = mutated_args
             gen_statistics[child]["performance"] = true_performance
+
+    gen_statistics = select_top_performers_and_reproduce(gen_statistics, survivers, childs)
+    winning_statistics = {}
+    i:int = 0
+
+    for child in range(childs):
+        if i == 0:
+            winning_statistics[child] = gen_statistics[child]
+            i = int(childs/survivers) - 1
+        else:
+            i -= 1
+
+    logger.error(f"Finished evolving generation {generations}/{generations}, with top candidates {winning_statistics}")
+
+    return winning_statistics
 
 
 def create_mutation_range(func_settings: dict[str, dict[str, int | float]], mutation_strength: float) -> dict[str, int | float]:
@@ -129,7 +147,7 @@ def create_mutation_range(func_settings: dict[str, dict[str, int | float]], muta
         .. code-block:: python
 
             {
-                "param_name": {"start": int, "end": int, "step": int}
+                "param_name": {"start": int, "end": int, "step": int, "type": "int"}
             }
 
     :param mutation_strength: A float representing the proportion of the parameter range to use for mutation.
@@ -144,8 +162,9 @@ def create_mutation_range(func_settings: dict[str, dict[str, int | float]], muta
 
             mutation_ranges = create_mutation_range(
                 {
-                    "short_period": {"start": 5, "end": 20, "step": 1},
-                    "long_period": {"start": 20, "end": 50, "step": 5}
+                    "param_name": {"start": 5, "end": 20, "step": 1, "type": "int"},
+                    "param_name": {"start": 20, "end": 50, "step": 5, "type": "int"},
+                    ...
                 },
                 mutation_strength=0.1
             )
@@ -166,7 +185,7 @@ def init_generation(childs: int, func_settings: dict[str, dict[str, int | float]
 
      This function creates the initial population of individuals (strategies) for the genetic algorithm.
      Each individual is represented by a dictionary of parameters, initialized with random values between their specified ranges.
-     Additionally, a default value of 1 is assigned to the `total_net_worth` for each individual.
+     Additionally, a default value of 1 is assigned to the `performance` for each individual.
 
      :param childs: The total number of individuals (children) to initialize in the first generation.
 
@@ -181,17 +200,65 @@ def init_generation(childs: int, func_settings: dict[str, dict[str, int | float]
 
      :return: A dictionary where each key is an index representing an individual, and each value is a dictionary containing:
          - Randomly initialized parameters within the specified ranges.
-         - A default `total_net_worth` of 1.
+         - A default `performance` of 1.
      """
-    gen_statistics: dict[float, dict[str, int | float]] = []
+    gen_statistics: dict[float, dict[str, int | float]] = {}
 
     for child in range(childs):
         starting_args: dict[str, int | float] = {
-            key: randrange(value["start"], value["stop"], value["step"])
-            for key, value in func_settings.items(),
+            key: randfloat(value["start"], value["stop"], value["step"])
+            for key, value in func_settings.items()
         }
 
         gen_statistics[child] = starting_args
-        gen_statistics[child]["total_net_worth"] = 1
+        gen_statistics[child]["performance"] = 1
 
     return gen_statistics
+
+
+def select_top_performers_and_reproduce(gen_statistics: dict[float, dict[str, int | float]], survivers: int, childs: int) -> dict[float, dict[str, int | float]]:
+    """
+    Selects the top-performing individuals from the current generation and replicates them to form the next generation.
+
+    This function sorts the current generation of strategies based on their performance in descending order.
+    It selects the top performers (survivers) and replicates each to produce offspring,
+    filling the new generation with a total number of individuals equal to `childs`.
+
+    :param gen_statistics:
+        A dictionary where each key is an individual ID, and each value is a dictionary containing parameters and their performance.
+
+        .. code-block:: python
+
+            {
+                0: {"param_name": 8, "param_name": 20, "performance": 8.5},
+                1: {"param_name": 10, "param_name": 30, "performance": 15.2},
+                ...
+            }
+
+    :param survivers: The number of top-performing individuals to retain and replicate.
+
+    :param childs:The total number of individuals to be generated in the new generation. Must be a multiple of `survivers`.
+
+    :return:
+        A dictionary representing the new generation, with each key as a new individual ID and each value as a dictionary of parameters.
+
+        .. code-block:: python
+
+            {
+                0: {"param_name": 8, "param_name": 30, "performance": 15.2},
+                1: {"param_name": 10, "param_name": 50, "performance": 15.0},
+                2: {"param_name": 5, "param_name": 20, "performance": 13.0},
+                ...
+            }
+    """
+    new_gen_statistics: dict[float, dict[str, int | float]] = {}
+    child_id: int = 0
+
+    gen_statistics = sorted(gen_statistics.items(), key=lambda item: item[1]["performance"], reverse=True)
+
+    for mother in range(survivers):
+        for offspring in range(int(childs / survivers)):
+            new_gen_statistics[child_id] = gen_statistics[mother][1]
+            child_id += 1
+
+    return new_gen_statistics

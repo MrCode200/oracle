@@ -16,18 +16,19 @@ class Indicator(ABC):
         - evaluate(database: Iterable) -> float: Abstract method to run the strategies on the provided database.
         - backtest(database: Iterable) -> float: Abstract method to test the accuracy of the strategies on the provided database.
         - process_trade_signal(database: Iterable) -> float: Abstract method to buy and sell as well as append for all backtest functions.
+
+    :raises Attribute Error: If the subclass does not define _EA_SETTINGS and _EA_SETTINGS does not contain 'start', 'stop', 'step' and 'type'.
     """
     @classmethod
     def __init_subclass__(cls, **kwargs):
-        if (
-            not hasattr(cls, "_EA_SETTINGS") and
-            type(cls._EA_SETTINGS) != type(dict) and
-            cls._EA_SETTINGS.keys() != {"start", "end", "step"}
-        ):
-            raise ValueError(f"Subclass {cls.__name__} must define _EA_SETTINGS as a dictionary with keys 'start', 'end', and 'step'")
+        required_keys: set = {"start", "stop", "step", "type"}
+        for key, setting in cls._EA_SETTINGS.items():
+            if not required_keys <= set(setting.keys()):  # Checks if all required keys are present
+                raise AttributeError(
+                    f"func_settings must contain dictionaries with the keys 'start', 'stop', and 'step'. Argument missing those keys: {key}")
 
     @classmethod
-    def _EA_SETTINGS(cls) -> tuple[int, int]:
+    def EA_SETTINGS(cls) -> dict[str, dict[str, int | float]]:
         return cls._EA_SETTINGS
 
     @staticmethod
