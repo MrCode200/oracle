@@ -1,3 +1,4 @@
+import copy
 import random
 from multiprocessing import Pool
 
@@ -99,21 +100,34 @@ def evolve(func: callable,
     if mutation_probability < 0 or mutation_probability > 1:
         raise ValueError("mutation_probability must be between 0 and 1")
 
+    def evaluate_generations(old_gen_statistics, gen_statistics: dict[float, dict[str, int | float]]):
+        print(f"{old_gen_statistics[0]['performance']} vs {gen_statistics[0]['performance']}")
+        if old_gen_statistics[0]["performance"] < gen_statistics[0]["performance"]:
+            old_gen_statistics = copy.deepcopy(gen_statistics)
+            gen_statistics = select_top_performers_and_reproduce(gen_statistics, survivers, childs)
+            logger.error(f"Better generation {gen}/{generations} with new candidates {gen_statistics}")
+        else:
+            gen_statistics = select_top_performers_and_reproduce(old_gen_statistics, survivers, childs)
+            logger.error(f"Next generation {gen}/{generations} with same candidates mutated {gen_statistics}")
+
+        return old_gen_statistics, gen_statistics
+
     mutation_ranges: dict[str, int | float] = create_mutation_range(func_settings, mutation_strength)
     gen_statistics = init_generation(childs, func_settings)
 
+    old_gen_statistics: dict[float, dict[str, int | float]] = gen_statistics
+
     for gen in range(generations):
         if gen > 0:
-            gen_statistics = select_top_performers_and_reproduce(gen_statistics, survivers, childs)
-
-        logger.error(f"Started generation {gen}/{generations} with candidates {gen_statistics}")
+            old_gen_statistics, gen_statistics = evaluate_generations(old_gen_statistics, gen_statistics)
 
         for child in range(childs):
             child_id, child_statistics = evolve_child(child, gen_statistics[child], func, default_arguments,
                                                         func_settings, mutation_ranges, mutation_probability)
             gen_statistics[child_id] = child_statistics
 
-    gen_statistics = select_top_performers_and_reproduce(gen_statistics, survivers, childs)
+
+    old_gen_statistics, gen_statistics = evaluate_generations(old_gen_statistics, gen_statistics)
     winning_statistics = {}
     i: int = 0
 

@@ -20,15 +20,16 @@ tickers: list[str] = ["ETH-USD"]
 results_sma: dict[str, list[float]] = {}
 results_rsi: dict[str, list[float]] = {}
 
-data_frame = fetch_historical_data("BTC-USD", '1y', "1h")
+data_frame = fetch_historical_data("ETH-USD", '1y', "1h")
+print(SimpleMovingAverage.backtest(data_frame, short_period=14, long_period=50, parition_amount=1))
 const_arguments: dict[str, any] = {"data_frame": data_frame, 'parition_amount': 12}
 print(evolve(func=SimpleMovingAverage.backtest, func_settings=SimpleMovingAverage.EA_SETTINGS(),
              default_arguments=const_arguments,
              childs=12,
              generations=30,
-             survivers=4,
-             mutation_strength=0.3,
-             mutation_probability=0.7))
+             survivers=1,
+             mutation_strength=0.2,
+             mutation_probability=0.8))
 
 """for ticker in tickers:
     data_frame = fetch_historical_data(ticker, '1mo', "1d")
