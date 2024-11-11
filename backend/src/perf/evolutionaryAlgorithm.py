@@ -115,7 +115,7 @@ def evolve(func: callable,
 
     gen_statistics = select_top_performers_and_reproduce(gen_statistics, survivers, childs)
     winning_statistics = {}
-    i:int = 0
+    i: int = 0
 
     for child in range(childs):
         if i == 0:

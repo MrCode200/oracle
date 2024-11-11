@@ -1,4 +1,5 @@
 import logging
+from turtledemo.sorting_animate import partition
 
 from custom_logger import setup_logger  # type: ignore
 from api import fetch_historical_data  # type: ignore
@@ -19,7 +20,7 @@ tickers: list[str] = ["ETH-USD"]
 results_sma: dict[str, list[float]] = {}
 results_rsi: dict[str, list[float]] = {}
 
-data_frame = fetch_historical_data("BTC-USD", '1y', "1h")
+data_frame = fetch_historical_data("BTC-USD", '1y', "1h", partition)
 const_arguments: dict[str, any] = {"data_frame": data_frame}
 print(evolve(func=RelativeStrengthIndex.backtest, func_settings=RelativeStrengthIndex.EA_SETTINGS(),
              default_arguments=const_arguments,

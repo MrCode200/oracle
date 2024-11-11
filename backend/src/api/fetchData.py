@@ -3,6 +3,9 @@ import logging
 import yfinance as yf  # type: ignore
 from pandas import DataFrame
 
+import sys
+sys.path.append("/workspaces/oracle/backend")
+
 from backend.src.exceptions import DataFetchError
 logger: logging.Logger = logging.getLogger("oracle.app")
 
