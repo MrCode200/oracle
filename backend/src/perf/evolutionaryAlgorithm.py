@@ -1,4 +1,5 @@
 import random
+from multiprocessing import Pool
 
 from .mathutils import randfloat
 from statistics import mean
@@ -56,6 +57,7 @@ def evolve(func: callable,
         A higher value means that more arguments will be mutated. Default is 0.5 (i.e., 50% of the arguments will be mutated).
 
     :raises ValueError: If `func_settings` does not contain the required keys ("start", "end", "step", "type") for each argument,
+        if mutation_probability is not between 0 and 1,
         or if `childs` is not a multiple of `survivers`.
 
     :return: A a dict containing n-survivers best arguments for the function `func`.
@@ -94,7 +96,10 @@ def evolve(func: callable,
     if childs % survivers != 0:
         raise ValueError("Childs must be a multiple of survivers")
 
-    mutation_ranges = create_mutation_range(func_settings, mutation_strength)
+    if mutation_probability < 0 or mutation_probability > 1:
+        raise ValueError("mutation_probability must be between 0 and 1")
+
+    mutation_ranges: dict[str, int | float] = create_mutation_range(func_settings, mutation_strength)
     gen_statistics = init_generation(childs, func_settings)
 
     for gen in range(generations):
@@ -104,25 +109,9 @@ def evolve(func: callable,
         logger.error(f"Started generation {gen}/{generations} with candidates {gen_statistics}")
 
         for child in range(childs):
-            mutated_args: dict[str, float] = \
-            {
-                key: values + randfloat(-mutation_ranges[key], mutation_ranges[key], func_settings[key]["step"])
-                for key, values in gen_statistics[child].items() if key != "performance" and random.random() < mutation_probability
-            }
-
-            mutated_args = \
-            {
-                key: int(value) if func_settings[key]["type"] == "int" else value
-                for key, value in mutated_args.items()
-            }
-
-
-
-            performance: list[float] = func(**default_arguments, **{key: value for key, value in mutated_args.items() if key != "performance"})
-            true_performance: float = mean(performance)
-
-            gen_statistics[child] = mutated_args
-            gen_statistics[child]["performance"] = true_performance
+            child_id, child_statistics = evolve_child(child, gen_statistics[child], func, default_arguments,
+                                                        func_settings, mutation_ranges, mutation_probability)
+            gen_statistics[child_id] = child_statistics
 
     gen_statistics = select_top_performers_and_reproduce(gen_statistics, survivers, childs)
     winning_statistics = {}
@@ -138,6 +127,52 @@ def evolve(func: callable,
     logger.error(f"Finished evolving generation {generations}/{generations}, with top candidates {winning_statistics}")
 
     return winning_statistics
+
+
+def evolve_child(child_id: int, child: dict[str, int | float], func: callable, default_arguments: dict[str, any],
+                   func_settings: dict[str, dict[str, int | float]], mutation_ranges: dict[str, int | float], mutation_probability: float):
+    """
+    Evaluates and mutates a single child in the population.
+
+    :param child_id: The total number of offspring to generate in each generation. Must be a multiple of `survivers`.
+        Default is 9.
+
+    :param child: The current individual being evaluated.
+
+    :param func: The indicator function to optimize. This function should accept keyword arguments corresponding to the argument names in `func_settings`
+    and return a list of performance metrics (e.g., returns or profit/loss values).
+
+    :param default_arguments: Arguments which will be always used and won't be mutated.
+
+    :param func_settings: A dictionary that defines the range and step size for each argument used in the indicator function.
+        Each key is the name of the argument, and the corresponding value is a dictionary with the following structure:
+
+    :param mutation_ranges: The range of mutation applied to the arguments during the evolution process.
+
+    :param mutation_probability: The probability of mutating an argument during the evolution process.
+        A higher value means that more arguments will be mutated. Default is 0.5 (i.e., 50% of the arguments will be mutated).
+    """
+    mutated_args: dict[str, float] = \
+        {
+            key: values + randfloat(-mutation_ranges[key], mutation_ranges[key], func_settings[key]["step"])
+            for key, values in child.items() if
+            key != "performance" and random.random() < mutation_probability
+        }
+
+    mutated_args = \
+        {
+            key: int(value) if func_settings[key]["type"] == "int" else value
+            for key, value in mutated_args.items()
+        }
+
+    performance: list[float] = func(**default_arguments,
+                                    **{key: value for key, value in mutated_args.items() if key != "performance"})
+    true_performance: float = mean(performance)
+
+    child_statistics = mutated_args
+    child_statistics["performance"] = true_performance
+
+    return child_id, child_statistics
 
 
 def create_mutation_range(func_settings: dict[str, dict[str, int | float]], mutation_strength: float) -> dict[str, int | float]:

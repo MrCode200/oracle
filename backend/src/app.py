@@ -26,8 +26,8 @@ print(evolve(func=RelativeStrengthIndex.backtest, func_settings=RelativeStrength
              childs=12,
              generations=30,
              survivers=3,
-             mutation_strength=0.05,
-             mutation_probability=0.5))
+             mutation_strength=0.1,
+             mutation_probability=0.7))
 
 """for ticker in tickers:
     data_frame = fetch_historical_data(ticker, '3mo', "1d")
