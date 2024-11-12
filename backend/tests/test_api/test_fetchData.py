@@ -7,15 +7,6 @@ from backend.src.exceptions import DataFetchError
 import logging
 logging.disable(logging.CRITICAL)
 
-# Mock data for successful response
-MOCK_DATA: DataFrame = DataFrame({
-    'Open': [100, 102, 101],
-    'High': [103, 104, 105],
-    'Low': [99, 100, 100],
-    'Close': [102, 103, 104],
-    'Volume': [1000, 1500, 1200]
-})
-
 
 @pytest.mark.parametrize(
     "ticker, period, interval, start, end",

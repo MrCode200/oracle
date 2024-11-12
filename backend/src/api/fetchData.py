@@ -6,7 +6,7 @@ from pandas import DataFrame
 import sys
 sys.path.append("/workspaces/oracle/backend")
 
-from backend.src.api.utils.dataModifier import compress_data, determine_interval
+from .utils import compress_data, determine_interval
 from backend.src.exceptions import DataFetchError
 logger: logging.Logger = logging.getLogger("oracle.app")
 

@@ -31,6 +31,8 @@ print(evolve(func=SimpleMovingAverage.backtest, func_settings=SimpleMovingAverag
              mutation_strength=0.2,
              mutation_probability=0.8))
 
+# Ad option for starting arguments
+
 """for ticker in tickers:
     data_frame = fetch_historical_data(ticker, '1mo', "1d")
 
