@@ -41,33 +41,37 @@ class SimpleMovingAverage(Indicator):
 
 
     @staticmethod
-    def determine_trade_signal(
-            short_sma_latest: float,
-            short_sma_previous: float,
-            long_sma_latest: float,
-            long_sma_previous: float
-    ) -> int | None:
+    def determine_trade_signal(short_sma_series: pandas.Series, long_sma_series: pandas.Series, index: int = 0) -> int:
         """
         Determines trade signal based on SMA crossovers.
 
         The function compares the latest and previous values of the short and long SMAs.
-        - If the crossovers haven't occurred, returns None (Hold).
+        - If the crossovers haven't occurred, returns 0 (Hold).
         - If the short SMA crosses above the long SMA, returns 1 (Buy).
-        - If the short SMA crosses below the long SMA, returns 0 (Sell).
+        - If the short SMA crosses below the long SMA, returns -1 (Sell).
 
-        :param short_sma_latest: The most recent value of the short period SMA.
-        :param short_sma_previous: The previous value of the short period SMA.
-        :param long_sma_latest: The most recent value of the long period SMA.
-        :param long_sma_previous: The previous value of the long period SMA.
+        :param short_sma_series: A series of short a period SMA.
+        :param long_sma_series: A series of a long period SMA.
+        :key index: The index of the data to evaluate (default is 0).
 
-        :return: 1 if Buy signal, 0 if Sell signal, or None if Hold signal.
+        :return: 1 if Buy signal, -1 if Sell signal, or 0 if Hold signal.
+
+        :raise ValueError: If the index is greater than the length of the series. Due to it getting index-1 value of the series
         """
+        if index == len(short_sma_series) - 1:
+            raise ValueError("Index must be smaller than the length of the series.")
+
+        short_sma_latest: float = short_sma_series.iloc[index]
+        long_sma_latest: float = long_sma_series.iloc[index]
+        short_sma_previous: float = short_sma_series.iloc[index - 1]
+        long_sma_previous: float = long_sma_series.iloc[index - 1]
+
         if (short_sma_latest > long_sma_latest) == (short_sma_previous > long_sma_previous):
-            return None  # Hold
+            return 0  # Hold
         elif short_sma_latest > long_sma_latest:
             return 1  # Buy
         else:
-            return 0  # Sell
+            return -1  # Sell
 
     @staticmethod
     def evaluate(data_frame: DataFrame, short_period: int = 14, long_period: int = 50) -> int | None:
@@ -81,7 +85,7 @@ class SimpleMovingAverage(Indicator):
         :param short_period: The period for the short-term SMA (default is 14).
         :param long_period: The period for the long-term SMA (default is 50).
 
-        :return: The trade signal (1 for Buy, 0 for Sell, or None for Hold).
+        :return: The trade signal (1 for Buy, -1 for Sell, or 0 for Hold).
         """
         short_sma_series: pandas.Series = sma(close=data_frame.Close, length=short_period)
         long_sma_series: pandas.Series = sma(close=data_frame.Close, length=long_period)
@@ -97,15 +101,17 @@ class SimpleMovingAverage(Indicator):
                      extra={"strategy": "SMA"})
 
         # Determine trade signal
-        signal: int | None = SimpleMovingAverage.determine_trade_signal(short_sma_latest, short_sma_previous, long_sma_latest,
-                                                                  long_sma_previous)
+        signal: int | None = SimpleMovingAverage.determine_trade_signal(
+            short_sma_series=short_sma_series,
+            long_sma_series=long_sma_series
+        )
 
         decision: str = "hold" if signal is None else "buy" if signal == 1 else "sell"
         logger.info(f"SMA evaluation result: {decision}", extra={"strategy": "SMA"})
         return signal
 
     @staticmethod
-    def backtest(data_frame: DataFrame, parition_amount: int = 1, short_period: int = 14, long_period: int = 50) -> list[float]:
+    def backtest(data_frame: DataFrame, partition_amount: int = 1, short_period: int = 14, long_period: int = 50) -> list[float]:
         """
         Runs a backtest on the data and returns final profit or loss.
 
@@ -114,15 +120,15 @@ class SimpleMovingAverage(Indicator):
         The initial balance is assumed to be 100,000, and the strategy is tested over the provided market data.
 
         :param data_frame: The DataFrame containing the market data with a 'Close' column.
-        :key parition_amount: The amount of paritions which get returned at which to recalculate the Return on Investiment (default is 1).
+        :key partition_amount: The amount of paritions which get returned at which to recalculate the Return on Investiment (default is 1).
         :key short_period: The period for the short-term SMA (default is 14).
         :key long_period: The period for the long-term SMA (default is 50).
 
-        :return: A list of parition_amount times of the Return on Investiment.
+        :return: A list of partition_amount times of the Return on Investment.
 
-        :raises ValueError: If parition_amount is less than or equal to 0
+        :raises ValueError: If partition_amount is less than or equal to 0
         """
-        if parition_amount <= 0:
+        if partition_amount <= 0:
             raise ValueError("Parition amount must be greater than 0")
 
         base_balance: float = 1_000_000
@@ -137,21 +143,20 @@ class SimpleMovingAverage(Indicator):
 
         # Needed for the evolutionary Algorithm as some arguments may set the series to None and break the algorithm
         if short_sma_series is None or long_sma_series is None:
-            return [0 for _ in range(parition_amount)]
+            return [0 for _ in range(partition_amount)]
 
-        parition_amount = ceil((len(long_sma_series) - nan_padding) / parition_amount) if parition_amount > 1 else 1
+        partition_amount = ceil((len(long_sma_series) - nan_padding) / partition_amount) if partition_amount > 1 else 1
 
         for i in range(nan_padding, len(long_sma_series)):
-            short_sma_latest: float = short_sma_series.iloc[i]
-            long_sma_latest: float = long_sma_series.iloc[i]
-            short_sma_previous: float = short_sma_series.iloc[i - 1]
-            long_sma_previous: float = long_sma_series.iloc[i - 1]
+
 
             trade_signal: int | None = SimpleMovingAverage.determine_trade_signal(
-                short_sma_latest, short_sma_previous, long_sma_latest, long_sma_previous
+                short_sma_series=short_sma_series,
+                long_sma_series=long_sma_series,
+                index=i
             )
 
-            is_partition_cap_reached: bool = ((i - nan_padding + 1) % parition_amount == 0) if parition_amount > 1 else False
+            is_partition_cap_reached: bool = ((i - nan_padding + 1) % partition_amount == 0) if partition_amount > 1 else False
 
             base_balance, balance, shares = SimpleMovingAverage.process_trade_signal(
                 base_balance, balance, shares,

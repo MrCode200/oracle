@@ -36,7 +36,7 @@ class RelativeStrengthIndex(Indicator):
     }
 
     @staticmethod
-    def determine_trade_signal(rsi_value: float, lower_band: int = 30, upper_band: int = 70) -> int | None:
+    def determine_trade_signal(rsi_value: float, lower_band: int = 30, upper_band: int = 70) -> int:
         """
         Determines whether the signal is to buy, sell, or hold based on the RSI value.
 
@@ -49,14 +49,14 @@ class RelativeStrengthIndex(Indicator):
         :param lower_band: The RSI value below which to trigger a buy signal (default is 30).
         :param upper_band: The RSI value above which to trigger a sell signal (default is 70).
 
-        :return: 1 for Buy, 0 for Sell, or None for Hold.
+        :return: 1 for Buy, -1 for Sell, or 0 for Hold.
         """
         if rsi_value < lower_band:
             return 1  # Buy signal
         elif rsi_value > upper_band:
-            return 0  # Sell signal
+            return -1  # Sell signal
         else:
-            return None  # Hold signal
+            return 0  # Hold signal
 
     @staticmethod
     def evaluate(data_frame: DataFrame, period: int = 14, lower_band: int = 30, upper_band: int = 70) -> int | None:
@@ -72,18 +72,18 @@ class RelativeStrengthIndex(Indicator):
         :param lower_band: The lower RSI threshold for a buy signal (default is 30).
         :param upper_band: The upper RSI threshold for a sell signal (default is 70).
 
-        :return: The trade signal (1 for Buy, 0 for Sell, or None for Hold).
+        :return: The trade signal (1 for Buy, -1 for Sell, or 0 for Hold).
         """
         rsi_series: pandas.Series = rsi(close=data_frame.Close, length=period)
         signal: int | None = RelativeStrengthIndex.determine_trade_signal(rsi_series.iloc[-1])
 
-        decision: str = "hold" if signal is None else "buy" if signal == 1 else "sell"
+        decision: str = "hold" if signal is 0 else "buy" if signal == 1 else "sell"
         logger.info("RSI evaluation result: {}".format(decision), extra={"strategy": "RSI"})
 
         return signal
 
     @staticmethod
-    def backtest(data_frame: DataFrame, parition_amount: int = 1, period: int = 14, lower_band: int = 30, upper_band: int = 70) -> list[float]:
+    def backtest(data_frame: DataFrame, partition_amount: int = 1, period: int = 14, lower_band: int = 30, upper_band: int = 70) -> list[float]:
         """
         Backtests the RSI strategy on historical data.
 
@@ -91,7 +91,7 @@ class RelativeStrengthIndex(Indicator):
         It tracks the balance and number of shares owned and calculates the final Return on Investment (ROI).
 
         :param data_frame: The DataFrame containing the market data with a 'Close' column.
-        :key parition_amount: The amount of paritions which get returned at which to recalculate the Return on Investiment (default is 12).
+        :key partition_amount: The amount of paritions which get returned at which to recalculate the Return on Investiment (default is 1).
         :key period: The period to use for RSI calculation (default is 14).
         :key lower_band: The lower RSI threshold for a buy signal (default is 30).
         :key upper_band: The upper RSI threshold for a sell signal (default is 70).
@@ -100,7 +100,7 @@ class RelativeStrengthIndex(Indicator):
 
         :raises ValueError: If parition_amount is less than or equal to 0
         """
-        if parition_amount <= 0:
+        if partition_amount <= 0:
             raise ValueError("Parition amount must be greater than 0")
 
         base_balance: int = 1_000_000
@@ -112,12 +112,12 @@ class RelativeStrengthIndex(Indicator):
 
         rsi_series: pandas.Series = rsi(close=data_frame.Close, length=period)
 
-        parition_amount = ceil((len(rsi_series) - nan_padding) / parition_amount) if parition_amount > 1 else 1
+        partition_amount = ceil((len(rsi_series) - nan_padding) / partition_amount) if partition_amount > 1 else 1
 
         for i in range(nan_padding, len(rsi_series)):
             trade_signal: int | None = RelativeStrengthIndex.determine_trade_signal(rsi_series.iloc[i], lower_band, upper_band)
 
-            is_partition_cap_reached: bool = ((i - nan_padding + 1) % parition_amount == 0) if parition_amount > 1 else False
+            is_partition_cap_reached: bool = ((i - nan_padding + 1) % partition_amount == 0) if partition_amount > 1 else False
 
             base_balance, balance, shares = Indicator.process_trade_signal(
                 base_balance, balance, shares,

@@ -33,25 +33,22 @@ class Indicator(ABC):
 
     @staticmethod
     @abstractmethod
-    def determine_trade_signal():
+    def evaluate(data_frame: DataFrame) -> float:
         ...
 
     @staticmethod
     @abstractmethod
-    def evaluate(data_frame: DataFrame) -> float | int | None:
-        ...
-
-    @staticmethod
-    @abstractmethod
-    def backtest(data_frame: DataFrame, parition_amount: int = 1) -> list[float]:
+    def backtest(data_frame: DataFrame, partition_amount: int = 1) -> list[float]:
         """
 
         :param data_frame: The DataFrame containing the market data with a 'Close' column.
-        :key parition_amount: The amount of paritions which get returned at which to recalculate the Return on Investiment (default is 12).
+        :key partition_amount: The amount of paritions which get returned at which to recalculate the Return on Investiment (default is 1).
+
         :return: A list of parition_amount times of the Return on Investiment.
+
         :raises ValueError: If parition_amount is less than or equal to 0
         """
-        if parition_amount <= 0:
+        if partition_amount <= 0:
             raise ValueError("Parition amount must be greater than 0")
 
         base_balance: float = 1_000_000
@@ -63,7 +60,7 @@ class Indicator(ABC):
 
         indicator_series = ... # Evaluate the indicator
 
-        parition_amount = ceil((len(indicator_series) - nan_padding) / parition_amount) if parition_amount > 1 else 1
+        partition_amount = ceil((len(indicator_series) - nan_padding) / partition_amount) if partition_amount > 1 else 1
 
         for i in range(nan_padding, len(indicator_series)):
             if isna(data_frame.iloc[i]['Close']):
@@ -73,7 +70,7 @@ class Indicator(ABC):
 
             trade_signal: int | None = ...
 
-            is_partition_cap_reached: bool = ((i - nan_padding + 1) % parition_amount == 0) if parition_amount > 1 else False
+            is_partition_cap_reached: bool = ((i - nan_padding + 1) % partition_amount == 0) if partition_amount > 1 else False
 
             base_balance, balance, shares = Indicator.process_trade_signal(
                 base_balance, balance, shares,
@@ -126,7 +123,7 @@ class Indicator(ABC):
 
         :note:
             - A buy signal (1) will convert available cash into shares, and the cash balance will become 0.
-            - A sell signal (0) will sell all owned shares for cash, and the shares will be reset to 0.
+            - A sell signal (-1) will sell all owned shares for cash, and the shares will be reset to 0.
             - If `should_record_roi` is True, the method will record the portfolio's total value at that point,
               updating the `portfolio_value_history` with the current ROI.
         """
@@ -137,7 +134,7 @@ class Indicator(ABC):
                 "Executed Buy of {} shares at date: {}".format(shares, latest_price),
                 extra={"strategy": strategy_name})
 
-        elif trade_signal == 0 and shares > 0:  # Sell
+        elif trade_signal == -1 and shares > 0:  # Sell
             logger.debug(
                 "Executed Sell of {} shares at date: {}".format(shares, latest_price),
                 extra={"strategy": strategy_name})
@@ -155,6 +152,7 @@ class Indicator(ABC):
                 extra={"strategy": strategy_name})
 
         return base_balance, balance, shares
+
 
 if __name__ == '__main__':
     print(help(ta.Strategy))
