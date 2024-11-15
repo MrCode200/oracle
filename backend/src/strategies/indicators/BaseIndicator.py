@@ -38,9 +38,9 @@ class BaseIndicator(ABC):
     def evaluate(df: DataFrame) -> float:
         ...
 
-    @classmethod
+    @staticmethod
     @abstractmethod
-    def backtest(cls, df: DataFrame, func_kwargs: dict[str, any], invalid_values: int, partition_amount: int,
+    def backtest(df: DataFrame, indicator_cls, func_kwargs: dict[str, any], invalid_values: int, partition_amount: int,
                  strategy_name: str) -> list[float]:
         """
         Conducts a backtest on the provided market data to evaluate the performance of a trading strategy.
@@ -49,6 +49,7 @@ class BaseIndicator(ABC):
             - It may not work if the df is not the length of the indicator series!
 
         :param df: The DataFrame containing the market data with a 'Close' column.
+        :param indicatr_cls: The class object of the indicator being tested.
         :param func_kwargs: A dictionary of keyword arguments to be passed to the `determine_trade_signal` method.
         :param invalid_values: The number of initial rows in the DataFrame to skip, typically used to account for NaN values.
         :param partition_amount: The number of partitions to divide the data into for recalculating the Return on Investment (ROI). Must be greater than 0.
@@ -59,7 +60,7 @@ class BaseIndicator(ABC):
         :raises ValueError: If `partition_amount` is less than or equal to 0.
         """
         if partition_amount <= 0:
-            raise ValueError("Parition amount must be greater than 0")
+            raise ValueError("Partition amount must be greater than 0")
 
         base_balance: float = 1_000_000
         balance: float = base_balance
@@ -69,7 +70,7 @@ class BaseIndicator(ABC):
         partition_amount: int = ceil((len(df) - invalid_values) / partition_amount) if partition_amount > 1 else 1
 
         for i in range(invalid_values, len(df)):
-            trade_signal: float = cls.determine_trade_signal(index=i, **func_kwargs)
+            trade_signal: float = indicator_cls.determine_trade_signal(index=i, **func_kwargs)
 
             is_partition_cap_reached: bool = (
                     (i - invalid_values + 1) % partition_amount == 0) if partition_amount > 1 else False

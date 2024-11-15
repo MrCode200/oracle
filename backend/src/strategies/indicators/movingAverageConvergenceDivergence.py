@@ -103,6 +103,7 @@ class MovingAverageConvergenceDivergence(BaseIndicator):
 
         return super().backtest(
             df=df,
+            indicator_cls=MovingAverageConvergenceDivergence,
             invalid_values=long_period,
             func_kwargs=signal_func_kwargs,
             partition_amount=partition_amount,

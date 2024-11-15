@@ -79,7 +79,7 @@ class RelativeStrengthIndex(BaseIndicator):
         rsi_series: pandas.Series = rsi(close=df.Close, length=period)
         signal: int | None = RelativeStrengthIndex.determine_trade_signal(rsi_series.iloc[-1])
 
-        decision: str = "hold" if signal is 0 else "buy" if signal == 1 else "sell"
+        decision: str = "hold" if signal == 0 else "buy" if signal == 1 else "sell"
         logger.info("RSI evaluation result: {}".format(decision), extra={"strategy": "RSI"})
 
         return signal
@@ -112,5 +112,11 @@ class RelativeStrengthIndex(BaseIndicator):
             "upper_band": upper_band
         }
 
-        return super().backtest(df=df, invalid_values=nan_padding, func_kwargs=signal_func_kwargs,
-                                partition_amount=partition_amount, strategy_name="RSI")
+        return BaseIndicator.backtest(
+            df=df,
+            indicator_cls=RelativeStrengthIndex,
+            invalid_values=nan_padding,
+            func_kwargs=signal_func_kwargs,
+            partition_amount=partition_amount,
+            strategy_name="RSI"
+        )

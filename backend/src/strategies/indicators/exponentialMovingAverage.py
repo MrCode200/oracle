@@ -34,6 +34,7 @@ class ExponentialMovingAverage(BaseIndicator):
 
         return super().backtest(
             df=df,
+            indicator_cls=ExponentialMovingAverage,
             func_kwargs=signal_func_kwargs,
             invalid_values=period,
             partition_amount=partition_amount,

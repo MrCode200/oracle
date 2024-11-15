@@ -2,7 +2,7 @@ import logging
 from math import ceil
 
 import pandas
-from pandas import DataFrame
+from pandas import DataFrame, Series
 from pandas_ta import sma
 
 from .BaseIndicator import BaseIndicator  # type: ignore
@@ -41,7 +41,7 @@ class SimpleMovingAverage(BaseIndicator):
     }
 
     @staticmethod
-    def determine_trade_signal(short_sma_series: pandas.Series, long_sma_series: pandas.Series, index: int = 0) -> int:
+    def determine_trade_signal(short_sma_series: Series = None, long_sma_series: Series = None, index: int = 0) -> int:
         """
         Determines trade signal based on SMA crossovers.
 
@@ -58,7 +58,7 @@ class SimpleMovingAverage(BaseIndicator):
 
         :raise ValueError: If the index is greater than the length of the series. Due to it getting index-1 value of the series
         """
-        if index == len(short_sma_series) - 1:
+        if index > len(short_sma_series) - 1:
             raise ValueError("Index must be smaller than the length of the series.")
 
         short_sma_latest: float = short_sma_series.iloc[index]
@@ -96,13 +96,12 @@ class SimpleMovingAverage(BaseIndicator):
             long_sma_series=long_sma_series
         )
 
-        decision: str = "hold" if signal is 0 else "buy" if signal == 1 else "sell"
+        decision: str = "hold" if signal == 0 else "buy" if signal == 1 else "sell"
         logger.info(f"SMA evaluation result: {decision}", extra={"strategy": "SMA"})
         return signal
 
-    @staticmethod
     def backtest(df: DataFrame, partition_amount: int = 1, short_period: int = 14, long_period: int = 50) -> \
-    list[float]:
+            list[float]:
         """
         Runs a backtest on the data and returns final profit or loss.
 
@@ -119,15 +118,21 @@ class SimpleMovingAverage(BaseIndicator):
 
         :raises ValueError: If partition_amount is less than or equal to 0
         """
-        nan_padding = 1 + long_period
+        invalid_values = 1 + long_period
 
         short_sma_series: pandas.Series = sma(close=df.Close, length=short_period)
         long_sma_series: pandas.Series = sma(close=df.Close, length=long_period)
 
         signal_func_kwargs = {
-            'short_period': short_sma_series,
-            'long_period': long_sma_series
+            'short_sma_series': short_sma_series,
+            'long_sma_series': long_sma_series
         }
 
-        return super().backtest(df=df, invalid_values=nan_padding, func_kwargs=signal_func_kwargs,
-                                partition_amount=partition_amount)
+        return BaseIndicator.backtest(
+            df=df,
+            indicator_cls=SimpleMovingAverage,
+            invalid_values=invalid_values,
+            func_kwargs=signal_func_kwargs,
+            partition_amount=partition_amount,
+            strategy_name="SMA"
+        )
