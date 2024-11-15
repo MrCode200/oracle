@@ -22,21 +22,21 @@ def determine_interval(interval: str) -> str:
         return "1y"
 
 
-def compress_data(data_frame: pd.DataFrame, interval: str) -> pd.DataFrame:
+def compress_data(df: pd.DataFrame, interval: str) -> pd.DataFrame:
     """
      The first three char of interval  are numbers => 00
      The fourth char of interval is unit of time =>  m:minute / h : hour
     """
     if interval == determine_interval(interval):
-        return data_frame
+        return df
 
     compress_amount: int = int(interval[:-1])
     n_interval: int = int(compress_amount)
 
-    new_data_frame: pd.DataFrame = pd.DataFrame()
+    new_df: pd.DataFrame = pd.DataFrame()
 
-    for n in range(0, int((len(data_frame) + 1) / n_interval), n_interval):
-        timestr: str = data_frame.index[n].strftime('%Y-%m-%d %X')
+    for n in range(0, int((len(df) + 1) / n_interval), n_interval):
+        timestr: str = df.index[n].strftime('%Y-%m-%d %X')
         idx: list = [pd.Timestamp(
             year=int(timestr[0:4]),
             month=int(timestr[5:7]),
@@ -46,13 +46,13 @@ def compress_data(data_frame: pd.DataFrame, interval: str) -> pd.DataFrame:
             second=int(timestr[17:19]))]
 
         data: dict[str, list] = {
-            "Open": [data_frame.Open.iloc[n]],
-            "Close": [data_frame.Close.iloc[n+n_interval-1]],
-            "High": [data_frame.High.iloc[n:n+n_interval].max()],
-            "Low": [data_frame.Low.iloc[n:n+n_interval].min()],
+            "Open": [df.Open.iloc[n]],
+            "Close": [df.Close.iloc[n + n_interval - 1]],
+            "High": [df.High.iloc[n:n + n_interval].max()],
+            "Low": [df.Low.iloc[n:n + n_interval].min()],
             "Dividends": [0]
         }
 
-        new_data_frame: pd.DataFrame = new_data_frame._append(pd.DataFrame(data,index=pd.Index(idx)))
+        new_df: pd.DataFrame = new_df._append(pd.DataFrame(data, index=pd.Index(idx)))
 
-    return new_data_frame
+    return new_df

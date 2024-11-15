@@ -1,20 +1,19 @@
 from logging import Formatter, LogRecord
 import json
 
-
 # ANSI color codes for different log levels
 LOG_COLORS: dict[str: str] = {
-    'DEBUG': '\033[94m',      # Blue
-    'INFO': '\033[92m',       # Green
-    'WARNING': '\033[93m',    # Yellow
-    'ERROR': '\033[91m',      # Red
-    'CRITICAL': '\033[95m',   # Magenta
+    'DEBUG': '\033[94m',  # Blue
+    'INFO': '\033[92m',  # Green
+    'WARNING': '\033[93m',  # Yellow
+    'ERROR': '\033[91m',  # Red
+    'CRITICAL': '\033[95m',  # Magenta
     'MSG': '\033[97m',  # Bright White
-    'RESET': '\033[0m',       # Reset to default color
+    'RESET': '\033[0m',  # Reset to default color
 }
 BOLD: str = '\033[1m'
 UNDERLINE: str = '\033[4m'
-RESET_UNDERLINE: str = '\033[24m'   # Resets underline only
+RESET_UNDERLINE: str = '\033[24m'  # Resets underline only
 
 
 class ColoredFormatter(Formatter):
@@ -40,6 +39,7 @@ class ColoredFormatter(Formatter):
         formatted_message += f"{white}Message: {record.getMessage()}{reset}"
 
         return formatted_message
+
 
 class JsonFormatter(Formatter):
     def format(self, record) -> str:
