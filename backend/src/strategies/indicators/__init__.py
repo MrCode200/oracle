@@ -1,3 +1,4 @@
-from .relativeStrengthIndex import RelativeStrengthIndex # type: ignore
-from .simpleMovingAverage import SimpleMovingAverage # type: ignore
+from .relativeStrengthIndex import RelativeStrengthIndex
+from .simpleMovingAverage import SimpleMovingAverage
 from .movingAverageConvergenceDivergence import MovingAverageConvergenceDivergence
+from .exponentialMovingAverage import ExponentialMovingAverage

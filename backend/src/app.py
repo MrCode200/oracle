@@ -3,13 +3,16 @@ from turtledemo.sorting_animate import partition
 
 from custom_logger import setup_logger  # type: ignore
 from api import fetch_historical_data  # type: ignore
-from strategies.indicators import SimpleMovingAverage, RelativeStrengthIndex,MovingAverageConvergenceDivergence  # type: ignore
+from strategies.indicators import (SimpleMovingAverage,
+                                   RelativeStrengthIndex,
+                                   MovingAverageConvergenceDivergence,
+                                   ExponentialMovingAverage) # type: ignore
 
 from perf import evolve
 
 
 def init_app():
-    setup_logger('oracle.app', logging.ERROR, 'logs/app.jsonl', stream_in_color=True, log_in_json=True)
+    setup_logger('oracle.app', logging.DEBUG, 'logs/app.jsonl', stream_in_color=True, log_in_json=True)
     logger = logging.getLogger("oracle.app")
     logger.info("Initialized Oracle...")
     return logger
@@ -20,6 +23,8 @@ tickers: list[str] = ["ETH-USD"]
 results_sma: dict[str, list[float]] = {}
 results_rsi: dict[str, list[float]] = {}
 results_macd: dict[str, list[float]] = {}
+results_ema: dict[str, list[float]] = {}
+
 
 """data_frame = fetch_historical_data("BTC-USD", '1y', "3h")
 const_arguments: dict[str, any] = {"data_frame": data_frame}
@@ -34,22 +39,28 @@ print(evolve(func=SimpleMovingAverage.backtest, func_settings=SimpleMovingAverag
 for ticker in tickers:
     df = fetch_historical_data(ticker, '1y', "1h")
 
-    signalSMA: list[float] = SimpleMovingAverage.backtest(df=df, short_period=9, long_period=21, partition_amount=12)
-    signalRSI: list[float] = RelativeStrengthIndex.backtest(df=df, period=14, lower_band=15, upper_band=85, partition_amount=12)
+    signalSMA: list[float] = [0] #SimpleMovingAverage.backtest(df=df, short_period=9, long_period=21, partition_amount=12)
+    signalRSI: list[float] = [0] #RelativeStrengthIndex.backtest(df=df, period=14, lower_band=15, upper_band=85, partition_amount=12)
+    signalEMA: list[float] = [0] #ExponentialMovingAverage.backtest(df=df, period = 50, partition_amount=12)
     signalMACD: list[float] = MovingAverageConvergenceDivergence.backtest(df=df)
 
     results_sma[ticker] = signalSMA
     results_rsi[ticker] = signalRSI
-    results_macd[ticker] =signalMACD
+    results_macd[ticker] = signalMACD
+    results_ema[ticker] = signalEMA
 
 from functools import reduce
 print("\n".join(
     f"{ticker}: [{', '.join(f'{value:.2%}' for value in total_value)}] == {reduce(lambda x, y: x * y, total_value):.2%}"
-    for ticker, total_value in results_sma.items()
+    for ticker, total_value in results_ema.items()
 ))
 print("\n".join(
     f"{ticker}: [{', '.join(f'{value:.2%}' for value in total_value)}] == {reduce(lambda x, y: x * y, total_value):.2%}"
     for ticker, total_value in results_macd.items()
+))
+print("\n".join(
+    f"{ticker}: [{', '.join(f'{value:.2%}' for value in total_value)}] == {reduce(lambda x, y: x * y, total_value):.2%}"
+    for ticker, total_value in results_sma.items()
 ))
 print("\n".join(
     f"{ticker}: [{', '.join(f'{value:.2%}' for value in total_value)}] == {reduce(lambda x, y: x * y, total_value):.2%}"
