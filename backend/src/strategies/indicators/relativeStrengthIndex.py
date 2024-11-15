@@ -5,7 +5,7 @@ import pandas
 from pandas import DataFrame, isna, Series
 from pandas_ta import rsi
 
-from .BaseIndicator import BaseIndicator
+from .baseIndicator import BaseIndicator
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 
