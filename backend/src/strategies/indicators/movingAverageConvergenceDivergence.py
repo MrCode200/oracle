@@ -2,7 +2,7 @@ from logging import getLogger
 
 from pandas import DataFrame, Series
 
-from baseIndicator import BaseIndicator
+from .baseIndicator import BaseIndicator
 
 logger = getLogger("oracle.app")
 
@@ -29,10 +29,10 @@ class MovingAverageConvergenceDivergence(BaseIndicator):
 
         :return: An integer representing the trade signal (1 for buy, -1 for sell, 0 for neutral).
         """
-        long_term_ema: Series = df['Close'].iloc[index].ewm(span=long_period, adjust=False).mean()
-        short_term_ema: Series = df['Close'].iloc[index].ewm(span=short_period, adjust=False).mean()
+        long_term_ema: Series = df['Close'].iloc[:index].ewm(span=long_period, adjust=False).mean()
+        short_term_ema: Series = df['Close'].iloc[:index].ewm(span=short_period, adjust=False).mean()
 
-        signal_line_ema: Series = df['Close'].iloc[index].ewm(span=signal_line_period, adjust=False).mean()
+        signal_line_ema: Series = df['Close'].iloc[:index].ewm(span=signal_line_period, adjust=False).mean()
         macd_line = short_term_ema - long_term_ema
 
         signal_line_latest: float = signal_line_ema.iloc[-1]
@@ -101,7 +101,7 @@ class MovingAverageConvergenceDivergence(BaseIndicator):
             "signal_line_period": signal_line_period
         }
 
-        return super().backtest(
+        return BaseIndicator.backtest(
             df=df,
             indicator_cls=MovingAverageConvergenceDivergence,
             invalid_values=long_period,
