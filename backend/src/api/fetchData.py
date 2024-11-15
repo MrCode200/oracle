@@ -4,14 +4,17 @@ import yfinance as yf  # type: ignore
 from pandas import DataFrame
 
 import sys
+
 sys.path.append("/workspaces/oracle/backend")
 
 from backend.src.api.utils.dataModifier import compress_data, determine_interval
 from backend.src.exceptions import DataFetchError
+
 logger: logging.Logger = logging.getLogger("oracle.app")
 
 
-def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d", start: str = None, end: str = None) -> DataFrame:
+def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d", start: str = None,
+                          end: str = None) -> DataFrame:
     """
     Fetch historical market chart data from Yahoo Finance using yfinance.
 
@@ -26,7 +29,7 @@ def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d",
     :raises DataFetchError: If an error occurs while fetching data
     """
     try:
-        ticker_obj  = yf.Ticker(ticker)
+        ticker_obj = yf.Ticker(ticker)
 
         if ticker_obj.info.get("longName") is None:
             logger.error(f"Invalid Ticker: {ticker}")
@@ -39,13 +42,13 @@ def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d",
 
     try:
         # Fetch historical market data as pandas DataFrame
-        data_frame = ticker_obj.history(period=period, interval=determine_interval(interval), start=start, end=end)
+        df = ticker_obj.history(period=period, interval=determine_interval(interval), start=start, end=end)
 
-        data_frame = compress_data(data_frame, interval)
+        df = compress_data(df, interval)
 
-        if not data_frame.empty:
+        if not df.empty:
             logger.info(f"Fetched Data: {ticker = }; {period = }; {interval = };")
-            return data_frame
+            return df
         else:
             logger.error("No data fetched for the given parameters, try using max for period")
             raise DataFetchError(message="Data Frame is empty. No data fetched for the given parameters",
@@ -54,7 +57,7 @@ def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d",
                                  interval=interval,
                                  start=start,
                                  end=end)
-    
+
     except Exception as e:
         if not isinstance(e, DataFetchError):
             logger.error(f"Error fetching history data: {e}")
