@@ -5,7 +5,7 @@ import pandas
 from pandas import DataFrame
 from pandas_ta import sma
 
-from .indicatorBase import BaseIndicator  # type: ignore
+from .BaseIndicator import BaseIndicator  # type: ignore
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 

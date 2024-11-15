@@ -2,7 +2,7 @@ from logging import getLogger
 
 from pandas import DataFrame, Series
 
-from indicatorBase import BaseIndicator
+from BaseIndicator import BaseIndicator
 
 logger = getLogger("oracle.app")
 
