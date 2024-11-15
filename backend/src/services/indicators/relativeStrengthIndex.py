@@ -1,16 +1,15 @@
 import logging
-from math import ceil
 
 import pandas
-from pandas import DataFrame, isna, Series
+from pandas import DataFrame, Series
 from pandas_ta import rsi
 
-from .baseIndicator import BaseIndicator
+from backend.src.services.baseModel import BaseModel
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 
 
-class RelativeStrengthIndex(BaseIndicator):
+class RelativeStrengthIndex(BaseModel):
     """
     Implements the Relative Strength Index (RSI) trading strategy.
 
@@ -112,7 +111,7 @@ class RelativeStrengthIndex(BaseIndicator):
             "upper_band": upper_band
         }
 
-        return BaseIndicator.backtest(
+        return BaseModel.backtest(
             df=df,
             indicator_cls=RelativeStrengthIndex,
             invalid_values=nan_padding,

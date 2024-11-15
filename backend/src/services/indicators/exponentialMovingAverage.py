@@ -1,13 +1,13 @@
 from logging import getLogger
 
-from pandas import DataFrame, Series
+from pandas import DataFrame
 
-from .baseIndicator import BaseIndicator
+from backend.src.services.baseModel import BaseModel
 
 logger = getLogger("oracle.app")
 
 
-class ExponentialMovingAverage(BaseIndicator):
+class ExponentialMovingAverage(BaseModel):
     _EA_SETTINGS: dict[str, dict[str, int | float]] = {}
 
     @staticmethod
@@ -32,7 +32,7 @@ class ExponentialMovingAverage(BaseIndicator):
             "period": period
         }
 
-        return BaseIndicator.backtest(
+        return BaseModel.backtest(
             df=df,
             indicator_cls=ExponentialMovingAverage,
             func_kwargs=signal_func_kwargs,

@@ -3,10 +3,10 @@ from turtledemo.sorting_animate import partition
 
 from custom_logger import setup_logger  # type: ignore
 from api import fetch_historical_data  # type: ignore
-from strategies.indicators import (SimpleMovingAverage,
-                                   RelativeStrengthIndex,
-                                   MovingAverageConvergenceDivergence,
-                                   ExponentialMovingAverage) # type: ignore
+from services.indicators import (SimpleMovingAverage,
+                                 RelativeStrengthIndex,
+                                 MovingAverageConvergenceDivergence,
+                                 ExponentialMovingAverage) # type: ignore
 
 from perf import evolve
 
@@ -37,7 +37,7 @@ print(evolve(func=SimpleMovingAverage.backtest, func_settings=SimpleMovingAverag
              mutation_probability=0.7))"""
 
 for ticker in tickers:
-    df = fetch_historical_data(ticker, '1y', "1h")
+    df = fetch_historical_data(ticker, '1mo', "1h")
 
     signalSMA: list[float] = [0] #SimpleMovingAverage.backtest(df=df, short_period=9, long_period=21, partition_amount=12)
     signalRSI: list[float] = [0] #RelativeStrengthIndex.backtest(df=df, period=14, lower_band=15, upper_band=85, partition_amount=12)

@@ -2,12 +2,12 @@ from logging import getLogger
 
 from pandas import DataFrame, Series
 
-from .baseIndicator import BaseIndicator
+from backend.src.services.baseModel import BaseModel
 
 logger = getLogger("oracle.app")
 
 
-class MovingAverageConvergenceDivergence(BaseIndicator):
+class MovingAverageConvergenceDivergence(BaseModel):
     _EA_SETTINGS = {}
 
     @staticmethod
@@ -102,7 +102,7 @@ class MovingAverageConvergenceDivergence(BaseIndicator):
             "signal_line_period": signal_line_period
         }
 
-        return BaseIndicator.backtest(
+        return BaseModel.backtest(
             df=df,
             indicator_cls=MovingAverageConvergenceDivergence,
             invalid_values=long_period,

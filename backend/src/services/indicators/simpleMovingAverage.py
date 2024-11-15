@@ -1,16 +1,15 @@
 import logging
-from math import ceil
 
 import pandas
 from pandas import DataFrame, Series
 from pandas_ta import sma
 
-from .baseIndicator import BaseIndicator  # type: ignore
+from backend.src.services.baseModel import BaseModel  # type: ignore
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 
 
-class SimpleMovingAverage(BaseIndicator):
+class SimpleMovingAverage(BaseModel):
     """
     Implements the Simple Moving Average (SMA) trading strategy.
 
@@ -128,7 +127,7 @@ class SimpleMovingAverage(BaseIndicator):
             'long_sma_series': long_sma_series
         }
 
-        return BaseIndicator.backtest(
+        return BaseModel.backtest(
             df=df,
             indicator_cls=SimpleMovingAverage,
             invalid_values=invalid_values,
