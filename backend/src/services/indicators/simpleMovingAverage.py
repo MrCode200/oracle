@@ -99,7 +99,8 @@ class SimpleMovingAverage(BaseModel):
         logger.info(f"SMA evaluation result: {decision}", extra={"strategy": "SMA"})
         return signal
 
-    def backtest(df: DataFrame, partition_amount: int = 1, short_period: int = 14, long_period: int = 50) -> \
+    def backtest(df: DataFrame, partition_amount: int = 1, short_period: int = 14, long_period: int = 50,
+                 sell_percent: float = -0.8, buy_percent: float = 0.8,) -> \
             list[float]:
         """
         Runs a backtest on the data and returns final profit or loss.
@@ -112,6 +113,9 @@ class SimpleMovingAverage(BaseModel):
         :key partition_amount: The amount of paritions which get returned at which to recalculate the Return on Investiment (default is 1).
         :key short_period: The period for the short-term SMA (default is 14).
         :key long_period: The period for the long-term SMA (default is 50).
+        :param sell_percent: The percentage of when to sell, (default is -0.8).
+        :param buy_percent: The percentage of when to buy, (default is 0.8).
+
 
         :return: A list of partition_amount times of the Return on Investment.
 
@@ -131,6 +135,8 @@ class SimpleMovingAverage(BaseModel):
             df=df,
             indicator_cls=SimpleMovingAverage,
             invalid_values=invalid_values,
+            sell_percent=sell_percent,
+            buy_percent=buy_percent,
             func_kwargs=signal_func_kwargs,
             partition_amount=partition_amount,
             strategy_name="SMA"

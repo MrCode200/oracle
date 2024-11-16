@@ -35,7 +35,7 @@ class RelativeStrengthIndex(BaseModel):
     }
 
     @staticmethod
-    def determine_trade_signal(rsi_series: Series, lower_band: int, upper_band: int, index: int = 0) -> int:
+    def determine_trade_signal(rsi_series: Series, lower_band: int, upper_band: int, index: int = 0) -> float:
         """
         Determines whether the signal is to buy, sell, or hold based on the RSI value.
 
@@ -60,7 +60,7 @@ class RelativeStrengthIndex(BaseModel):
             return 0
 
     @staticmethod
-    def evaluate(df: DataFrame, period: int = 14, lower_band: int = 30, upper_band: int = 70) -> int | None:
+    def evaluate(df: DataFrame, period: int = 14, lower_band: int = 30, upper_band: int = 70) -> float:
         """
         Evaluates the RSI for the provided DataFrame and determines the trade signal.
 
@@ -85,7 +85,7 @@ class RelativeStrengthIndex(BaseModel):
 
     @staticmethod
     def backtest(df: DataFrame, partition_amount: int = 1, period: int = 14, lower_band: int = 30,
-                 upper_band: int = 70) -> list[float]:
+                 upper_band: int = 70, sell_percent: float = -0.8, buy_percent: float = 0.8) -> list[float]:
         """
         Backtests the RSI strategy on historical data.
 
@@ -97,6 +97,9 @@ class RelativeStrengthIndex(BaseModel):
         :key period: The period to use for RSI calculation (default is 14).
         :key lower_band: The lower RSI threshold for a buy signal (default is 30).
         :key upper_band: The upper RSI threshold for a sell signal (default is 70).
+        :param sell_percent: The percentage of when to sell, (default is 0.2).
+        :param buy_percent: The percentage of when to buy, (default is 0.8).
+
 
         :return: A list of parition_amount times of the Return on Investiment.
 
@@ -115,6 +118,8 @@ class RelativeStrengthIndex(BaseModel):
             df=df,
             indicator_cls=RelativeStrengthIndex,
             invalid_values=nan_padding,
+            sell_percent=sell_percent,
+            buy_percent=buy_percent,
             func_kwargs=signal_func_kwargs,
             partition_amount=partition_amount,
             strategy_name="RSI"
