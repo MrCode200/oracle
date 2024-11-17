@@ -19,7 +19,7 @@ def init_app():
 
 logger: logging.Logger = init_app()
 
-tickers: list[str] = ["BNB-USD", "ADA-USD", "DOGE-USD", "SOL-USD", "UNI-USD", "USDT-USD"]
+tickers: list[str] = ["DOGE-USD", "SOL-USD"]
 results_sma: dict[str, list[float]] = {}
 results_rsi: dict[str, list[float]] = {}
 results_macd: dict[str, list[float]] = {}
@@ -41,10 +41,14 @@ macd = MovingAverageConvergenceDivergence(fast_period=12, slow_period=26,
                                           signal_line_period=9,
                                           max_momentum_lookback=100,
                                           momentum_signal_weight=0.6,
+                                          return_crossover_weight=True,
+                                          max_crossover_gradient_degree=90,
+                                          crossover_gradient_signal_weight=1.0,
+                                          crossover_weight_impact=1.0,
                                           zero_line_crossover_weight=0.8,
                                           zero_line_pullback_lookback=100,
-                                          zero_line_pullback_tolerance_percent=0.1,
-                                          zero_line_pullback_weight=0.2,
+                                          zero_line_pullback_tolerance_percent=0.01,
+                                          zero_line_pullback_weight=0.0,
                                           return_pullback_strength=True,
                                           rate_of_change_weight=1, magnitude_weight=1,
                                           weight_impact=0.25)
@@ -52,7 +56,7 @@ macd = MovingAverageConvergenceDivergence(fast_period=12, slow_period=26,
 for ticker in tickers:
     df = fetch_historical_data(ticker, '1y', "1h")
 
-    signalSMA: list[float] = sma.backtest(df=df, partition_amount=12)
+    signalSMA: list[float] = [0] #sma.backtest(df=df, partition_amount=12)
     signalRSI: list[float] = [0]  # rsi.backtest(df=df, partition_amount=12)
     signalEMA: list[float] = [0]  # ema.backtest(df=df, partition_amount=12)
     signalMACD: list[float] = macd.backtest(df=df, partition_amount=12)

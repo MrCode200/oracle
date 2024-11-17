@@ -81,7 +81,7 @@ class RelativeStrengthIndex(BaseModel):
         :return: The trade signal (1 for Buy, -1 for Sell, or 0 for Hold).
         """
         rsi_series: pandas.Series = rsi(close=df.Close, length=self.period)
-        signal: float = RelativeStrengthIndex.determine_trade_signal(rsi_series.iloc[-1])
+        signal: float = self.determine_trade_signal(rsi_series.iloc[-1])
 
         logger.info("RSI evaluation result: {}".format(signal), extra={"strategy": "RSI"})
 

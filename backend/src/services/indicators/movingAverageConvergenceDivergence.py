@@ -19,6 +19,8 @@ class MovingAverageConvergenceDivergence(BaseModel):
 
     def __init__(self, fast_period: int = 26, slow_period: int = 12,
                  signal_line_period: int = 9, max_momentum_lookback: int = 100, momentum_signal_weight: float = 1,
+                 return_crossover_weight: bool = True, max_crossover_gradient_degree: float = 90,
+                 crossover_gradient_signal_weight: float = 1.0, crossover_weight_impact: float = 1.0,
                  zero_line_crossover_weight: float = 1, zero_line_pullback_lookback: int = 10,
                  zero_line_pullback_tolerance_percent: float = 0.1, zero_line_pullback_weight: float = 1,
                  return_pullback_strength: bool = True, magnitude_weight: float = 1, rate_of_change_weight: float = 1,
@@ -26,19 +28,23 @@ class MovingAverageConvergenceDivergence(BaseModel):
         """
         Initializes a new instance of the MovingAverageConvergenceDivergence class.
 
-        :param slow_period: The period used for the long-term EMA (default is 26).
-        :param fast_period: The period used for the short-term EMA (default is 12).
-        :param signal_line_period: The period used for the signal line EMA (default is 9).
-        :param max_momentum_lookback: The number of periods to look back for momentum analysis (default is 100).
-        :param momentum_signal_weight: The weight assigned to the momentum signal (default is 1).
-        :param zero_line_crossover_weight: The weight assigned to the zero line crossover signal (default is 1).
-        :param zero_line_pullback_lookback: The number of periods to look back for the zero line pullback (default is 10).
-        :param zero_line_pullback_tolerance_percent: The threshold for detecting pullbacks from the zero line (default is 0.1).
-        :param zero_line_pullback_weight: The weight assigned to the zero line pullback signal (default is 1).
-        :param return_pullback_strength: Whether to return the strength of the pullback.
-        :param magnitude_weight: The weight for the magnitude calculation.
-        :param rate_of_change_weight: The weight for the rate of change calculation.
-        :param weight_impact: The weight impact factor.
+        :key slow_period: The period used for the long-term EMA (default is 26).
+        :key fast_period: The period used for the short-term EMA (default is 12).
+        :key signal_line_period: The period used for the signal line EMA (default is 9).
+        :key max_momentum_lookback: The number of periods to look back for momentum analysis (default is 100).
+        :key momentum_signal_weight: The weight assigned to the momentum signal (default is 1).
+        :key return_crossover_weight: If True, also returns the strength of the crossover.
+        :key max_crossover_gradient_degree: The maximum degree of the gradient which gets used to calculate the strength of the crossover.
+        :key crossover_gradient_signal_weight: The weight used for the strength calculated based on the gradient for the crossover.
+        :key crossover_weight_impact: How strong the impact of the weights are on the crossover output. Example: 1 - (1- weight) * weight_impact
+        :key zero_line_crossover_weight: The weight assigned to the zero line crossover signal (default is 1).
+        :key zero_line_pullback_lookback: The number of periods to look back for the zero line pullback (default is 10).
+        :key zero_line_pullback_tolerance_percent: The threshold for detecting pullbacks from the zero line (default is 0.1).
+        :key zero_line_pullback_weight: The weight assigned to the zero line pullback signal (default is 1).
+        :key return_pullback_strength: Whether to return the strength of the pullback.
+        :key magnitude_weight: The weight for the magnitude calculation.
+        :key rate_of_change_weight: The weight for the rate of change calculation.
+        :key weight_impact: The weight impact factor.
 
         :raises ValueError: If fast_period is less than slow_period.
         """
@@ -50,6 +56,10 @@ class MovingAverageConvergenceDivergence(BaseModel):
         self.signal_line_period = signal_line_period
         self.max_momentum_lookback = max_momentum_lookback
         self.momentum_signal_weight = momentum_signal_weight
+        self.return_crossover_weigth = return_crossover_weight
+        self.max_crossover_gradient_degree = max_crossover_gradient_degree
+        self.crossover_gradient_signal_weight = crossover_gradient_signal_weight
+        self.crossover_weight_impact = crossover_weight_impact
         self.zero_line_crossover_weight = zero_line_crossover_weight
         self.zero_line_pullback_lookback = zero_line_pullback_lookback
         self.zero_line_pullback_tolerance_percent = zero_line_pullback_tolerance_percent
@@ -58,7 +68,6 @@ class MovingAverageConvergenceDivergence(BaseModel):
         self.magnitude_weight = magnitude_weight
         self.rate_of_change_weight = rate_of_change_weight
         self.weight_impact = weight_impact
-
 
     def determine_trade_signal(self, df: DataFrame, index: int = -1) -> float:
         """
@@ -96,7 +105,8 @@ class MovingAverageConvergenceDivergence(BaseModel):
 
         # The Zero Line Crossover
         crossover = check_crossover(current_macd_value, current_signal_value, macd_line.iloc[-2],
-                                    signal_line_ema.iloc[-2], True)
+                                    signal_line_ema.iloc[-2], self.return_crossover_weigth, self.max_crossover_gradient_degree,
+                                    self.crossover_gradient_signal_weight, self.crossover_weight_impact)
 
         zero_line_crossover_signal = crossover
         if crossover > 0 and current_macd_value > 0:
@@ -124,7 +134,7 @@ class MovingAverageConvergenceDivergence(BaseModel):
         else:
             return 0
 
-    def evaluate(self, df: DataFrame) -> float | int | None:
+    def evaluate(self, df: DataFrame) -> float:
         """
         Evaluates the trade signal by calculating the MACD and signal line for the given data frame.
 
@@ -138,9 +148,10 @@ class MovingAverageConvergenceDivergence(BaseModel):
                  or None if the DataFrame is empty or invalid.
         """
 
-        return MovingAverageConvergenceDivergence.determine_trade_signal(df)
+        return self.determine_trade_signal(df)
 
-    def backtest(self,df: DataFrame, partition_amount: int = 1, sell_percent: float = -0.8, buy_percent: float = 0.8) -> list[float]:
+    def backtest(self, df: DataFrame, partition_amount: int = 1, sell_percent: float = -0.8,
+                 buy_percent: float = 0.8) -> list[float]:
         """
         Backtests the MACD strategy on historical data.
 

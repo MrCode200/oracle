@@ -10,3 +10,5 @@ var: var_name
 TODO:
 - [ ] check yfinance libary for fetching data
 - [ ] Postgresql
+- [ ] Calculat the future of the crossover in macd, it could be identified 
+if the macd histogramm is small and smaller than the last histogram that it will cross

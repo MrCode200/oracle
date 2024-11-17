@@ -50,7 +50,7 @@ class SimpleMovingAverage(BaseModel):
         self.long_period: int = long_period
 
     @staticmethod
-    def determine_trade_signal(short_sma_series: Series = None, long_sma_series: Series = None, index: int = 0) -> int:
+    def determine_trade_signal(short_sma_series: Series = None, long_sma_series: Series = None, index: int = 0) -> float:
         """
         Determines trade signal based on SMA crossovers.
 
@@ -82,7 +82,7 @@ class SimpleMovingAverage(BaseModel):
         else:
             return -1  # Sell
 
-    def evaluate(self, df: DataFrame) -> int | None:
+    def evaluate(self, df: DataFrame) -> float:
         """
         Evaluates the latest SMA cross and logs the decision.
 
@@ -97,7 +97,7 @@ class SimpleMovingAverage(BaseModel):
         long_sma_series: pandas.Series = sma(close=df.Close, length=self.long_period)
 
         # Determine trade signal
-        signal: int | None = SimpleMovingAverage.determine_trade_signal(
+        signal: float = self.determine_trade_signal(
             short_sma_series=short_sma_series,
             long_sma_series=long_sma_series
         )

@@ -1,6 +1,7 @@
 from logging import getLogger
 
 from pandas import DataFrame
+from pandas_ta import ema
 
 from backend.src.services.baseModel import BaseModel
 
@@ -23,9 +24,10 @@ class ExponentialMovingAverage(BaseModel):
         Evaluates the trade signal for a given period.
 
         :param df: The DataFrame containing market data with a 'Close' column.
+        :key index: The index till which to calculate the EMA (default is the last period).
         :returns: The trade signal for the specified period.
         """
-        ewm = df['Close'].iloc[:index].ewm(span=self.period, adjust=False).mean()
+        ewm = ema(df['Close'].iloc[:index], length=self.period).mean()
 
         if ewm.iloc[-1] > df['Close'].iloc[-1]:
             return 1
@@ -56,7 +58,7 @@ class ExponentialMovingAverage(BaseModel):
             "df": df,
         }
 
-        return BaseModel.backtest(
+        return super(ExponentialMovingAverage, self).backtest(
             df=df,
             func_kwargs=signal_func_kwargs,
             invalid_values=self.period,
