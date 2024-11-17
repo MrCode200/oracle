@@ -33,7 +33,6 @@ class BaseModel(ABC):
     def EA_SETTINGS(cls) -> dict[str, dict[str, int | float]]:
         return cls._EA_SETTINGS
 
-    @staticmethod
     @abstractmethod
     def evaluate(df: DataFrame) -> float:
         ...
@@ -92,7 +91,6 @@ class BaseModel(ABC):
 
         return net_worth_history
 
-    @abstractmethod
     def determine_trade_signal(self, df: DataFrame, index: int = 0) -> float:
         ...
 
