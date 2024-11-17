@@ -32,7 +32,7 @@ print(evolve(func=SimpleMovingAverage.backtest, func_settings=SimpleMovingAverag
              mutation_probability=0.7))"""
 
 for ticker in tickers:
-    df = fetch_historical_data(ticker, '1y', "1h")
+    df = fetch_historical_data(ticker, '1y', "1d")
 
     signalSMA: list[float] = SimpleMovingAverage.backtest(df=df, short_period=9, long_period=21, partition_amount=12)
     signalRSI: list[float] = RelativeStrengthIndex.backtest(df=df, period=14, lower_band=15, upper_band=85, partition_amount=12)
