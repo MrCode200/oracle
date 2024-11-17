@@ -1,27 +1,37 @@
+from abc import abstractmethod
+
 import pandas as pd
 from backend.src.api import fetch_historical_data
+from backend.src.services.baseModel import BaseModel
 
 # Fetch historical data (assuming it returns a DataFrame)
-data_frame = fetch_historical_data("BTC-USD", '6mo', "1h")
+data_frame = fetch_historical_data("BTC-USD", '1y', "1h")
 
 
-class Ichimoku:
+class Ichimoku(BaseModel):
+    _EA_SETTINGS = {}
 
-    def run(df):
-        df['Tenkan-sen'] = (df['High'].rolling(window=9).max() + df['Low'].rolling(window=9).min()) / 2
-        df['Kijun-sen'] = (df['High'].rolling(window=26).max() + df['Low'].rolling(window=26).min()) / 2
+    def evaluate(self, data_frame):
+        return self.determine_trade_signal(data_frame)
 
-        df['Senkou Span A'] = (df['Tenkan-sen'] + df['Kijun-sen']) / 2
-        df['Senkou Span A'] = df['Senkou Span A'].shift(26)
+    def determine_trade_signal(self, df, index: int = -1):
+        df['Tenkan-sen'] = (df['High'].iloc[:index].rolling(window=9).max() + df['Low'].rolling(window=9).min()) / 2
+        df['Kijun-sen'] = (df['High'].iloc[:index].rolling(window=26).max() + df['Low'].rolling(window=26).min()) / 2
 
-        df['Senkou Span B'] = (df['High'].rolling(window=52).max() + df['Low'].rolling(window=52).min()) / 2
-        df['Senkou Span B'] = df['Senkou Span B'].shift(26)
+        df['Senkou Span A'] = (df['Tenkan-sen'].iloc[:index] + df['Kijun-sen'].iloc[:index]) / 2
+        df['Senkou Span A'] = df['Senkou Span A'].iloc[:index].shift(26)
+
+        df['Senkou Span B'] = (df['High'].iloc[:index].rolling(window=52).max() + df['Low'].iloc[:index].rolling(window=52).min()) / 2
+        df['Senkou Span B'] = df['Senkou Span B'].iloc[:index].shift(26)
 
         df['Chikou Span'] = df['Close'].shift(-26)
         fr = [Ichimoku.ichimoku_signal_1(df),Ichimoku.ichimoku_signal_2(df),Ichimoku.chikou_span_signal(df),
               Ichimoku.combined_chikou_signal(df),Ichimoku.chikou_cloud_crossover(df)]
+
+        print(len(df.iloc[:index]))
         return sum(fr)/5
 
+    @staticmethod
     def ichimoku_signal_1(data_frame, lookback=2, recent=1):
         tenkan_lookback = data_frame['Tenkan-sen'].iloc[-lookback]
         kijun_lookback = data_frame['Kijun-sen'].iloc[-lookback]
@@ -37,6 +47,7 @@ class Ichimoku:
 
         return 0 #hold
 
+    @staticmethod
     def ichimoku_signal_2(data_frame, lookback=4, recent=1):
 
         senkou_b = data_frame["Senkou Span B"].iloc[-lookback:-recent]
@@ -60,10 +71,10 @@ class Ichimoku:
                     R.append(0)  # close price higher than kumo -- maybe
                 else:
                     R.append(0) #hold
-        print(R)
-        return R[-1]
+        return 0 # R[-1]
 
-    def chikou_span_signal(df):
+    @staticmethod
+    def chikou_span_signal(df: pd.DataFrame):
 
         if df['Chikou Span'].iloc[-27] > df['Close'].iloc[-27]:  # بالای قیمت 26 دوره گذشته
             return 0.5#buy
@@ -72,6 +83,7 @@ class Ichimoku:
         else:
             return 0#hold
 
+    @staticmethod
     def combined_chikou_signal(df):
 
         # موقعیت چیکو اسپن
@@ -98,6 +110,7 @@ class Ichimoku:
         else:
             return 0#'hold'
 
+    @staticmethod
     def chikou_cloud_crossover(df):
         """
         بررسی تقاطع چیکو اسپن و ابر کومو
@@ -129,7 +142,8 @@ class Ichimoku:
         # در غیر این صورت، تقاطعی رخ نداده است
         return 0#'no crossover'
 
-    def backtest(balance,df ):
+    @staticmethod
+    def backtest_kian(balance,df ):
 
         for n in range(0,3):
             cdf = df.iloc[n:54+n]
@@ -138,7 +152,33 @@ class Ichimoku:
             print(res)
 
 
-print(data_frame.iloc[0:54])
-ERS = Ichimoku.run(data_frame.iloc[0:54])
-print(ERS)
+    def backtest(self, df: pd.DataFrame, partition_amount: int = 1, sell_percent: float = -0.8, buy_percent: float = 0.8):
 
+        signal_func_kwargs: dict[str, any] = {
+            "df": df
+        }
+
+        return super(Ichimoku, self).backtest(
+            df=df,
+            invalid_values=54,
+            sell_percent=sell_percent,
+            buy_percent=buy_percent,
+            func_kwargs=signal_func_kwargs,
+            partition_amount=partition_amount,
+            strategy_name="Ichimoku"
+        )
+
+
+from backend.src.custom_logger import setup_logger
+import logging
+
+def init_app():
+    setup_logger('oracle.app', logging.DEBUG, '../../../../logs/app.jsonl', stream_in_color=True, log_in_json=True)
+    logger = logging.getLogger("oracle.app")
+    logger.info("Initialized Oracle...")
+
+init_app()
+
+I = Ichimoku()
+I.evaluate(data_frame)
+I.backtest(data_frame, 12, buy_percent=0.1, sell_percent=-0.1)
