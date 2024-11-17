@@ -5,6 +5,7 @@ from pandas import DataFrame, Series
 from pandas_ta import sma
 
 from backend.src.services.baseModel import BaseModel  # type: ignore
+from backend.src.services.utils import check_crossover
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 
@@ -39,18 +40,27 @@ class SimpleMovingAverage(BaseModel):
         "long_period": {"start": 50, "stop": 200, "step": 1, "type": "int"},
     }
 
-    def __init__(self, short_period: int = 14, long_period: int = 50):
+    def __init__(self, short_period: int = 14, long_period: int = 50,
+                 return_crossover_weight: bool = True, max_crossover_gradient_degree: float = 90,
+                 crossover_gradient_signal_weight: float = 1, crossover_weight_impact: float = 1):
         """
         Initializes the SimpleMovingAverage class.
 
         :param short_period: The period for the short-term SMA (default is 14).
         :param long_period: The period for the long-term SMA (default is 50).
+        :key return_crossover_weight: If True, also returns the strength of the crossover.
+        :key max_crossover_gradient_degree: The maximum degree of the gradient which gets used to calculate the strength of the crossover.
+        :key crossover_gradient_signal_weight: The weight used for the strength calculated based on the gradient for the crossover.
+        :key crossover_weight_impact: How strong the impact of the weights are on the crossover output. Example: 1 - (1- weight) * weight_impact
         """
         self.short_period: int = short_period
         self.long_period: int = long_period
+        self.return_crossover_weight: bool = return_crossover_weight
+        self.max_crossover_gradient_degree: float = max_crossover_gradient_degree
+        self.crossover_gradient_signal_weight: float = crossover_gradient_signal_weight
+        self.crossover_weight_impact: float = crossover_weight_impact
 
-    @staticmethod
-    def determine_trade_signal(short_sma_series: Series = None, long_sma_series: Series = None, index: int = 0) -> float:
+    def determine_trade_signal(self, short_sma_series: Series = None, long_sma_series: Series = None, index: int = 0) -> float:
         """
         Determines trade signal based on SMA crossovers.
 
@@ -75,12 +85,11 @@ class SimpleMovingAverage(BaseModel):
         short_sma_previous: float = short_sma_series.iloc[index - 1]
         long_sma_previous: float = long_sma_series.iloc[index - 1]
 
-        if (short_sma_latest > long_sma_latest) == (short_sma_previous > long_sma_previous):
-            return 0  # Hold
-        elif short_sma_latest > long_sma_latest:
-            return 1  # Buy
-        else:
-            return -1  # Sell
+        crossover_signal = check_crossover(short_sma_latest, long_sma_latest, short_sma_previous, long_sma_previous,
+                        self.return_crossover_weight, self.max_crossover_gradient_degree, self.crossover_gradient_signal_weight,
+                        self.crossover_weight_impact)
+
+        return crossover_signal
 
     def evaluate(self, df: DataFrame) -> float:
         """

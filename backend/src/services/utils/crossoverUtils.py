@@ -18,7 +18,7 @@ def check_crossover(
     Determines if a crossover has occurred between two lines over the last two data points.
 
     A crossover is detected when one line crosses above or below the other line between two consecutive values.
-    The function assesses the direction of the crossover from the perspective of the first line.
+    The function assesses the direction of the crossover from the perspective of the first line (line1).
 
     Optionally, it can return the strength of the crossover based on the absolute difference
     between the lines at the current point compared to the previous point.
@@ -57,7 +57,8 @@ def check_crossover(
 
 
     gradient = (current_line1 - previous_line1)
-    gradient_signal = atan(gradient) / max_gradient_degree
+    gradient_signal = abs(atan(gradient) / max_gradient_degree)
+    gradient_signal = 1 if gradient_signal > 1 else gradient_signal
 
     total_weigths = gradient_signal_weight
     weights = 1 if total_weigths == 0 else (gradient_signal * gradient_signal_weight) / total_weigths

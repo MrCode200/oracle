@@ -38,9 +38,9 @@ class RelativeStrengthIndex(BaseModel):
         """
         Initializes the Relative Strength Index (RSI) trading strategy.
 
-        :param period: The period to use for RSI calculation (default is 14).
-        :param lower_band: The lower RSI threshold for a buy signal (default is 30).
-        :param upper_band: The upper RSI threshold for a sell signal (default is 70).
+        :key period: The period to use for RSI calculation (default is 14).
+        :key lower_band: The lower RSI threshold for a buy signal (default is 30).
+        :key upper_band: The upper RSI threshold for a sell signal (default is 70).
         """
         self.period = period
         self.lower_band = lower_band
