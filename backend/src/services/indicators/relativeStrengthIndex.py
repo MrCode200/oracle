@@ -1,16 +1,15 @@
 import logging
-from math import ceil
 
 import pandas
-from pandas import DataFrame, isna, Series
+from pandas import DataFrame, Series
 from pandas_ta import rsi
 
-from .baseIndicator import BaseIndicator
+from backend.src.services.baseModel import BaseModel
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 
 
-class RelativeStrengthIndex(BaseIndicator):
+class RelativeStrengthIndex(BaseModel):
     """
     Implements the Relative Strength Index (RSI) trading strategy.
 
@@ -35,8 +34,19 @@ class RelativeStrengthIndex(BaseIndicator):
         "upper_band": {"start": 1, "stop": 200, "step": 0.1, "type": "float"}
     }
 
-    @staticmethod
-    def determine_trade_signal(rsi_series: Series, lower_band: int, upper_band: int, index: int = 0) -> int:
+    def __init__(self, period: int = 14, lower_band: int = 30, upper_band: int = 70):
+        """
+        Initializes the Relative Strength Index (RSI) trading strategy.
+
+        :key period: The period to use for RSI calculation (default is 14).
+        :key lower_band: The lower RSI threshold for a buy signal (default is 30).
+        :key upper_band: The upper RSI threshold for a sell signal (default is 70).
+        """
+        self.period = period
+        self.lower_band = lower_band
+        self.upper_band = upper_band
+
+    def determine_trade_signal(self, rsi_series: Series, index: int = 0) -> float:
         """
         Determines whether the signal is to buy, sell, or hold based on the RSI value.
 
@@ -45,23 +55,20 @@ class RelativeStrengthIndex(BaseIndicator):
         - Sell when RSI is above the upper band (default 70).
         - Hold if RSI is between the lower and upper bands.
 
-        :param rsi_value: The current RSI value to evaluate.
-        :param lower_band: The RSI value below which to trigger a buy signal (default is 30).
-        :param upper_band: The RSI value above which to trigger a sell signal (default is 70).
+        :param rsi_series: The calculated RSI values.
         :param index: The index of the RSI value in the series which gets evaluated (default is 0).
 
         :return: 1 for Buy, -1 for Sell, or 0 for Hold.
         """
         rsi_value: float = rsi_series.iloc[index]
-        if rsi_value < lower_band:
+        if rsi_value < self.lower_band:
             return 1
-        elif rsi_value > upper_band:
+        elif rsi_value > self.upper_band:
             return -1
         else:
             return 0
 
-    @staticmethod
-    def evaluate(df: DataFrame, period: int = 14, lower_band: int = 30, upper_band: int = 70) -> int | None:
+    def evaluate(self, df: DataFrame) -> float:
         """
         Evaluates the RSI for the provided DataFrame and determines the trade signal.
 
@@ -70,23 +77,18 @@ class RelativeStrengthIndex(BaseIndicator):
         (hold). The decision is logged for tracking.
 
         :param df: The DataFrame containing the market data with a 'Close' column.
-        :param period: The period to use for RSI calculation (default is 14).
-        :param lower_band: The lower RSI threshold for a buy signal (default is 30).
-        :param upper_band: The upper RSI threshold for a sell signal (default is 70).
 
         :return: The trade signal (1 for Buy, -1 for Sell, or 0 for Hold).
         """
-        rsi_series: pandas.Series = rsi(close=df.Close, length=period)
-        signal: int | None = RelativeStrengthIndex.determine_trade_signal(rsi_series.iloc[-1])
+        rsi_series: pandas.Series = rsi(close=df.Close, length=self.period)
+        signal: float = self.determine_trade_signal(rsi_series.iloc[-1])
 
-        decision: str = "hold" if signal == 0 else "buy" if signal == 1 else "sell"
-        logger.info("RSI evaluation result: {}".format(decision), extra={"strategy": "RSI"})
+        logger.info("RSI evaluation result: {}".format(signal), extra={"strategy": "RSI"})
 
         return signal
 
-    @staticmethod
-    def backtest(df: DataFrame, partition_amount: int = 1, period: int = 14, lower_band: int = 30,
-                 upper_band: int = 70) -> list[float]:
+    def backtest(self, df: DataFrame, partition_amount: int = 1, sell_percent: float = -0.8,
+                 buy_percent: float = 0.8) -> list[float]:
         """
         Backtests the RSI strategy on historical data.
 
@@ -94,28 +96,24 @@ class RelativeStrengthIndex(BaseIndicator):
         It tracks the balance and number of shares owned and calculates the final Return on Investment (ROI).
 
         :param df: The DataFrame containing the market data with a 'Close' column.
-        :key partition_amount: The amount of paritions which get returned at which to recalculate the Return on Investiment (default is 1).
-        :key period: The period to use for RSI calculation (default is 14).
-        :key lower_band: The lower RSI threshold for a buy signal (default is 30).
-        :key upper_band: The upper RSI threshold for a sell signal (default is 70).
+        :key partition_amount: The amount of paritions which get returned at which to recalculate the Return on Investiment (default is 1)..
+        :key sell_percent: The percentage of when to sell, (default is 0.2).
+        :key buy_percent: The percentage of when to buy, (default is 0.8).
 
         :return: A list of parition_amount times of the Return on Investiment.
 
         :raises ValueError: If parition_amount is less than or equal to 0
         """
-        nan_padding = period + 1
-
-        rsi_series: pandas.Series = rsi(close=df.Close, length=period)
+        rsi_series: pandas.Series = rsi(close=df.Close, length=self.selperiod)
         signal_func_kwargs: dict[str, any] = {
-            "rsi_series": rsi_series,
-            "lower_band": lower_band,
-            "upper_band": upper_band
+            "rsi_series": rsi_series
         }
 
-        return BaseIndicator.backtest(
+        return super(RelativeStrengthIndex, self).backtest(
             df=df,
-            indicator_cls=RelativeStrengthIndex,
-            invalid_values=nan_padding,
+            invalid_values=self.period + 1,
+            sell_percent=sell_percent,
+            buy_percent=buy_percent,
             func_kwargs=signal_func_kwargs,
             partition_amount=partition_amount,
             strategy_name="RSI"

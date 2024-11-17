@@ -8,14 +8,14 @@ import pandas_ta as ta
 logger = logging.getLogger("oracle.app")
 
 
-class BaseIndicator(ABC):
+class BaseModel(ABC):
     """
     Defines an abstract base class for indicators.
 
     Methods
         - classmethod EA_RANGE(cls) -> tuple[int, int]: Returns the range of the indicator.
-        - evaluate() -> float: Abstract method to run the strategies on the provided database.
-        - backtest() -> float: Abstract method to test the accuracy of the strategies on the provided database.
+        - evaluate() -> float: Abstract method to run the services on the provided database.
+        - backtest() -> float: Abstract method to test the accuracy of the services on the provided database.
         - process_trade_signal() -> float: Abstract method to buy and sell as well as append for all backtest functions.
 
     :raises Attribute Error: If the subclass does not define _EA_SETTINGS and _EA_SETTINGS does not contain 'start', 'stop', 'step' and 'type'.
@@ -33,15 +33,13 @@ class BaseIndicator(ABC):
     def EA_SETTINGS(cls) -> dict[str, dict[str, int | float]]:
         return cls._EA_SETTINGS
 
-    @staticmethod
     @abstractmethod
     def evaluate(df: DataFrame) -> float:
         ...
 
-    @staticmethod
     @abstractmethod
-    def backtest(df: DataFrame, indicator_cls, func_kwargs: dict[str, any], invalid_values: int, partition_amount: int,
-                 strategy_name: str) -> list[float]:
+    def backtest(self, df: DataFrame, func_kwargs: dict[str, any], invalid_values: int, partition_amount: int,
+                 sell_percent: float, buy_percent: float, strategy_name: str) -> list[float]:
         """
         Conducts a backtest on the provided market data to evaluate the performance of a trading strategy.
 
@@ -49,11 +47,12 @@ class BaseIndicator(ABC):
             - It may not work if the df is not the length of the indicator series!
 
         :param df: The DataFrame containing the market data with a 'Close' column.
-        :param indicatr_cls: The class object of the indicator being tested.
         :param func_kwargs: A dictionary of keyword arguments to be passed to the `determine_trade_signal` method.
         :param invalid_values: The number of initial rows in the DataFrame to skip, typically used to account for NaN values.
         :param partition_amount: The number of partitions to divide the data into for recalculating the Return on Investment (ROI). Must be greater than 0.
         :param strategy_name: The name of the strategy being tested, only needed for logging.
+        :param sell_percent: The percentage of when to sell, (default is 0.2).
+        :param buy_percent: The percentage of when to buy, (default is 0.8).
 
         :returns: A list of floats representing the ROI for each partition.
 
@@ -70,14 +69,15 @@ class BaseIndicator(ABC):
         partition_amount: int = ceil((len(df) - invalid_values) / partition_amount) if partition_amount > 1 else 1
 
         for i in range(invalid_values, len(df)):
-            trade_signal: float = indicator_cls.determine_trade_signal(index=i, **func_kwargs)
+            trade_signal: float = self.determine_trade_signal(index=i, **func_kwargs)
 
             is_partition_cap_reached: bool = (
                     (i - invalid_values + 1) % partition_amount == 0) if partition_amount > 1 else False
 
-            base_balance, balance, shares = BaseIndicator.process_trade_signal(
+            base_balance, balance, shares = BaseModel.process_trade_signal(
                 base_balance, balance, shares,
-                df.iloc[i].Close, trade_signal,
+                df.iloc[i].Close, df.index[i] ,trade_signal,
+                buy_percent, sell_percent,
                 net_worth_history, is_partition_cap_reached,
                 strategy_name
             )
@@ -91,9 +91,7 @@ class BaseIndicator(ABC):
 
         return net_worth_history
 
-    @staticmethod
-    @abstractmethod
-    def determine_trade_signal(df: DataFrame, index: int = 0) -> float:
+    def determine_trade_signal(self, df: DataFrame, index: int = 0) -> float:
         ...
 
     @staticmethod
@@ -102,7 +100,10 @@ class BaseIndicator(ABC):
             balance: float,
             shares: float,
             latest_price: float,
+            date: str,
             trade_signal: float,
+            buy_percent: float,
+            sell_percent: float,
             net_worth_history: list[float],
             is_partition_cap_reached: bool,
             strategy_name: str
@@ -118,7 +119,10 @@ class BaseIndicator(ABC):
         :param balance: The current cash balance available for trading.
         :param shares: The number of shares currently owned in the portfolio.
         :param latest_price: The latest market price of the asset being traded.
+        :param date: The date of the current market data point.
         :param trade_signal: The trade signal, where 1 represents a buy signal and 0 represents a sell signal.
+        :param sell_percent: The percentage of when to sell, (default is 0.2).
+        :param buy_percent: The percentage of when to buy, (default is 0.8).
         :param net_worth_history: A list storing the historical values of the portfolio for ROI tracking.
         :param is_partition_cap_reached: A flag indicating whether the ROI should be recorded for the current period.
         :param strategy_name: The name of the strategy used for logging purposes.
@@ -134,16 +138,16 @@ class BaseIndicator(ABC):
             - If `should_record_roi` is True, the method will record the portfolio's total value at that point,
               updating the `portfolio_value_history` with the current ROI.
         """
-        if trade_signal == 1 and balance >= latest_price:
+        if trade_signal >= buy_percent and balance != 0:
             shares = balance / latest_price
             balance = 0
             logger.debug(
-                "Executed Buy of {} shares at date: {}".format(shares, latest_price),
+                "Executed Buy of `{}` shares; with a price of `{}`; date: `{}`".format(shares, latest_price, date),
                 extra={"strategy": strategy_name})
 
-        elif trade_signal == -1 and shares > 0:  # Sell
+        elif trade_signal <= sell_percent and shares > 0:  # Sell
             logger.debug(
-                "Executed Sell of {} shares at date: {}".format(shares, latest_price),
+                "Executed Sell of `{}` shares; with a price of `{}`; date: `{}`".format(shares, latest_price, date),
                 extra={"strategy": strategy_name})
             balance += shares * latest_price
             shares = 0
