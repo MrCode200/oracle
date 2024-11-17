@@ -38,10 +38,9 @@ class BaseModel(ABC):
     def evaluate(df: DataFrame) -> float:
         ...
 
-    @staticmethod
     @abstractmethod
-    def backtest(df: DataFrame, indicator_cls, func_kwargs: dict[str, any], invalid_values: int, partition_amount: int,
-                 strategy_name: str, sell_percent: float = -0.8, buy_percent: float = 0.8) -> list[float]:
+    def backtest(self, df: DataFrame, func_kwargs: dict[str, any], invalid_values: int, partition_amount: int,
+                 sell_percent: float, buy_percent: float, strategy_name: str) -> list[float]:
         """
         Conducts a backtest on the provided market data to evaluate the performance of a trading strategy.
 
@@ -49,7 +48,6 @@ class BaseModel(ABC):
             - It may not work if the df is not the length of the indicator series!
 
         :param df: The DataFrame containing the market data with a 'Close' column.
-        :param indicatr_cls: The class object of the indicator being tested.
         :param func_kwargs: A dictionary of keyword arguments to be passed to the `determine_trade_signal` method.
         :param invalid_values: The number of initial rows in the DataFrame to skip, typically used to account for NaN values.
         :param partition_amount: The number of partitions to divide the data into for recalculating the Return on Investment (ROI). Must be greater than 0.
@@ -72,7 +70,7 @@ class BaseModel(ABC):
         partition_amount: int = ceil((len(df) - invalid_values) / partition_amount) if partition_amount > 1 else 1
 
         for i in range(invalid_values, len(df)):
-            trade_signal: float = indicator_cls.determine_trade_signal(index=i, **func_kwargs)
+            trade_signal: float = self.determine_trade_signal(index=i, **func_kwargs)
 
             is_partition_cap_reached: bool = (
                     (i - invalid_values + 1) % partition_amount == 0) if partition_amount > 1 else False
@@ -94,9 +92,8 @@ class BaseModel(ABC):
 
         return net_worth_history
 
-    @staticmethod
     @abstractmethod
-    def determine_trade_signal(df: DataFrame, index: int = 0) -> float:
+    def determine_trade_signal(self, df: DataFrame, index: int = 0) -> float:
         ...
 
     @staticmethod

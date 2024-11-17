@@ -39,6 +39,16 @@ class SimpleMovingAverage(BaseModel):
         "long_period": {"start": 50, "stop": 200, "step": 1, "type": "int"},
     }
 
+    def __init__(self, short_period: int = 14, long_period: int = 50):
+        """
+        Initializes the SimpleMovingAverage class.
+
+        :param short_period: The period for the short-term SMA (default is 14).
+        :param long_period: The period for the long-term SMA (default is 50).
+        """
+        self.short_period: int = short_period
+        self.long_period: int = long_period
+
     @staticmethod
     def determine_trade_signal(short_sma_series: Series = None, long_sma_series: Series = None, index: int = 0) -> int:
         """
@@ -55,9 +65,9 @@ class SimpleMovingAverage(BaseModel):
 
         :return: 1 if Buy signal, -1 if Sell signal, or 0 if Hold signal.
 
-        :raise ValueError: If the index is greater than the length of the series. Due to it getting index-1 value of the series
+        :raise ValueError: If the index is smaller than 1. Due to it getting index-1 value of the series
         """
-        if index > len(short_sma_series) - 1:
+        if index < 1:
             raise ValueError("Index must be smaller than the length of the series.")
 
         short_sma_latest: float = short_sma_series.iloc[index]
@@ -72,8 +82,7 @@ class SimpleMovingAverage(BaseModel):
         else:
             return -1  # Sell
 
-    @staticmethod
-    def evaluate(df: DataFrame, short_period: int = 14, long_period: int = 50) -> int | None:
+    def evaluate(self, df: DataFrame) -> int | None:
         """
         Evaluates the latest SMA cross and logs the decision.
 
@@ -81,13 +90,11 @@ class SimpleMovingAverage(BaseModel):
         It then determines the trade signal based on the crossover of the SMAs and returns the decision.
 
         :param df: The DataFrame containing the market data with a 'Close' column.
-        :param short_period: The period for the short-term SMA (default is 14).
-        :param long_period: The period for the long-term SMA (default is 50).
 
         :return: The trade signal (1 for Buy, -1 for Sell, or 0 for Hold).
         """
-        short_sma_series: pandas.Series = sma(close=df.Close, length=short_period)
-        long_sma_series: pandas.Series = sma(close=df.Close, length=long_period)
+        short_sma_series: pandas.Series = sma(close=df.Close, length=self.short_period)
+        long_sma_series: pandas.Series = sma(close=df.Close, length=self.long_period)
 
         # Determine trade signal
         signal: int | None = SimpleMovingAverage.determine_trade_signal(
@@ -95,13 +102,11 @@ class SimpleMovingAverage(BaseModel):
             long_sma_series=long_sma_series
         )
 
-        decision: str = "hold" if signal == 0 else "buy" if signal == 1 else "sell"
-        logger.info(f"SMA evaluation result: {decision}", extra={"strategy": "SMA"})
+        logger.info(f"SMA evaluation result: {signal}", extra={"strategy": "SMA"})
         return signal
 
-    def backtest(df: DataFrame, partition_amount: int = 1, short_period: int = 14, long_period: int = 50,
-                 sell_percent: float = -0.8, buy_percent: float = 0.8,) -> \
-            list[float]:
+    def backtest(self, df: DataFrame, partition_amount: int = 1, sell_percent: float = -0.8,
+                 buy_percent: float = 0.8) -> list[float]:
         """
         Runs a backtest on the data and returns final profit or loss.
 
@@ -111,29 +116,23 @@ class SimpleMovingAverage(BaseModel):
 
         :param df: The DataFrame containing the market data with a 'Close' column.
         :key partition_amount: The amount of paritions which get returned at which to recalculate the Return on Investiment (default is 1).
-        :key short_period: The period for the short-term SMA (default is 14).
-        :key long_period: The period for the long-term SMA (default is 50).
         :param sell_percent: The percentage of when to sell, (default is -0.8).
         :param buy_percent: The percentage of when to buy, (default is 0.8).
 
-
         :return: A list of partition_amount times of the Return on Investment.
-
-        :raises ValueError: If partition_amount is less than or equal to 0
         """
-        invalid_values = 1 + long_period
+        invalid_values = 1 + self.long_period
 
-        short_sma_series: pandas.Series = sma(close=df.Close, length=short_period)
-        long_sma_series: pandas.Series = sma(close=df.Close, length=long_period)
+        short_sma_series: pandas.Series = sma(close=df.Close, length=self.short_period)
+        long_sma_series: pandas.Series = sma(close=df.Close, length=self.long_period)
 
         signal_func_kwargs = {
             'short_sma_series': short_sma_series,
             'long_sma_series': long_sma_series
         }
 
-        return BaseModel.backtest(
+        return super(SimpleMovingAverage, self).backtest(
             df=df,
-            indicator_cls=SimpleMovingAverage,
             invalid_values=invalid_values,
             sell_percent=sell_percent,
             buy_percent=buy_percent,

@@ -19,7 +19,7 @@ def init_app():
 
 logger: logging.Logger = init_app()
 
-tickers: list[str] = ["TSLA"]
+tickers: list[str] = ["BNB-USD", "ADA-USD", "DOGE-USD", "SOL-USD", "UNI-USD", "USDT-USD"]
 results_sma: dict[str, list[float]] = {}
 results_rsi: dict[str, list[float]] = {}
 results_macd: dict[str, list[float]] = {}
@@ -34,28 +34,29 @@ print(evolve(func=SimpleMovingAverage.backtest, func_settings=SimpleMovingAverag
              survivers=3,
              mutation_strength=0.1,
              mutation_probability=0.7))"""
+sma = SimpleMovingAverage(short_period=9, long_period=21)
+rsi = RelativeStrengthIndex(period=14, lower_band=15, upper_band=85)
+ema = ExponentialMovingAverage(period=50)
+macd = MovingAverageConvergenceDivergence(fast_period=12, slow_period=26,
+                                          signal_line_period=9,
+                                          max_momentum_lookback=100,
+                                          momentum_signal_weight=0.6,
+                                          zero_line_crossover_weight=0.8,
+                                          zero_line_pullback_lookback=100,
+                                          zero_line_pullback_tolerance_percent=0.1,
+                                          zero_line_pullback_weight=0.2,
+                                          return_pullback_strength=True,
+                                          rate_of_change_weight=1, magnitude_weight=1,
+                                          weight_impact=0.25)
 
 for ticker in tickers:
     df = fetch_historical_data(ticker, '1y', "1h")
 
-    signalSMA: list[float] = SimpleMovingAverage.backtest(df=df, short_period=9, long_period=21, partition_amount=12)
-    signalRSI: list[float] = [
-        0]  # RelativeStrengthIndex.backtest(df=df, period=14, lower_band=15, upper_band=85, partition_amount=12)
-    signalEMA: list[float] = [0]  # ExponentialMovingAverage.backtest(df=df, period = 50, partition_amount=12)
-    signalMACD: list[float] = MovingAverageConvergenceDivergence.backtest(df=df, partition_amount=12,
-                                                                          fast_period=12, slow_period=26,
-                                                                          signal_line_period=9,
-                                                                          sell_percent=-0.85, buy_percent=0.85,
-                                                                          max_momentum_lookback=100,
-                                                                          momentum_signal_weight=0.6,
-                                                                          zero_line_crossover_weight=0.8,
-                                                                          zero_line_pullback_lookback=100,
-                                                                          zero_line_pullback_tolerance_percent=0.5,
-                                                                          zero_line_pullback_weight=0.6,
-                                                                          return_pullback_strength=True,
-                                                                          rate_of_change_weight=1, magnitude_weight=1,
-                                                                          weight_impact=0.25)
-    206.29, 349.87
+    signalSMA: list[float] = sma.backtest(df=df, partition_amount=12)
+    signalRSI: list[float] = [0]  # rsi.backtest(df=df, partition_amount=12)
+    signalEMA: list[float] = [0]  # ema.backtest(df=df, partition_amount=12)
+    signalMACD: list[float] = macd.backtest(df=df, partition_amount=12)
+
     results_sma[ticker] = signalSMA
     results_rsi[ticker] = signalRSI
     results_macd[ticker] = signalMACD
@@ -63,18 +64,22 @@ for ticker in tickers:
 
 from functools import reduce
 
+print("EMA:")
 print("\n".join(
     f"{ticker}: [{', '.join(f'{value:.2%}' for value in total_value)}] == {reduce(lambda x, y: x * y, total_value):.2%}"
     for ticker, total_value in results_ema.items()
 ))
+print("MACD:")
 print("\n".join(
     f"{ticker}: [{', '.join(f'{value:.2%}' for value in total_value)}] == {reduce(lambda x, y: x * y, total_value):.2%}"
     for ticker, total_value in results_macd.items()
 ))
+print("SMA:")
 print("\n".join(
     f"{ticker}: [{', '.join(f'{value:.2%}' for value in total_value)}] == {reduce(lambda x, y: x * y, total_value):.2%}"
     for ticker, total_value in results_sma.items()
 ))
+print("RSI:")
 print("\n".join(
     f"{ticker}: [{', '.join(f'{value:.2%}' for value in total_value)}] == {reduce(lambda x, y: x * y, total_value):.2%}"
     for ticker, total_value in results_rsi.items()
