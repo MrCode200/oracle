@@ -3,7 +3,7 @@ from logging import getLogger
 from pandas import DataFrame
 from pandas_ta import ema
 
-from backend.src.services.baseModel import BaseModel
+from backend.src.algorithms.baseModel import BaseModel
 
 logger = getLogger("oracle.app")
 

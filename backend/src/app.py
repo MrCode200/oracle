@@ -2,10 +2,10 @@ import logging
 
 from custom_logger import setup_logger  # type: ignore
 from api import fetch_historical_data  # type: ignore
-from services.indicators import (SimpleMovingAverage,
-                                 RelativeStrengthIndex,
-                                 MovingAverageConvergenceDivergence,
-                                 ExponentialMovingAverage)  # type: ignore
+from algorithms.indicators import (SimpleMovingAverage,
+                                   RelativeStrengthIndex,
+                                   MovingAverageConvergenceDivergence,
+                                   ExponentialMovingAverage)  # type: ignore
 
 from perf import evolve
 

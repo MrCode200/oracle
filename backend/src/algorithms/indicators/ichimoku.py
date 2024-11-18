@@ -2,7 +2,7 @@ from abc import abstractmethod
 
 import pandas as pd
 from backend.src.api import fetch_historical_data
-from backend.src.services.baseModel import BaseModel
+from backend.src.algorithms.baseModel import BaseModel
 
 # Fetch historical data (assuming it returns a DataFrame)
 data_frame = fetch_historical_data("BTC-USD", '1y', "1h")

@@ -1,0 +1,1 @@
+from .queries import load_query

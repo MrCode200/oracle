@@ -1,0 +1,1 @@
+# Code which runs the app in the background and calls evaluate when a new candle is added

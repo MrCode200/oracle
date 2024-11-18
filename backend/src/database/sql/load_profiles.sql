@@ -1,0 +1,1 @@
+SELECT :columns FROM profile;

@@ -14,8 +14,8 @@ class BaseModel(ABC):
 
     Methods
         - classmethod EA_RANGE(cls) -> tuple[int, int]: Returns the range of the indicator.
-        - evaluate() -> float: Abstract method to run the services on the provided database.
-        - backtest() -> float: Abstract method to test the accuracy of the services on the provided database.
+        - evaluate() -> float: Abstract method to run the algorithms on the provided database.
+        - backtest() -> float: Abstract method to test the accuracy of the algorithms on the provided database.
         - process_trade_signal() -> float: Abstract method to buy and sell as well as append for all backtest functions.
 
     :raises Attribute Error: If the subclass does not define _EA_SETTINGS and _EA_SETTINGS does not contain 'start', 'stop', 'step' and 'type'.

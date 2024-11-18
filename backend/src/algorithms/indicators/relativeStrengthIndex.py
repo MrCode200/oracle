@@ -4,7 +4,7 @@ import pandas
 from pandas import DataFrame, Series
 from pandas_ta import rsi
 
-from backend.src.services.baseModel import BaseModel
+from backend.src.algorithms.baseModel import BaseModel
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 

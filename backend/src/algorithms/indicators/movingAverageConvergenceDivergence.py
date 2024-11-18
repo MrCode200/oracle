@@ -2,7 +2,7 @@ from logging import getLogger
 
 from pandas import DataFrame, Series
 
-from backend.src.services.baseModel import BaseModel
+from backend.src.algorithms.baseModel import BaseModel
 from ..utils import check_crossover, trend_based_pullback
 
 logger = getLogger("oracle.app")
