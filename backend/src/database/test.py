@@ -12,9 +12,11 @@ cursor = conn.cursor()
 
 kwargs = {
     "columns": "*",
-    "profile_name": "test_profile_name"
 }
-cursor.execute(load_query("load_profile_by_name"), kwargs)
+cursor.execute(load_query("load_profiles"), kwargs)
+
+results = cursor.fetchall()
+print(results)
 
 if exit(0):
     conn.close()

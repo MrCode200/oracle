@@ -1,1 +1,1 @@
-from .queries import load_query
+from .db_utils import load_query, prepare_connection

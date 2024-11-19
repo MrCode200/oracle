@@ -1,4 +1,4 @@
-SELECT :columns
+SELECT *
 FROM transactions
 WHERE profile_id = (SELECT profile_id
                      FROM profiles
