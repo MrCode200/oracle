@@ -1,14 +1,16 @@
 import inspect
 from functools import wraps
 from logging import getLogger
+from pathlib import Path
+import json
 
 import mysql.connector
 
+with open(Path(__file__).parent / '..' / '..' / '..' / 'config' / 'config.json', 'r') as f:
+    ROLLBACK_ON_ERROR = json.load(f).get("ROLLBACK_ON_ERROR")
+SQL_DIR_PATH: Path = Path(__file__).parent / '..' / 'sql'
+
 logger = getLogger("oracle.app")
-
-# load config.json rollbackonerror
-ROLLBACK_ON_ERROR = True
-
 
 def load_query(query_name: str) -> str:
     """
@@ -19,7 +21,7 @@ def load_query(query_name: str) -> str:
     :raises FileNotFoundError: If the specified SQL file does not exist.
     :raises IOError: If there is an error reading the file.
     """
-    with open(f'../sql/{query_name}.sql', 'r') as file:
+    with open(f'{SQL_DIR_PATH}/{query_name}.sql', 'r') as file:
         return file.read()
 
 
@@ -47,6 +49,8 @@ def prepare_connection(func: callable) -> callable:
     @wraps(func)
     def wrapper(*args, **kwargs) -> any:
         cursor: mysql.connector.cursor.MySQLCursor | None = None
+        exception_flag: bool = False
+
         try:
             global _conn
 
@@ -54,8 +58,7 @@ def prepare_connection(func: callable) -> callable:
                 _conn = mysql.connector.connect(
                     host="localhost",
                     user="root",
-                    password="root",
-                    database="oracle"
+                    password="root"
                 )
 
             cursor = _conn.cursor()
@@ -65,6 +68,7 @@ def prepare_connection(func: callable) -> callable:
             return results
 
         except (mysql.connector.errors.InterfaceError, mysql.connector.errors.OperationalError) as e:
+            exception_flag = True
             if isinstance(e, mysql.connector.errors.InterfaceError):
                 logger.error(
                     f"Database connection error: {e}, tried to execute: {func.__name__} with args: {args} and kwargs: {kwargs}")
@@ -80,16 +84,20 @@ def prepare_connection(func: callable) -> callable:
                     logger.error(f"Failed to reconnect: {reconnect_error}")
 
         except Exception as e:
+            exception_flag = True
             logger.error(
                 f"Unexpected error: {e}, tried to execute: {func.__name__} with args: {args} and kwargs: {kwargs}")
+            raise
 
         finally:
-            global _conn
-            if cursor is not None:
-                cursor.close()
-            if _conn is not None and _conn.is_connected():
-                logger.error("Rolling back and Closing database connection...")
-                _conn.rollback()
-                _conn.close()
+            if exception_flag:
+                if cursor is not None:
+                    cursor.close()
+                if _conn is not None and _conn.is_connected():
+                    if ROLLBACK_ON_ERROR:
+                        logger.error("Rolling back and Closing database connection...")
+                        _conn.rollback()
+                    _conn.close()
+
 
     return wrapper

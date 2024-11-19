@@ -64,6 +64,6 @@ def run_query(cursor, query_name: str = None, **kwargs) -> str:
     :param kwargs: The parameters to pass to the query.
     :return: The results of the query.
     """
+    logger.debug(f"Executing Query: {query_name}, with args: {kwargs}")
     cursor.execute(load_query(query_name), kwargs)
-    logger.debug(f"Executed Query: {query_name}, with args: {kwargs}")
     return cursor.fetchall()

@@ -1,3 +1,3 @@
 SELECT *
-FROM profile
-WHERE (:profile_name IS NULL OR profile_name = :profile_name);
+FROM profiles
+WHERE (%(profile_name)s IS NULL OR profile_name = %(profile_name)s);
