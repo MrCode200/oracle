@@ -6,10 +6,12 @@ from pandas_ta import sma
 
 from backend.src.algorithms.baseModel import BaseModel  # type: ignore
 from backend.src.algorithms.utils import check_crossover
+from ..utils import register_model
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 
 
+@register_model
 class SimpleMovingAverage(BaseModel):
     """
     Implements the Simple Moving Average (SMA) trading strategy.
@@ -60,7 +62,8 @@ class SimpleMovingAverage(BaseModel):
         self.crossover_gradient_signal_weight: float = crossover_gradient_signal_weight
         self.crossover_weight_impact: float = crossover_weight_impact
 
-    def determine_trade_signal(self, short_sma_series: Series = None, long_sma_series: Series = None, index: int = 0) -> float:
+    def determine_trade_signal(self, short_sma_series: Series = None, long_sma_series: Series = None,
+                               index: int = -1) -> float:
         """
         Determines trade signal based on SMA crossovers.
 
@@ -75,10 +78,10 @@ class SimpleMovingAverage(BaseModel):
 
         :return: 1 if Buy signal, -1 if Sell signal, or 0 if Hold signal.
 
-        :raise ValueError: If the index is smaller than 1. Due to it getting index-1 value of the series
+        :raise ValueError: If the index is not less than 0
         """
-        if index < 1:
-            raise ValueError("Index must be smaller than the length of the series.")
+        if index > 0:
+            raise ValueError("Index must be less than 0")
 
         short_sma_latest: float = short_sma_series.iloc[index]
         long_sma_latest: float = long_sma_series.iloc[index]
@@ -86,8 +89,9 @@ class SimpleMovingAverage(BaseModel):
         long_sma_previous: float = long_sma_series.iloc[index - 1]
 
         crossover_signal = check_crossover(short_sma_latest, long_sma_latest, short_sma_previous, long_sma_previous,
-                        self.return_crossover_weight, self.max_crossover_gradient_degree, self.crossover_gradient_signal_weight,
-                        self.crossover_weight_impact)
+                                           self.return_crossover_weight, self.max_crossover_gradient_degree,
+                                           self.crossover_gradient_signal_weight,
+                                           self.crossover_weight_impact)
 
         return crossover_signal
 

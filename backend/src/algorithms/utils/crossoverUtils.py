@@ -41,27 +41,32 @@ def check_crossover(
           Strength is a float value representing the magnitude of the crossover.
 
     :raises ValueError: If `max_gradient_degree` is not between 0 and 90.
+        Or if `weight_impact` is not between 0 and 1.
     """
     if not 0 <= max_gradient_degree <= 90:
         raise ValueError("max_gradient_degree must be between 0 and 90.")
 
-    if (current_line1 > current_line2) == (previous_line1 > previous_line2):
-        crossover_type = 0
+    if weight_impact < 0 or weight_impact > 1:
+        raise ValueError("weight_impact must be between 0 and 1.")
+
+
+    if (current_line1 >= current_line2) == (previous_line1 >= previous_line2):
+        crossover_type: int = 0
     elif current_line1 > current_line2:
-        crossover_type = 1
+        crossover_type: int = 1
     else:
-        crossover_type = -1
+        crossover_type: int = -1
 
     if not return_strength and crossover_type != 0:
         return crossover_type
 
 
-    gradient = (current_line1 - previous_line1)
-    gradient_signal = abs(atan(gradient) / max_gradient_degree)
+    gradient: float = (current_line1 - previous_line1)
+    gradient_signal: float = abs(atan(gradient) / max_gradient_degree)
     gradient_signal = 1 if gradient_signal > 1 else gradient_signal
 
-    total_weigths = gradient_signal_weight
-    weights = 1 if total_weigths == 0 else (gradient_signal * gradient_signal_weight) / total_weigths
+    total_weigths: float = gradient_signal_weight
+    weights: float = 1 if total_weigths == 0 else (gradient_signal * gradient_signal_weight) / total_weigths
 
     return crossover_type * (1 - (1 - weights) * weight_impact)
 

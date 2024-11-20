@@ -7,10 +7,11 @@ import json
 import mysql.connector
 
 with open(Path(__file__).parent / '..' / '..' / '..' / 'config' / 'config.json', 'r') as f:
-    ROLLBACK_ON_ERROR = json.load(f).get("ROLLBACK_ON_ERROR")
-SQL_DIR_PATH: Path = Path(__file__).parent / '..' / 'sql'
+    db_config = json.load(f).get('DB_CONFIG')
+SQL_DIR_PATH: Path = (Path(__file__).parent / '..' / 'sql').resolve()
 
 logger = getLogger("oracle.app")
+
 
 def load_query(query_name: str) -> str:
     """
@@ -21,11 +22,13 @@ def load_query(query_name: str) -> str:
     :raises FileNotFoundError: If the specified SQL file does not exist.
     :raises IOError: If there is an error reading the file.
     """
-    with open(f'{SQL_DIR_PATH}/{query_name}.sql', 'r') as file:
+    with open(f'{SQL_DIR_PATH}\\{query_name}.sql', 'r') as file:
         return file.read()
 
 
 _conn: mysql.connector.MySQLConnection | None = None
+
+
 def prepare_connection(func: callable) -> callable:
     """
     A decorator to establish and manage a MySQL connection for the decorated function.
@@ -48,7 +51,7 @@ def prepare_connection(func: callable) -> callable:
 
     @wraps(func)
     def wrapper(*args, **kwargs) -> any:
-        cursor: mysql.connector.cursor.MySQLCursor | None = None
+        cursor: mysql.connector.cursor_cext.CMySQLCursor | None = None
         exception_flag: bool = False
 
         try:
@@ -56,9 +59,10 @@ def prepare_connection(func: callable) -> callable:
 
             if _conn is None:
                 _conn = mysql.connector.connect(
-                    host="localhost",
-                    user="root",
-                    password="root"
+                    host=db_config['host'],
+                    user=db_config['user'],
+                    password=db_config['password'],
+                    database=db_config['database']
                 )
 
             cursor = _conn.cursor()
@@ -94,10 +98,9 @@ def prepare_connection(func: callable) -> callable:
                 if cursor is not None:
                     cursor.close()
                 if _conn is not None and _conn.is_connected():
-                    if ROLLBACK_ON_ERROR:
+                    if db_config['auto_rollback']:
                         logger.error("Rolling back and Closing database connection...")
                         _conn.rollback()
                     _conn.close()
-
 
     return wrapper

@@ -1,12 +1,14 @@
 from logging import getLogger
 
-from utils import load_query, prepare_connection
+import mysql.connector
+
+from .utils import load_query, prepare_connection
 
 logger = getLogger("oracle.app")
 
 
 @prepare_connection
-def run_query(cursor, query_name: str = None, **kwargs) -> str:
+def run_query(cursor: mysql.connector.cursor_cext.CMySQLCursor, query_name: str = None, arg_map: dict[str, any] = None) -> str:
     """
     Loads and Runs queries from sql directory
 
@@ -55,15 +57,17 @@ def run_query(cursor, query_name: str = None, **kwargs) -> str:
 
       **Purpose**: Initializes the database named oracle.
 
-    - **reset**
+    - **reset_db**
 
       **Purpose**: Deletes all data from all tables in the database named oracle.
 
     :param cursor: This argument should not be passed as it will be injected by the decorator.
     :param query_name: The name of the query to run, shouldn't be a path.
-    :param kwargs: The parameters to pass to the query.
+    :param arg_map: The parameters to map to the query.
     :return: The results of the query.
     """
-    logger.debug(f"Executing Query: {query_name}, with args: {kwargs}")
-    cursor.execute(load_query(query_name), kwargs)
+    if type(cursor) is not mysql.connector.cursor_cext.CMySQLCursor:
+        raise AttributeError(f"You can't assign a cursor to this function. The type is {type(cursor)}")
+    logger.debug(f"Executing Query: {query_name}, with args: {arg_map}")
+    cursor.execute(load_query(query_name), arg_map)
     return cursor.fetchall()

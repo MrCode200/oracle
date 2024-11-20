@@ -3,11 +3,13 @@ from logging import getLogger
 from pandas import DataFrame
 from pandas_ta import ema
 
-from backend.src.algorithms.baseModel import BaseModel
+from ..baseModel import BaseModel
+from ..utils import register_model
 
 logger = getLogger("oracle.app")
 
 
+@register_model
 class ExponentialMovingAverage(BaseModel):
     _EA_SETTINGS: dict[str, dict[str, int | float]] = {}
 

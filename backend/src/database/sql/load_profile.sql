@@ -1,3 +1,3 @@
 SELECT *
 FROM profiles
-WHERE (%(profile_name)s IS NULL OR profile_name = %(profile_name)s);
+WHERE (%(profile_id)s IS NULL OR profile_id = %(profile_id)s);

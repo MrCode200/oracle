@@ -5,10 +5,12 @@ from pandas import DataFrame, Series
 from pandas_ta import rsi
 
 from backend.src.algorithms.baseModel import BaseModel
+from ..utils import register_model
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 
 
+@register_model
 class RelativeStrengthIndex(BaseModel):
     """
     Implements the Relative Strength Index (RSI) trading strategy.

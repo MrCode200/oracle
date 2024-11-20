@@ -3,11 +3,12 @@ from logging import getLogger
 from pandas import DataFrame, Series
 
 from backend.src.algorithms.baseModel import BaseModel
-from ..utils import check_crossover, trend_based_pullback
+from ..utils import check_crossover, trend_based_pullback, register_model
 
 logger = getLogger("oracle.app")
 
 
+@register_model
 class MovingAverageConvergenceDivergence(BaseModel):
     """
     A class to represent the Moving Average Convergence Divergence (MACD) strategy.
@@ -17,7 +18,7 @@ class MovingAverageConvergenceDivergence(BaseModel):
 
     _EA_SETTINGS = {}
 
-    def __init__(self, fast_period: int = 26, slow_period: int = 12,
+    def __init__(self, fast_period: int = 12, slow_period: int = 26,
                  signal_line_period: int = 9, max_momentum_lookback: int = 100, momentum_signal_weight: float = 1,
                  return_crossover_weight: bool = True, max_crossover_gradient_degree: float = 90,
                  crossover_gradient_signal_weight: float = 1.0, crossover_weight_impact: float = 1.0,
@@ -105,7 +106,8 @@ class MovingAverageConvergenceDivergence(BaseModel):
 
         # The Zero Line Crossover
         crossover = check_crossover(current_macd_value, current_signal_value, macd_line.iloc[-2],
-                                    signal_line_ema.iloc[-2], self.return_crossover_weigth, self.max_crossover_gradient_degree,
+                                    signal_line_ema.iloc[-2], self.return_crossover_weigth,
+                                    self.max_crossover_gradient_degree,
                                     self.crossover_gradient_signal_weight, self.crossover_weight_impact)
 
         zero_line_crossover_signal = crossover

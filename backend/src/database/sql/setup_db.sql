@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS `profiles` (
     balance DECIMAL(10,2) NOT NULL,
     stop_loss DECIMAL(10,2) NOT NULL,
     wallet JSON NOT NULL,
-    algorithms JSON NOT NULL
+    algorithm_settings JSON NOT NULL,
+    fetch_setting JSON NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS `orders` (
@@ -20,4 +21,3 @@ CREATE TABLE IF NOT EXISTS `orders` (
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     FOREIGN KEY (profile_id) REFERENCES profiles(profile_id) ON DELETE CASCADE
 );
-
