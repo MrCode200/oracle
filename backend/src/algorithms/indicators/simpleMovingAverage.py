@@ -4,9 +4,8 @@ import pandas
 from pandas import DataFrame, Series
 from pandas_ta import sma
 
-from backend.src.algorithms.baseModel import BaseModel  # type: ignore
-from backend.src.algorithms.utils import check_crossover
-from ..utils import register_model
+from ..baseModel import BaseModel
+from backend.src.algorithms.utils import check_crossover, register_model
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 

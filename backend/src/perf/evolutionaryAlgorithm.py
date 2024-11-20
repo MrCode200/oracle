@@ -1,11 +1,9 @@
 import random
-from multiprocessing import Pool
 
 from .mathutils import randfloat
 from statistics import mean
 import logging
 
-from numpy.ma.core import arange
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 

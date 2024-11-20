@@ -2,19 +2,19 @@ from typing import Type
 from json import loads
 from logging import getLogger
 
-from backend.src.database.sqlRunner import run_query
-from .entities import Profile
-from .utils import register_profile
+from backend.src.services.entities import Profile
+from backend.src.services.utils import register_profile
 
 logger = getLogger('oracle.app')
 
 def init_service():
-    logger.info("Initializing Service, Loading Profiles")
-    load_profile_map: dict[str, any] = {
-        "profile_id": None
-    }
-    results = run_query(query_name="load_profile", arg_map=load_profile_map)
+    from backend.src.database import select_profile
+
+    logger.info("Initializing Service, Loading Profiles...")
+    results = select_profile()
+
     for profile_attrs in results:
+        print("""Profile: """, profile_attrs)
         profile_kwargs: dict[str, any] = {
             "profile_id": profile_attrs[0],
             "profile_name": profile_attrs[1],
@@ -27,4 +27,4 @@ def init_service():
         profile: Type[Profile] = Profile(**profile_kwargs)
         register_profile(profile)
 
-    logger.info("Initialized Service Successfully, all profiles loaded")
+    logger.info("Initialized Service Successfully, all profiles loaded!")

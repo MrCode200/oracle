@@ -1,31 +1,31 @@
 import logging
+import json
 
-from custom_logger import setup_logger  # type: ignore
-from services import init_service
-from api import fetch_historical_data  # type: ignore
+import sys
 
-algo_blacklist: list[str] = ["ichimoku"]
+sys.path.append("/workspaces/oracle/backend")
+
+from backend.src.custom_logger import setup_logger  # type: ignore
+from backend.src.services import init_service
+from backend.src.api import fetch_historical_data  # type: ignore
+from backend.src.commands.interface import init_interface
 
 
 def init_app():
-    setup_logger('oracle.app', logging.DEBUG, '../../logs/app.jsonl', stream_in_color=True, log_in_json=True)
+    with open('backend/config/config.json', 'r') as f:
+        log_config = json.load(f).get('LOG_CONFIG')
+
+    setup_logger('oracle.app', log_config.get('level'), log_config.get('path'), log_config.get('stream_in_color'),
+                 log_config.get('log_in_json'))
     logger = logging.getLogger("oracle.app")
     logger.info("Initialized Oracle...")
 
-    # register all models
     import algorithms.indicators as indicators
-    sma = indicators.SimpleMovingAverage()
+    logger.info("All Models Registered Successfully...")
 
     init_service()
-    return logger
+
+    init_interface()
+
 
 init_app()
-# -----
-from services.utils import yield_profiles
-
-while True:
-    command = input("Command: ")
-    if command == "evaluate" or command == "eval":
-        for profile in yield_profiles():
-            print(f"Profile: {profile.profile_name}")
-            print(profile.evaluate())

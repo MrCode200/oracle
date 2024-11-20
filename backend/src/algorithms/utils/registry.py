@@ -11,7 +11,6 @@ def register_model(cls: Type) -> Type:
 
     name: str = cls.__name__
     if name not in _MODEL_REGISTRY:
-        logger.debug(f"Added `{name}` to registry. Model registry: {_MODEL_REGISTRY}")
         _MODEL_REGISTRY.update({name: cls})
     else:
         logger.error(f"Model {name} already registered.", exc_info=True)

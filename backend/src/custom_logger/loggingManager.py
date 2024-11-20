@@ -7,7 +7,7 @@ from logging.handlers import TimedRotatingFileHandler
 from logging import DEBUG
 
 from logging import Formatter
-from .loggingFormatters import ColoredFormatter, JsonFormatter  # type: ignore
+from backend.src.custom_logger.loggingFormatters import ColoredFormatter, JsonFormatter  # type: ignore
 
 
 def setup_logger(logger_name: str, stream_level: int, log_file_name: str, stream_in_color: bool = True,

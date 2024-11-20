@@ -1,6 +1,6 @@
 import pytest
 
-from backend.src.algorithms.utils.model_registry import get_model, register_model
+from backend.src.algorithms.utils.registry import get_model, register_model
 
 
 def test_register_model():

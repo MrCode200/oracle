@@ -4,7 +4,7 @@ from pandas import DataFrame
 from pandas_ta import ema
 
 from ..baseModel import BaseModel
-from ..utils import register_model
+from backend.src.algorithms.utils import register_model
 
 logger = getLogger("oracle.app")
 
