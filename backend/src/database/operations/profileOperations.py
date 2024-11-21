@@ -1,4 +1,5 @@
 from logging import getLogger
+from typing import Type
 
 from sqlalchemy.orm import sessionmaker
 
@@ -66,29 +67,35 @@ def select_profile(profile_id: int = None, profile_name: str = None):
         session.close()
 
 
-def update_profile(profile_id: int, profile_name: str, profile_settings: dict, wallet: dict,
-                   algorithm_settings: dict, fetch_settings: dict) -> None:
+def update_profile(profile_id: int, profile_name: str=None, profile_settings: dict=None,
+                   algorithm_settings: dict=None, fetch_settings: dict=None) -> None:
     """
     Updates a profile in the database.
 
-    :param profile_id: The ID of the profile to update.
-    :param profile_name: The name of the profile.
-    :param profile_settings: The setting for the profile.
-    :param wallet: The wallet information for the profile.
-    :param algorithm_settings: The algorithm settings for the profile.
-    :param fetch_settings: The fetch settings for the profile.
+    :key profile_id: The ID of the profile to update.
+    :key profile_name: The name of the profile.
+    :key profile_settings: The setting for the profile.
+    :key algorithm_settings: The algorithm settings for the profile.
+    :key fetch_settings: The fetch settings for the profile.
     """
     session = Session()
 
+    profile: Type[Profile] = session.get(Profile, profile_id)
+    if profile:
+        update_values = {}
+
+        if profile_name is not None:
+            update_values["profile_name"] = profile_name
+        if profile_settings is not None:
+            update_values["profile_settings"] = profile_settings
+        if algorithm_settings is not None:
+            update_values["algorithm_settings"] = algorithm_settings
+        if fetch_settings is not None:
+            update_values["fetch_settings"] = fetch_settings
     try:
-        session.get(Profile, profile_id).update({
-            "profile_name": profile_name,
-            "profile_settings": profile_settings,
-            "wallet": wallet,
-            "algorithm_settings": algorithm_settings,
-            "fetch_settings": fetch_settings
-        })
-        session.commit()
+        if update_values:
+            session.query(Profile).get(profile_id).update(update_values)
+            session.commit()
     except Exception:
         logger.error(f"Error updating profile with ID {profile_id}", exc_info=True)
         session.rollback()
