@@ -15,8 +15,7 @@ def init_service():
         profile_kwargs: dict[str, any] = {
             "profile_id": profile_attrs.profile_id,
             "profile_name": profile_attrs.profile_name,
-            "balance": profile_attrs.balance,
-            "stop_loss": profile_attrs.stop_loss,
+            "profile_settings": profile_attrs.profile_settings,
             "wallet": profile_attrs.wallet,
             "algorithms_settings": profile_attrs.algorithm_settings,
             "fetch_settings": profile_attrs.fetch_settings

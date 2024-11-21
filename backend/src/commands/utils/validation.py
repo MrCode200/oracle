@@ -2,11 +2,10 @@ from backend.src.api import fetch_info_data
 from backend.src.exceptions import DataFetchError
 from backend.src.algorithms.utils import get_model
 
-def validate_profile(profile_name: str, balance: float, profile_settings: dict[str, any], wallet: dict[str, float],
+def validate_profile(profile_name: str, profile_settings: dict[str, any], wallet: dict[str, float],
                      algorithm_settings: dict[str, dict[str, any]], fetch_settings: dict) -> bool | ValueError:
     try:
         validate_profile_name(profile_name)
-        validate_balance(balance)
         validate_profile_settings(profile_settings)
         validate_wallet(wallet)
         validate_algorithm_settings(algorithm_settings)
@@ -23,13 +22,6 @@ def validate_profile_name(profile_name):
         raise ValueError("Profile name must be a string.")
     if len(profile_name) > 50:
         raise ValueError("Profile name cannot be longer than 50 characters.")
-
-
-def validate_balance(balance):
-    if type(balance) is not float | int:
-        raise ValueError("Balance must be a float.")
-    if balance <= 0:
-        raise ValueError("Balance must be greater than 0.")
 
 
 def validate_profile_settings(profile_settings):
@@ -64,6 +56,10 @@ def validate_algorithm_settings(algorithm_settings):
     for model in algorithm_settings:
         if get_model(model) is None:
             raise ValueError(f"Invalid model: {model}")
+    if type(algorithm_settings["balance"]) is not float | int:
+        raise ValueError("Balance must be a float.")
+    if algorithm_settings["balance"] <= 0:
+        raise ValueError("Balance must be greater than 0.")
 
 
 def validate_fetch_settings(fetch_settings):

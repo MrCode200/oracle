@@ -9,13 +9,12 @@ logger = getLogger("oracle.app")
 Session = sessionmaker(bind=engine)
 
 
-def add_profile(profile_name: str, balance: float, profile_settings: dict[str, float], wallet: dict,
+def add_profile(profile_name: str, profile_settings: dict[str, float], wallet: dict,
                 algorithm_settings: dict, fetch_settings: dict) -> Profile:
     """
     Adds a new profile to the database.
 
     :param profile_name: The name of the profile.
-    :param balance: The balance associated with the profile.
     :param profile_settings: The setting for the profile.
     :param wallet: The wallet information for the profile.
     :param algorithm_settings: The algorithm settings for the profile.
@@ -27,7 +26,6 @@ def add_profile(profile_name: str, balance: float, profile_settings: dict[str, f
     try:
         new_profile = Profile(
             profile_name=profile_name,
-            balance=balance,
             stop_loss=profile_settings,
             wallet=wallet,
             algorithm_settings=algorithm_settings,
@@ -68,14 +66,13 @@ def select_profile(profile_id: int = None, profile_name: str = None):
         session.close()
 
 
-def update_profile(profile_id: int, profile_name: str, balance: float, profile_settings: dict, wallet: dict,
+def update_profile(profile_id: int, profile_name: str, profile_settings: dict, wallet: dict,
                    algorithm_settings: dict, fetch_settings: dict) -> None:
     """
     Updates a profile in the database.
 
     :param profile_id: The ID of the profile to update.
     :param profile_name: The name of the profile.
-    :param balance: The balance associated with the profile.
     :param profile_settings: The setting for the profile.
     :param wallet: The wallet information for the profile.
     :param algorithm_settings: The algorithm settings for the profile.
@@ -86,7 +83,6 @@ def update_profile(profile_id: int, profile_name: str, balance: float, profile_s
     try:
         session.get(Profile, profile_id).update({
             "profile_name": profile_name,
-            "balance": balance,
             "profile_settings": profile_settings,
             "wallet": wallet,
             "algorithm_settings": algorithm_settings,

@@ -8,7 +8,6 @@ class Profile(Base):
     __tablename__ = "profiles"
     profile_id = Column(Integer, primary_key=True, autoincrement=True)
     profile_name = Column(String(50), unique=True)
-    balance = Column(Float)
     profile_settings = Column(JSON)
     wallet = Column(JSON)
     algorithm_settings = Column(JSON)

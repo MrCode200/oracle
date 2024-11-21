@@ -16,7 +16,6 @@ logger = getLogger("oracle.app")
 class Profile:
     profile_id: int
     profile_name: str
-    balance: float
     wallet: dict[str, float]
     profile_settings: dict[str, any]
     algorithms_settings: dict[str, dict[str, any]] = field(default_factory=list)
