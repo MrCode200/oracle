@@ -9,7 +9,7 @@ class Profile(Base):
     profile_id = Column(Integer, primary_key=True, autoincrement=True)
     profile_name = Column(String(50), unique=True)
     balance = Column(Float)
-    stop_loss = Column(Float)
+    profile_settings = Column(JSON)
     wallet = Column(JSON)
     algorithm_settings = Column(JSON)
     fetch_settings = Column(JSON)

@@ -34,9 +34,3 @@ def get_profile(profile_id: int) -> Type | None:
         return
     logger.debug(f"Retrieved Profile with id: {profile_id}; from PROFILE_REGISTRY")
     return _PROFILE_REGISTRY[profile_id]
-
-
-def yield_profiles():
-    for profile in _PROFILE_REGISTRY.values():
-        logger.debug(f"Yielded Profile with id: {profile.profile_id}; from PROFILE_REGISTRY")
-        yield profile

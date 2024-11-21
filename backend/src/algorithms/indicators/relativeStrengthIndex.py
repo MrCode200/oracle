@@ -89,8 +89,8 @@ class RelativeStrengthIndex(BaseModel):
 
         return signal
 
-    def backtest(self, df: DataFrame, partition_amount: int = 1, sell_percent: float = -0.8,
-                 buy_percent: float = 0.8) -> list[float]:
+    def backtest(self, df: DataFrame, partition_amount: int = 1, sell_threshold: float = -0.8,
+                 buy_threshold: float = 0.8) -> list[float]:
         """
         Backtests the RSI strategy on historical data.
 
@@ -99,8 +99,8 @@ class RelativeStrengthIndex(BaseModel):
 
         :param df: The DataFrame containing the market data with a 'Close' column.
         :key partition_amount: The amount of paritions which get returned at which to recalculate the Return on Investiment (default is 1)..
-        :key sell_percent: The percentage of when to sell, (default is 0.2).
-        :key buy_percent: The percentage of when to buy, (default is 0.8).
+        :key sell_threshold: The percentage of when to sell, (default is 0.2).
+        :key buy_threshold: The percentage of when to buy, (default is 0.8).
 
         :return: A list of parition_amount times of the Return on Investiment.
 
@@ -114,8 +114,8 @@ class RelativeStrengthIndex(BaseModel):
         return super(RelativeStrengthIndex, self).backtest(
             df=df,
             invalid_values=self.period + 1,
-            sell_percent=sell_percent,
-            buy_percent=buy_percent,
+            sell_threshold=sell_threshold,
+            buy_threshold=buy_threshold,
             func_kwargs=signal_func_kwargs,
             partition_amount=partition_amount,
             strategy_name="RSI"

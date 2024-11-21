@@ -18,7 +18,7 @@ class Profile:
     profile_name: str
     balance: float
     wallet: dict[str, float]
-    stop_loss: float
+    profile_settings: dict[str, any]
     algorithms_settings: dict[str, dict[str, any]] = field(default_factory=list)
     algorithms: dict[str, Type[BaseModel]] = field(default_factory=dict)
     fetch_settings: dict[str, any] = field(default_factory=dict)

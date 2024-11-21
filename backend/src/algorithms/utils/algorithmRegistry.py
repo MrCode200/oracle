@@ -19,14 +19,17 @@ def register_model(cls: Type) -> Type:
     return cls
 
 
-def get_model(name: str) -> Type:
+def get_model(name: str = None) -> Type | dict[str, Type] | None:
     """
-    Retrieves the model by its name.
+    Retrieves the model by its name. If name is None then it returns the entire registry
 
     :param name: The name of the model
     :return: The model
     """
+    if name is None:
+        return _MODEL_REGISTRY
     if name not in _MODEL_REGISTRY:
         logger.error(f"Model {name} not registered.\nREGISTER: {_MODEL_REGISTRY}", exc_info=True)
+        return
     logger.debug(f"Looking up MODEL_REGISTRY for name: {name}")
     return _MODEL_REGISTRY[name]

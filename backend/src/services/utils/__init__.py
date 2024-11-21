@@ -1,1 +1,1 @@
-from .serviceRegistry import get_profile, register_profile, remove_profile, yield_profiles
+from .serviceRegistry import get_profile, register_profile, remove_profile

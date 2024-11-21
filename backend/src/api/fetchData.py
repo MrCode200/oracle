@@ -9,6 +9,20 @@ from backend.src.exceptions import DataFetchError
 logger: logging.Logger = logging.getLogger("oracle.app")
 
 
+def fetch_info_data(ticker: str) -> dict:
+    """
+    Fetch information about a coin from Yahoo Finance using yfinance.
+
+    :param ticker: The ticker symbol of the coin (e.g., 'BTC-USD' for Bitcoin)
+    :return: A dictionary containing the fetched information or None on error
+
+    :raises DataFetchError: If an error occurs while fetching data
+    """
+    ticker_obj = yf.Ticker(ticker)
+    if ticker_obj.info is None:
+        raise DataFetchError(message="Failed to fetch info data", ticker=ticker)
+    return ticker_obj.info
+
 def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d", start: str = None,
                           end: str = None) -> DataFrame:
     """
@@ -27,9 +41,7 @@ def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d",
     try:
         ticker_obj = yf.Ticker(ticker)
 
-        if ticker_obj.info.get("longName") is None:
-            logger.error(f"Invalid Ticker: {ticker}")
-            raise AttributeError(f"Invalid Ticker: {ticker}")
+        fetch_info_data(ticker)
     except Exception as e:
         if not isinstance(e, AttributeError):
             logger.error(f"Error fetching info data: {e}")

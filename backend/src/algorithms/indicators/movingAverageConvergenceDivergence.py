@@ -152,8 +152,8 @@ class MovingAverageConvergenceDivergence(BaseModel):
 
         return self.determine_trade_signal(df)
 
-    def backtest(self, df: DataFrame, partition_amount: int = 1, sell_percent: float = -0.8,
-                 buy_percent: float = 0.8) -> list[float]:
+    def backtest(self, df: DataFrame, partition_amount: int = 1, sell_threshold: float = -0.8,
+                 buy_threshold: float = 0.8) -> list[float]:
         """
         Backtests the MACD strategy on historical data.
 
@@ -163,8 +163,8 @@ class MovingAverageConvergenceDivergence(BaseModel):
         :param df: The pandas DataFrame containing the market data (at least a 'Close' column).
         :param partition_amount: The number of partitions to divide the data into for backtesting,
                                  which determines how often the Return on Investment (ROI) is recalculated.
-        :param sell_percent: The percentage of when to sell, (default is -0.8).
-        :param buy_percent: The percentage of when to buy, (default is 0.8).
+        :param sell_threshold: The percentage of when to sell, (default is -0.8).
+        :param buy_threshold: The percentage of when to buy, (default is 0.8).
 
         :return: A list of ROI values calculated at each partition of the backtest.
         """
@@ -177,8 +177,8 @@ class MovingAverageConvergenceDivergence(BaseModel):
             df=df,
             invalid_values=self.fast_period,
             func_kwargs=signal_func_kwargs,
-            buy_percent=buy_percent,
-            sell_percent=sell_percent,
+            buy_threshold=buy_threshold,
+            sell_threshold=sell_threshold,
             partition_amount=partition_amount,
             strategy_name="MACD"
         )

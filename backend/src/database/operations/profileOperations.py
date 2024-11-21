@@ -1,9 +1,7 @@
 from logging import getLogger
 
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import select
 
-from .utils import validate_profile_name
 from .. import engine, Profile
 
 logger = getLogger("oracle.app")
@@ -11,27 +9,26 @@ logger = getLogger("oracle.app")
 Session = sessionmaker(bind=engine)
 
 
-def add_profile(profile_name: str, balance: float, stop_loss: float, wallet: dict,
+def add_profile(profile_name: str, balance: float, profile_settings: dict[str, float], wallet: dict,
                 algorithm_settings: dict, fetch_settings: dict) -> Profile:
     """
     Adds a new profile to the database.
 
     :param profile_name: The name of the profile.
     :param balance: The balance associated with the profile.
-    :param stop_loss: The stop-loss setting for the profile.
+    :param profile_settings: The setting for the profile.
     :param wallet: The wallet information for the profile.
     :param algorithm_settings: The algorithm settings for the profile.
     :param fetch_settings: The fetch settings for the profile.
     :return: The added profile object.
     """
-    validate_profile_name(profile_name)
     session = Session()
 
     try:
         new_profile = Profile(
             profile_name=profile_name,
             balance=balance,
-            stop_loss=stop_loss,
+            stop_loss=profile_settings,
             wallet=wallet,
             algorithm_settings=algorithm_settings,
             fetch_settings=fetch_settings
@@ -49,7 +46,7 @@ def add_profile(profile_name: str, balance: float, stop_loss: float, wallet: dic
         session.close()
 
 
-def select_profile(profile_id: int = None):
+def select_profile(profile_id: int = None, profile_name: str = None):
     """
     Loads a profile from the database based on profile ID or profile name.
     If no arguments are passed it will return all profiles.
@@ -62,31 +59,68 @@ def select_profile(profile_id: int = None):
 
     try:
         if profile_id is not None:
-            query = session.query(Profile).get(profile_id)
+            return session.get(Profile, profile_id)
+        elif profile_name is not None:
+            return session.query(Profile).filter_by(profile_name=profile_name).first()
         else:
-            query = select(Profile)
-
-        # Execute the query and fetch the results
-        results = session.execute(query).scalars().all()
-        return results
+            return session.query(Profile).all()
     finally:
         session.close()
 
 
-def delete_profile(profile_id: int) -> None:
+def update_profile(profile_id: int, profile_name: str, balance: float, profile_settings: dict, wallet: dict,
+                   algorithm_settings: dict, fetch_settings: dict) -> None:
     """
-    Deletes a profile from the database.
+    Updates a profile in the database.
 
-    :param profile_id: The ID of the profile to delete.
+    :param profile_id: The ID of the profile to update.
+    :param profile_name: The name of the profile.
+    :param balance: The balance associated with the profile.
+    :param profile_settings: The setting for the profile.
+    :param wallet: The wallet information for the profile.
+    :param algorithm_settings: The algorithm settings for the profile.
+    :param fetch_settings: The fetch settings for the profile.
     """
     session = Session()
 
     try:
-        profile = session.query(Profile).get(profile_id)
+        session.get(Profile, profile_id).update({
+            "profile_name": profile_name,
+            "balance": balance,
+            "profile_settings": profile_settings,
+            "wallet": wallet,
+            "algorithm_settings": algorithm_settings,
+            "fetch_settings": fetch_settings
+        })
+        session.commit()
+    except Exception:
+        logger.error(f"Error updating profile with ID {profile_id}", exc_info=True)
+        session.rollback()
+    finally:
+        session.close()
+
+
+def delete_profile(profile_id: int = None, profile_name: str = None) -> None:
+    """
+    Deletes a profile from the database.
+
+    :param profile_id: The ID of the profile to load. Optional if profile_name is provided.
+    :param profile_name: The name of the profile to load. Optional if profile_id is provided.
+    """
+    session = Session()
+    profile: Profile | None = None
+
+    try:
+        if profile_id is not None:
+            profile = session.get(Profile, profile_id)
+        elif profile_name is not None:
+            profile = session.query(Profile).filter_by(profile_name=profile_name).first()
 
         if profile is not None:
             session.delete(profile)
             session.commit()
+        else:
+            logger.warning(f"Profile with {profile_id=}; {profile_name=} does not exist")
 
     except Exception as e:
         logger.error(f"Error deleting profile with ID {profile_id}", exc_info=True)

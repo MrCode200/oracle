@@ -50,6 +50,7 @@ class JsonFormatter(Formatter):
             "line_number": record.lineno,
             "function": record.funcName,
             "message": record.getMessage(),
+            "exc_info": record.exc_info
         }
 
         return json.dumps(log_record)

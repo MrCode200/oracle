@@ -9,7 +9,7 @@ logger = getLogger("oracle.app")
 
 Session = sessionmaker(bind=engine)
 
-def insert_order(profile_id: int, order_type: str, ticker: str, quantity: int, price: float) -> None:
+def add_order(profile_id: int, order_type: str, ticker: str, quantity: int, price: float) -> None:
     session = Session()
 
     try:

@@ -117,8 +117,8 @@ class SimpleMovingAverage(BaseModel):
         logger.info(f"SMA evaluation result: {signal}", extra={"strategy": "SMA"})
         return signal
 
-    def backtest(self, df: DataFrame, partition_amount: int = 1, sell_percent: float = -0.8,
-                 buy_percent: float = 0.8) -> list[float]:
+    def backtest(self, df: DataFrame, partition_amount: int = 1, sell_threshold: float = -0.8,
+                 buy_threshold: float = 0.8) -> list[float]:
         """
         Runs a backtest on the data and returns final profit or loss.
 
@@ -128,8 +128,8 @@ class SimpleMovingAverage(BaseModel):
 
         :param df: The DataFrame containing the market data with a 'Close' column.
         :key partition_amount: The amount of paritions which get returned at which to recalculate the Return on Investiment (default is 1).
-        :param sell_percent: The percentage of when to sell, (default is -0.8).
-        :param buy_percent: The percentage of when to buy, (default is 0.8).
+        :param sell_threshold: The percentage of when to sell, (default is -0.8).
+        :param buy_threshold: The percentage of when to buy, (default is 0.8).
 
         :return: A list of partition_amount times of the Return on Investment.
         """
@@ -146,8 +146,8 @@ class SimpleMovingAverage(BaseModel):
         return super(SimpleMovingAverage, self).backtest(
             df=df,
             invalid_values=invalid_values,
-            sell_percent=sell_percent,
-            buy_percent=buy_percent,
+            sell_threshold=sell_threshold,
+            buy_threshold=buy_threshold,
             func_kwargs=signal_func_kwargs,
             partition_amount=partition_amount,
             strategy_name="SMA"

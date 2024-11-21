@@ -1,4 +1,4 @@
 from .crossoverUtils import check_crossover
-from .pullbacks import trend_based_pullback
+from .pullbacksUtils import trend_based_pullback
 
-from .registry import get_model, register_model
+from .algorithmRegistry import get_model, register_model

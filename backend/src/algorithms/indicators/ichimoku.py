@@ -4,10 +4,13 @@ import pandas as pd
 from backend.src.api import fetch_historical_data
 from backend.src.algorithms.baseModel import BaseModel
 
+from backend.src.algorithms.utils import register_model
+
 # Fetch historical data (assuming it returns a DataFrame)
 data_frame = fetch_historical_data("BTC-USD", '1y', "1h")
 
 
+@register_model
 class Ichimoku(BaseModel):
     _EA_SETTINGS = {}
 
@@ -152,7 +155,7 @@ class Ichimoku(BaseModel):
             print(res)
 
 
-    def backtest(self, df: pd.DataFrame, partition_amount: int = 1, sell_percent: float = -0.8, buy_percent: float = 0.8):
+    def backtest(self, df: pd.DataFrame, partition_amount: int = 1, sell_threshold: float = -0.8, buy_threshold: float = 0.8):
 
         signal_func_kwargs: dict[str, any] = {
             "df": df
@@ -161,8 +164,8 @@ class Ichimoku(BaseModel):
         return super(Ichimoku, self).backtest(
             df=df,
             invalid_values=54,
-            sell_percent=sell_percent,
-            buy_percent=buy_percent,
+            sell_threshold=sell_threshold,
+            buy_threshold=buy_threshold,
             func_kwargs=signal_func_kwargs,
             partition_amount=partition_amount,
             strategy_name="Ichimoku"
@@ -181,4 +184,4 @@ init_app()
 
 I = Ichimoku()
 I.evaluate(data_frame)
-I.backtest(data_frame, 12, buy_percent=0.1, sell_percent=-0.1)
+I.backtest(data_frame, 12, buy_threshold=0.1, sell_threshold=-0.1)

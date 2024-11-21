@@ -39,7 +39,7 @@ class BaseModel(ABC):
 
     @abstractmethod
     def backtest(self, df: DataFrame, func_kwargs: dict[str, any], invalid_values: int, partition_amount: int,
-                 sell_percent: float, buy_percent: float, strategy_name: str) -> list[float]:
+                 sell_threshold: float, buy_threshold: float, strategy_name: str) -> list[float]:
         """
         Conducts a backtest on the provided market data to evaluate the performance of a trading strategy.
 
@@ -51,8 +51,8 @@ class BaseModel(ABC):
         :param invalid_values: The number of initial rows in the DataFrame to skip, typically used to account for NaN values.
         :param partition_amount: The number of partitions to divide the data into for recalculating the Return on Investment (ROI). Must be greater than 0.
         :param strategy_name: The name of the strategy being tested, only needed for logging.
-        :param sell_percent: The percentage of when to sell, (default is 0.2).
-        :param buy_percent: The percentage of when to buy, (default is 0.8).
+        :param sell_threshold: The percentage of when to sell, (default is 0.2).
+        :param buy_threshold: The percentage of when to buy, (default is 0.8).
 
         :returns: A list of floats representing the ROI for each partition.
 
@@ -77,7 +77,7 @@ class BaseModel(ABC):
             base_balance, balance, shares = BaseModel.process_trade_signal(
                 base_balance, balance, shares,
                 df.iloc[i].Close, df.index[i] ,trade_signal,
-                buy_percent, sell_percent,
+                buy_threshold, sell_threshold,
                 net_worth_history, is_partition_cap_reached,
                 strategy_name
             )
@@ -102,8 +102,8 @@ class BaseModel(ABC):
             latest_price: float,
             date: str,
             trade_signal: float,
-            buy_percent: float,
-            sell_percent: float,
+            buy_threshold: float,
+            sell_threshold: float,
             net_worth_history: list[float],
             is_partition_cap_reached: bool,
             strategy_name: str
@@ -121,8 +121,8 @@ class BaseModel(ABC):
         :param latest_price: The latest market price of the asset being traded.
         :param date: The date of the current market data point.
         :param trade_signal: The trade signal, where 1 represents a buy signal and 0 represents a sell signal.
-        :param sell_percent: The percentage of when to sell, (default is 0.2).
-        :param buy_percent: The percentage of when to buy, (default is 0.8).
+        :param sell_threshold: The percentage of when to sell, (default is 0.2).
+        :param buy_threshold: The percentage of when to buy, (default is 0.8).
         :param net_worth_history: A list storing the historical values of the portfolio for ROI tracking.
         :param is_partition_cap_reached: A flag indicating whether the ROI should be recorded for the current period.
         :param strategy_name: The name of the strategy used for logging purposes.
@@ -138,14 +138,14 @@ class BaseModel(ABC):
             - If `should_record_roi` is True, the method will record the portfolio's total value at that point,
               updating the `portfolio_value_history` with the current ROI.
         """
-        if trade_signal >= buy_percent and balance != 0:
+        if trade_signal >= buy_threshold and balance != 0:
             shares = balance / latest_price
             balance = 0
             logger.debug(
                 "Executed Buy of `{}` shares; with a price of `{}`; date: `{}`".format(shares, latest_price, date),
                 extra={"strategy": strategy_name})
 
-        elif trade_signal <= sell_percent and shares > 0:  # Sell
+        elif trade_signal <= sell_threshold and shares > 0:  # Sell
             logger.debug(
                 "Executed Sell of `{}` shares; with a price of `{}`; date: `{}`".format(shares, latest_price, date),
                 extra={"strategy": strategy_name})
