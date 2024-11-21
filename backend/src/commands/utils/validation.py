@@ -25,7 +25,7 @@ def validate_profile_name(profile_name):
 
 
 def validate_profile_settings(profile_settings):
-    if ["sell_threshold", "buy_threshold", "stop_loss", "limit"] not in profile_settings.keys():
+    if {"sell_threshold", "buy_threshold", "stop_loss", "limit"} == profile_settings.keys():
         raise ValueError("Profile settings cannot contain sell_threshold, buy_threshold, stop_loss, or limit.")
     if profile_settings["sell_threshold"] < 0 or profile_settings["sell_threshold"] > -1:
         raise ValueError("Sell threshold must be between 0 and -1.")
@@ -35,6 +35,10 @@ def validate_profile_settings(profile_settings):
         raise ValueError("Stop loss must be between 0 and 1.")
     if profile_settings["limit"] < 0 or profile_settings["limit"] > 1:
         raise ValueError("Limit must be between 0 and 1.")
+    if type(profile_settings["balance"]) is not float | int:
+        raise ValueError("Balance must be a float.")
+    if profile_settings["balance"] <= 0:
+        raise ValueError("Balance must be greater than 0.")
 
 
 def validate_wallet(wallet):
@@ -56,14 +60,10 @@ def validate_algorithm_settings(algorithm_settings):
     for model in algorithm_settings:
         if get_model(model) is None:
             raise ValueError(f"Invalid model: {model}")
-    if type(algorithm_settings["balance"]) is not float | int:
-        raise ValueError("Balance must be a float.")
-    if algorithm_settings["balance"] <= 0:
-        raise ValueError("Balance must be greater than 0.")
 
 
 def validate_fetch_settings(fetch_settings):
     if type(fetch_settings) is not dict:
         raise ValueError("Fetch settings must be a dictionary.")
-    if ["period", "interval"] not in fetch_settings:
+    if {"period", "interval"} == fetch_settings.keys():
         raise ValueError("Fetch settings must contain period and interval.")
