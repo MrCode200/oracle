@@ -1,5 +1,5 @@
 from backend.src.commands.utils import register_command, get_command
-from backend.src.algorithms.indicators.utils import get_indicator
+from backend.src.utils.registry import indicator_registry
 from backend.src.database import select_profile
 
 @register_command("help")
@@ -12,7 +12,7 @@ def command_help():
 @register_command("list algorithms")
 def command_list_algorithms():
     print("Available algorithms:")
-    for algorithm in get_indicator().keys():
+    for algorithm in indicator_registry.registry().keys():
         print(algorithm)
 
 

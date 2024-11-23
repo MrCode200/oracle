@@ -1,7 +1,7 @@
 from logging import getLogger
 
 from backend.src.services.entities import Profile, Status
-from backend.src.services.utils import register_profile
+from backend.src.utils.registry import profile_registry
 
 logger = getLogger('oracle.app')
 
@@ -23,6 +23,6 @@ def init_service():
             "fetch_settings": profile_attrs.fetch_settings
         }
         profile: Profile = Profile(**profile_kwargs)
-        register_profile(profile)
+        profile_registry.register(profile)
 
     logger.info("Initialized Service Successfully, all profiles loaded!")

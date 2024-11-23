@@ -1,52 +1,64 @@
-from queue import PriorityQueue
-
 from pandas import DataFrame
 
-from .plugins import BasePlugin
-from backend.src.algorithms.strategies.utils import get_plugin
-from backend.src.services.entities import Profile
-from ...api import fetch_historical_data
-from backend.src.algorithms.indicators.utils import get_indicator
+from .plugins import BasePlugin, PluginPriority
+from backend.src.api import fetch_historical_data
 from backend.src.algorithms.indicators import BaseIndicator
-
+from backend.src.utils.registry import indicator_registry, plugin_registry
 
 class BaseStrategy:
-    def __init__(self, profile):
-        strategy_plugins = profile.algorithms_settings["strategy_plugins"]
-        self.plugin_queue: PriorityQueue = PriorityQueue()
+    def __init__(self, profile: 'Profile'):
+        self.profile = profile
 
-        for plugin_name, plugin_settings in strategy_plugins.items():
-            self.add_plugin(get_plugin(plugin_name)(**plugin_settings))
+        self.plugins: list[BasePlugin] = []
+        for plugin_name, plugin_config in profile.plugin_configs.items():
+            self.add_plugin(plugin_registry.get(plugin_name)(**plugin_config))
 
-    def evaluate(self, profile: Profile) -> dict[str, float]:
+    def evaluate(self) -> dict[str, float]:
+        for plugin in self.plugins:
+            if plugin.priority == PluginPriority.BEFORE_EXECUTION:
+                plugin.run(self)
+
+        all_results: dict[str, dict[str, float]] = self._eval_all()
+
+        for plugin in self.plugins:
+            if plugin.priority == PluginPriority.AFTER_EXECUTION:
+                plugin.run(self, all_results)
+
+        return {"coinA": 0.01, "coinB": 0.5}
+
+    def _eval_all(self) -> dict[str, dict[str, float]]:
+        """
+        Evaluate all indicators for all tickers
+        :return: All results as dict[ticker: dict[indicators: result]]
+        """
         all_results: dict[str, dict[str, float]] = {}
-        for ticker in profile.algorithms_settings.keys():
+        for ticker in self.profile.indicator_configs.keys():
             results: dict[str, float] = {}
 
-            for indicator_name, indicator_settings in profile.algorithms_settings[ticker].items():
+            for indicator_name, indicator_settings in self.profile.indicator_configs[ticker].items():
                 data: DataFrame = fetch_historical_data(ticker, **indicator_settings["fetch_settings"])
-                indicator: BaseIndicator = get_indicator(indicator_name)(indicator_settings["settings"])
+
+                indicator: BaseIndicator = indicator_registry.get(indicator_name)(indicator_settings["settings"])
+
                 result: float = indicator.evaluate(df=data) * indicator_settings["weight"]
                 results[indicator_name] = result
 
             all_results[ticker] = results
 
-        """while not self.plugin_queue.empty():
-            _, plugin = self.plugin_queue.get()
-            plugin.run(profile, all_results)"""
+        return all_results
 
-        return {"coinA": 0.01, "coinB": 0.5}
+    def backtest(self, profile):
+        pass
 
-    def add_plugin(self, plugin: BasePlugin):
-        self.plugin_queue.put((plugin.priority, plugin))
+    def add_plugin(self, plugin: BasePlugin) -> None:
+        self.plugins.append(plugin)
 
-    def remove_plugin(self, plugin):
-        new_queue = PriorityQueue()
-        while not self.plugin_queue.empty():
-            priority, current_plugin = self.plugin_queue.get()
-            if current_plugin != plugin:
-                new_queue.put((priority, current_plugin))
-        self.plugin_queue = new_queue
+    def remove_plugin(self, plugin) -> None:
+        self.plugins.remove(plugin)
 
-    def __repr__(self):
-        ...
+    def db_format(self) -> dict[str, dict[str, any]]:
+        return {
+            plugin.__name__: plugin.__dict__ for plugin in self.plugins
+        }
+
+

@@ -6,6 +6,7 @@ from enum import Enum
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
 
+from backend.src.utils.registry import indicator_registry, plugin_registry, profile_registry
 from backend.src.algorithms.strategies.baseStrategy import BaseStrategy
 
 logger = getLogger("oracle.app")
@@ -49,17 +50,25 @@ class Profile:
     status: Status
     wallet: dict[str, float]
     profile_settings: dict[str, any] # May be subjected to change
-    strategy_plugins: dict[str, any] = field(default_factory=dict)
-    algorithms_settings: dict[str, dict[str, any]] = field(default_factory=dict)
+    plugin_configs: dict[str, any] = field(default_factory=dict)
+    indicator_configs: dict[str, dict[str, any]] = field(default_factory=dict)
 
     def __post_init__(self):
-        self.strategy: Type = BaseStrategy(profile=self)
+        profile_registry.register(self.profile_id, self)
+        self.strategy: BaseStrategy = BaseStrategy(profile=self)
+
+        for ticker in self.indicator_configs.keys():
+            for indicator_name, indicator_settings in self.indicator_configs[ticker].items():
+                indicator = indicator_registry.get(indicator_name)(indicator_settings["settings"])
+                self.indicator_configs[ticker][indicator_name] = indicator
 
         self.scheduler = BackgroundScheduler()
         self.scheduler.add_listener(self._on_job_execution, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
+        # need to think about the problem of different intervals
         self.scheduler.add_job(self._evaluate, 'interval', minutes=unit_to_minutes[self.profile_settings['interval']])
         logger.debug(f"Initialized Profile with id: {self.profile_id}; and name: {self.profile_name}",
                      extra={"profile_id": self.profile_id})
+
 
     def activate(self, run_on_start: bool = False):
         if not self._check_status_valid():
@@ -83,7 +92,7 @@ class Profile:
         if not self._check_status_valid():
             return
 
-        ...
+        self.strategy.evaluate()
 
         logger.debug(f"Evaluation Finished for Profile with id: {self.profile_id}; and name: {self.profile_name}",
                      extra={"profile_id": self.profile_id})
@@ -92,7 +101,7 @@ class Profile:
         if not self._check_status_valid():
             return
 
-        ...
+        return self.strategy.backtest(profile=self)
 
     def _check_status_valid(self):
         if self.status.value <= Status.UNKNOWN_ERROR.value:

@@ -1,6 +1,6 @@
 from backend.src.api import fetch_info_data
 from backend.src.exceptions import DataFetchError
-from backend.src.algorithms.indicators.utils import get_indicator
+from backend.src.utils.registry import indicator_registry
 
 def validate_profile(profile_name: str, profile_settings: dict[str, any], wallet: dict[str, float],
                      algorithm_settings: dict[str, dict[str, any]], fetch_settings: dict) -> bool | ValueError:
@@ -58,7 +58,7 @@ def validate_algorithm_settings(algorithm_settings):
         if type(algorithm_settings[key]) is not dict:
             raise ValueError("Algorithm settings must be a dictionary.")
     for indicator in algorithm_settings:
-        if get_indicator(indicator) is None:
+        if indicator_registry.get(indicator) is None:
             raise ValueError(f"Invalid indicator: {indicator}")
 
 

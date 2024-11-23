@@ -1,19 +1,20 @@
 from enum import Enum
 from abc import abstractmethod, ABC
 
-from backend.src.services.entities import Profile
-
+from backend.src.utils.registry import plugin_registry
 
 class PluginPriority(Enum):
     BEFORE_EXECUTION = 1
-    TAKES_RESULT = 2
-    AFTER_EXECUTION = 3
+    AFTER_EXECUTION = 2
 
 
 class BasePlugin(ABC):
+    def __init_subclass__(cls, **kwargs):
+        plugin_registry.register(key=cls.__name__, value=cls)
+
     def __init__(self, priority: PluginPriority):
         self.priority: PluginPriority = priority
 
     @abstractmethod
-    def run(self, profile: Profile):
+    def run(self, strategy: 'BaseStrategy', indicator_confidences: dict[str, dict[str, float]] = None):
         ...

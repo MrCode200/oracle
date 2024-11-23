@@ -2,13 +2,10 @@ import pandas as pd
 from backend.src.api import fetch_historical_data
 from backend.src.algorithms.indicators.baseIndicator import BaseIndicator
 
-from backend.src.algorithms.indicators.utils import register_indicator
-
 # Fetch historical data (assuming it returns a DataFrame)
 data_frame = fetch_historical_data("BTC-USD", '1y', "1h")
 
 
-@register_indicator
 class Ichimoku(BaseIndicator):
     _EA_SETTINGS = {}
 

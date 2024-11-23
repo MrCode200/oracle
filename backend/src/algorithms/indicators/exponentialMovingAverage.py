@@ -4,12 +4,10 @@ from pandas import DataFrame
 from pandas_ta import ema
 
 from backend.src.algorithms.indicators.baseIndicator import BaseIndicator
-from backend.src.algorithms.indicators.utils import register_indicator
 
 logger = getLogger("oracle.app")
 
 
-@register_indicator
 class ExponentialMovingAverage(BaseIndicator):
     _EA_SETTINGS: dict[str, dict[str, int | float]] = {}
 

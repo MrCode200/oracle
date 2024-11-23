@@ -1,1 +1,0 @@
-from .profileRegistry import get_profile, register_profile, remove_profile

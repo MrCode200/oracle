@@ -5,6 +5,8 @@ from math import ceil
 from pandas import DataFrame, isna
 import pandas_ta as ta
 
+from backend.src.utils.registry import indicator_registry
+
 logger = logging.getLogger("oracle.app")
 
 
@@ -28,6 +30,9 @@ class BaseIndicator(ABC):
             if not required_keys <= set(setting.keys()):  # Checks if all required keys are present
                 raise AttributeError(
                     f"_EA_SETTINGS: dict must contain dictionaries with the keys 'start', 'stop', and 'step'. Argument missing those keys: {key}")
+
+        indicator_registry.register(keys=cls.__name__, value=cls)
+
 
     @classmethod
     def EA_SETTINGS(cls) -> dict[str, dict[str, int | float]]:

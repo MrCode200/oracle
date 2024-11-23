@@ -1,6 +1,6 @@
 import pytest
 
-from backend.src.algorithms.indicators.utils.algorithmRegistry import get_indicator, register_indicator
+from backend.src.utils.registry.indicatorRegistry import get_indicator, register_indicator
 from backend.src.exceptions import RegistryError
 
 

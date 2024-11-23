@@ -5,12 +5,11 @@ from pandas import DataFrame, Series
 from pandas_ta import sma
 
 from backend.src.algorithms.indicators.baseIndicator import BaseIndicator
-from backend.src.algorithms.indicators.utils import check_crossover, register_indicator
+from backend.src.algorithms.indicators.utils import check_crossover
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 
 
-@register_indicator
 class SimpleMovingAverage(BaseIndicator):
     """
     Implements the Simple Moving Average (SMA) trading strategy.

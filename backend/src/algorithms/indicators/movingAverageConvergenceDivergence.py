@@ -3,12 +3,11 @@ from logging import getLogger
 from pandas import DataFrame, Series
 
 from backend.src.algorithms.indicators.baseIndicator import BaseIndicator
-from backend.src.algorithms.indicators.utils import check_crossover, trend_based_pullback, register_indicator
+from backend.src.algorithms.indicators.utils import check_crossover, trend_based_pullback
 
 logger = getLogger("oracle.app")
 
 
-@register_indicator
 class MovingAverageConvergenceDivergence(BaseIndicator):
     """
     A class to represent the Moving Average Convergence Divergence (MACD) strategy.

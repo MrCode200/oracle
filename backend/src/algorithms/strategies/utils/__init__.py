@@ -1,1 +1,0 @@
-from .pluginRegistry import register_plugin, get_plugin
