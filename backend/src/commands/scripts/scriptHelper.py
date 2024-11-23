@@ -1,5 +1,6 @@
 from backend.src.commands.utils import register_command, get_command
-from backend.src.algorithms.utils import get_model
+from backend.src.algorithms.indicators.utils import get_indicator
+from backend.src.database import select_profile
 
 @register_command("help")
 def command_help():
@@ -11,5 +12,16 @@ def command_help():
 @register_command("list algorithms")
 def command_list_algorithms():
     print("Available algorithms:")
-    for algorithm in get_model().keys():
+    for algorithm in get_indicator().keys():
         print(algorithm)
+
+
+@register_command("list profiles")
+def command_list_profiles():
+    profiles = select_profile()
+    if len(profiles) == 0:
+        print("No profiles created. Create a new Profile with the 'add profile' command.")
+        return
+    print("Available profiles:")
+    for profile in profiles:
+        print(f"{profile.profile_id}: {profile.profile_name} | Status: {profile.status}")

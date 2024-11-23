@@ -25,7 +25,7 @@ engine: Engine = create_engine(DATABASE_URL)
 
 from .models import Base, Profile, Order
 from .operations import (profileOperations, orderOperations,
-                         select_profile, delete_profile, add_profile, add_order, select_orders)
+                         select_profile, delete_profile, add_profile, add_order, select_orders, update_profile)
 
 
 Base.metadata.create_all(engine)

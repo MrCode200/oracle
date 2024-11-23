@@ -4,14 +4,14 @@ import pandas
 from pandas import DataFrame, Series
 from pandas_ta import sma
 
-from ..baseModel import BaseModel
-from backend.src.algorithms.utils import check_crossover, register_model
+from backend.src.algorithms.indicators.baseIndicator import BaseIndicator
+from backend.src.algorithms.indicators.utils import check_crossover, register_indicator
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 
 
-@register_model
-class SimpleMovingAverage(BaseModel):
+@register_indicator
+class SimpleMovingAverage(BaseIndicator):
     """
     Implements the Simple Moving Average (SMA) trading strategy.
 
@@ -76,12 +76,7 @@ class SimpleMovingAverage(BaseModel):
         :key index: The index of the data to evaluate (default is 0).
 
         :return: 1 if Buy signal, -1 if Sell signal, or 0 if Hold signal.
-
-        :raise ValueError: If the index is not less than 0
         """
-        if index > 0:
-            raise ValueError("Index must be less than 0")
-
         short_sma_latest: float = short_sma_series.iloc[index]
         long_sma_latest: float = long_sma_series.iloc[index]
         short_sma_previous: float = short_sma_series.iloc[index - 1]
@@ -103,19 +98,19 @@ class SimpleMovingAverage(BaseModel):
 
         :param df: The DataFrame containing the market data with a 'Close' column.
 
-        :return: The trade signal (1 for Buy, -1 for Sell, or 0 for Hold).
+        :return: The trade confidence (1 for Buy, -1 for Sell, or 0 for Hold).
         """
         short_sma_series: pandas.Series = sma(close=df.Close, length=self.short_period)
         long_sma_series: pandas.Series = sma(close=df.Close, length=self.long_period)
 
         # Determine trade signal
-        signal: float = self.determine_trade_signal(
+        confidence: float = self.determine_trade_signal(
             short_sma_series=short_sma_series,
             long_sma_series=long_sma_series
         )
 
-        logger.info(f"SMA evaluation result: {signal}", extra={"strategy": "SMA"})
-        return signal
+        logger.info(f"SMA evaluation result: {confidence}", extra={"indicator": "SMA"})
+        return confidence
 
     def backtest(self, df: DataFrame, partition_amount: int = 1, sell_threshold: float = -0.8,
                  buy_threshold: float = 0.8) -> list[float]:
@@ -150,5 +145,5 @@ class SimpleMovingAverage(BaseModel):
             buy_threshold=buy_threshold,
             func_kwargs=signal_func_kwargs,
             partition_amount=partition_amount,
-            strategy_name="SMA"
+            indicator_name="SMA"
         )

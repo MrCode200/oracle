@@ -23,6 +23,7 @@ def fetch_info_data(ticker: str) -> dict:
         raise DataFetchError(message="Failed to fetch info data", ticker=ticker)
     return ticker_obj.info
 
+
 def fetch_historical_data(ticker: str, period: str = "1m", interval: str = "1d", start: str = None,
                           end: str = None) -> DataFrame:
     """

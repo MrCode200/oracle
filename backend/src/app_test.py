@@ -16,7 +16,7 @@ def init_app():
     logger = logging.getLogger("oracle.app")
     logger.info("Initialized Oracle...")
 
-    from algorithms.indicators import * # due to models not being registered correctly i need to load all classes once
+    from algorithms.indicators import simpleMovingAverage
 
     init_service()
     return logger
@@ -24,7 +24,7 @@ def init_app():
 
 logger: logging.Logger = init_app()
 
-tickers: list[str] = ["BCH-USD", "SOL-USD", "BTC-USD", "ETH-USD", "DOT-USD", "XRP-USD", "ETC-USD", "AVAX-USD"]
+tickers: list[str] = ["TSLA", "AAPL", "BTC-USD", "ETH-USD", "DOGE-USD"]
 results_sma: dict[str, list[float]] = {}
 results_rsi: dict[str, list[float]] = {}
 results_macd: dict[str, list[float]] = {}
@@ -61,17 +61,20 @@ macd = MovingAverageConvergenceDivergence(fast_period=12, slow_period=26,
                                           weight_impact=0.25)
 
 for ticker in tickers:
-    df = fetch_historical_data(ticker, '1y', "1d")
+    df = fetch_historical_data(ticker, '3mo', "1h")
 
     signalSMA: list[float] = sma.backtest(df=df, partition_amount=12)
     signalRSI: list[float] = [0]  # rsi.backtest(df=df, partition_amount=12)
     signalEMA: list[float] = [0]  # ema.backtest(df=df, partition_amount=12)
-    signalMACD: list[float] = [0] # macd.backtest(df=df, partition_amount=12)
+    signalMACD: list[float] =  macd.backtest(df=df, partition_amount=12)
 
     results_sma[ticker] = signalSMA
     results_rsi[ticker] = signalRSI
     results_macd[ticker] = signalMACD
     results_ema[ticker] = signalEMA
+
+    print(sma.evaluate(df=df))
+    print(macd.evaluate(df=df))
 
 from functools import reduce
 

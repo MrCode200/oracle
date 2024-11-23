@@ -1,23 +1,24 @@
 import pytest
 
-from backend.src.algorithms.utils.algorithmRegistry import get_model, register_model
+from backend.src.algorithms.indicators.utils.algorithmRegistry import get_indicator, register_indicator
+from backend.src.exceptions import RegistryError
 
 
-def test_register_model():
-    @register_model
-    class TestModel:
+def test_register_indicator():
+    @register_indicator
+    class TestIndicator:
         pass
 
-    assert get_model("TestModel") == TestModel
+    assert get_indicator("TestIndicator") == TestIndicator
 
 
-def test_registry_model_dublicate_registries():
-    @register_model
-    class TestModel:
+def test_registry_indicator_dublicate_registries():
+    @register_indicator
+    class TestIndicator:
         pass
 
 
-    with pytest.raises(ValueError):
-        @register_model
-        class TestModel:
+    with pytest.raises(RegistryError):
+        @register_indicator
+        class TestIndicator:
             pass

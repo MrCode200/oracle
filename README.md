@@ -14,3 +14,8 @@ TODO:
 if the macd histogramm is small and smaller than the last histogram that it will cross
 
 17.11.2024 is the date of birth of MONSIEUR ORACLE
+
+
+- Finish Algorithm Strategy and Plugin
+- Make Profile based on the new structure
+- Make database based profile

@@ -42,8 +42,8 @@ if __name__ == '__main__':
     setup_logger('oracle.app', DEBUG, '../../../logs/app.jsonl', log_in_json=False, stream_in_color=True)
 
     logger = getLogger('oracle.app')
-    logger.debug('Testing Logger: DEBUG', extra={'command': 'test', 'author': 'wobble', 'guild': 'wobble#0000'})
-    logger.info('Testing Logger: INFO', extra={'command': 'test', 'author': 'wobble'})
+    logger.debug('Testing Logger: DEBUG')
+    logger.info('Testing Logger: INFO')
     logger.warning('Testing Logger: WARNING')
     logger.error('Testing Logger: ERROR')
     logger.critical('Testing Logger: CRITICAL')

@@ -21,7 +21,7 @@ def init_app():
     logger.info("Initialized Oracle...")
 
     import algorithms.indicators as indicators
-    logger.info("All Models Registered Successfully...")
+    logger.info("All Indicators Registered Successfully...")
 
     init_service()
 

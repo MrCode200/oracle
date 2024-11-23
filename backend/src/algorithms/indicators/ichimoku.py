@@ -1,17 +1,15 @@
-from abc import abstractmethod
-
 import pandas as pd
 from backend.src.api import fetch_historical_data
-from backend.src.algorithms.baseModel import BaseModel
+from backend.src.algorithms.indicators.baseIndicator import BaseIndicator
 
-from backend.src.algorithms.utils import register_model
+from backend.src.algorithms.indicators.utils import register_indicator
 
 # Fetch historical data (assuming it returns a DataFrame)
 data_frame = fetch_historical_data("BTC-USD", '1y', "1h")
 
 
-@register_model
-class Ichimoku(BaseModel):
+@register_indicator
+class Ichimoku(BaseIndicator):
     _EA_SETTINGS = {}
 
     def evaluate(self, data_frame):
@@ -168,7 +166,7 @@ class Ichimoku(BaseModel):
             buy_threshold=buy_threshold,
             func_kwargs=signal_func_kwargs,
             partition_amount=partition_amount,
-            strategy_name="Ichimoku"
+            indicator_name="Ichimoku"
         )
 
 
@@ -183,5 +181,5 @@ def init_app():
 init_app()
 
 I = Ichimoku()
-I.evaluate(data_frame)
+I._evaluate(data_frame)
 I.backtest(data_frame, 12, buy_threshold=0.1, sell_threshold=-0.1)

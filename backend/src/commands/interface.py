@@ -16,10 +16,12 @@ def init_interface():
 
     logger.info("Interface Initialized Successfully")
 
+    print("Type `help` for a list of available commands.\n"
+          "Type `exit` or `quit` to exit the interface.")
     command = input("Enter a command: /")
     map_command(command)
 
-    while command != "/exit":
+    while command != "exit" or command != "quit":
         command = input("Enter a command: /")
         map_command(command)
 

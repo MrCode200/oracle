@@ -1,16 +1,20 @@
-from backend.src.commands.utils import register_command, get_command, validate_profile
-from backend.src.database import add_profile, delete_profile
-from backend.src.algorithms.utils import get_model
+from backend.src.commands.utils import register_command
+from backend.src.database import delete_profile
+
 
 @register_command("add profile")
 def command_add_profile():
     ...
 
 
-@register_command("edit profiles")
-def command_edit_profile():
+@register_command("update profiles")
+def command_update_profile():
     ...
 
+
+@register_command("display profile")
+def command_display_profile():
+    ...
 
 @register_command("del profile", "delete profile")
 def command_delete_profile():

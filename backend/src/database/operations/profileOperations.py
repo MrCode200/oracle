@@ -4,6 +4,7 @@ from typing import Type
 from sqlalchemy.orm import sessionmaker
 
 from .. import engine, Profile
+from ...services.entities import Status
 
 logger = getLogger("oracle.app")
 
@@ -11,7 +12,7 @@ Session = sessionmaker(bind=engine)
 
 
 def add_profile(profile_name: str, profile_settings: dict[str, float], wallet: dict,
-                algorithm_settings: dict, fetch_settings: dict) -> Profile:
+                algorithm_settings: dict, algorithm_weights: dict, fetch_settings: dict) -> Profile:
     """
     Adds a new profile to the database.
 
@@ -19,6 +20,7 @@ def add_profile(profile_name: str, profile_settings: dict[str, float], wallet: d
     :param profile_settings: The setting for the profile.
     :param wallet: The wallet information for the profile.
     :param algorithm_settings: The algorithm settings for the profile.
+    :param algorithm_weights: The algorithm weights for each weight.
     :param fetch_settings: The fetch settings for the profile.
     :return: The added profile object.
     """
@@ -27,9 +29,10 @@ def add_profile(profile_name: str, profile_settings: dict[str, float], wallet: d
     try:
         new_profile = Profile(
             profile_name=profile_name,
-            stop_loss=profile_settings,
+            profile_settings=profile_settings,
             wallet=wallet,
             algorithm_settings=algorithm_settings,
+            algorithm_weights=algorithm_weights,
             fetch_settings=fetch_settings
         )
 
@@ -67,16 +70,18 @@ def select_profile(profile_id: int = None, profile_name: str = None):
         session.close()
 
 
-def update_profile(profile_id: int, profile_name: str=None, profile_settings: dict=None,
-                   algorithm_settings: dict=None, fetch_settings: dict=None) -> None:
+def update_profile(profile_id: int, profile_name: str=None, profile_settings: dict=None, status: Status=None,
+                   algorithm_settings: dict=None, algorithm_weights: dict=None,fetch_settings: dict=None) -> None:
     """
     Updates a profile in the database.
 
-    :key profile_id: The ID of the profile to update.
-    :key profile_name: The name of the profile.
-    :key profile_settings: The setting for the profile.
-    :key algorithm_settings: The algorithm settings for the profile.
-    :key fetch_settings: The fetch settings for the profile.
+    :param profile_id: The ID of the profile to update.
+    :param profile_name: The name of the profile.
+    :param profile_settings: The setting for the profile.
+    :param status: The status of the profile.
+    :param algorithm_settings: The algorithm settings for the profile.
+    :param algorithm_weights: The algorithm weights for each weight.
+    :param fetch_settings: The fetch settings for the profile.
     """
     session = Session()
 
@@ -88,8 +93,12 @@ def update_profile(profile_id: int, profile_name: str=None, profile_settings: di
             update_values["profile_name"] = profile_name
         if profile_settings is not None:
             update_values["profile_settings"] = profile_settings
+        if status is not None:
+            update_values["status"] = status
         if algorithm_settings is not None:
             update_values["algorithm_settings"] = algorithm_settings
+        if algorithm_weights is not None:
+            update_values["algorithm_weights"] = algorithm_weights
         if fetch_settings is not None:
             update_values["fetch_settings"] = fetch_settings
     try:

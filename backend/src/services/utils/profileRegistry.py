@@ -1,6 +1,8 @@
 from logging import getLogger
 from typing import Type
 
+from backend.src.exceptions import RegistryError
+
 logger = getLogger("oracle.app")
 
 _PROFILE_REGISTRY: dict[int, 'Profile'] = {}

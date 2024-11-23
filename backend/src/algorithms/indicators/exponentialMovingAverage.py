@@ -3,14 +3,14 @@ from logging import getLogger
 from pandas import DataFrame
 from pandas_ta import ema
 
-from ..baseModel import BaseModel
-from backend.src.algorithms.utils import register_model
+from backend.src.algorithms.indicators.baseIndicator import BaseIndicator
+from backend.src.algorithms.indicators.utils import register_indicator
 
 logger = getLogger("oracle.app")
 
 
-@register_model
-class ExponentialMovingAverage(BaseModel):
+@register_indicator
+class ExponentialMovingAverage(BaseIndicator):
     _EA_SETTINGS: dict[str, dict[str, int | float]] = {}
 
     def __init__(self, period: int):
@@ -40,7 +40,7 @@ class ExponentialMovingAverage(BaseModel):
 
     def evaluate(self, df: DataFrame) -> float:
         signal: float = self.determine_trade_signal(df, self.period)
-        logger.info("RSI evaluation result: {}".format(signal), extra={"strategy": "RSI"})
+        logger.info("RSI evaluation result: {}".format(signal), extra={"indicator": "RSI"})
         return signal
 
     def backtest(self, df: DataFrame, partition_amount: int = 1, sell_threshold: float = -0.8,
@@ -65,5 +65,5 @@ class ExponentialMovingAverage(BaseModel):
             func_kwargs=signal_func_kwargs,
             invalid_values=self.period,
             partition_amount=partition_amount,
-            strategy_name="EMA"
+            indicator_name="EMA"
         )

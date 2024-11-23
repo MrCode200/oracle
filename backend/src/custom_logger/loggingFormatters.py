@@ -32,7 +32,8 @@ class ColoredFormatter(Formatter):
         # Append extra information if available, with labels underlined
         formatted_message += (
             f"{BOLD}"
-            f"{UNDERLINE}Strategy:{RESET_UNDERLINE} {record.strategy if 'strategy' in record.__dict__ else 'None'}\n"
+            f"{UNDERLINE}indicator:{RESET_UNDERLINE} {record.strategy if 'strategy' in record.__dict__ else 'None'}\n"
+            f"{UNDERLINE}Profile:{RESET_UNDERLINE} {record.profile_id if 'profile_id' in record.__dict__ else 'None'}\n"
         )
 
         # Append the main log message
@@ -47,6 +48,8 @@ class JsonFormatter(Formatter):
             "timestamp": self.formatTime(record),
             "level": record.levelname,
             "file": record.filename,
+            "indicator": record.indicator if 'indicator' in record.__dict__ else None,
+            "profile": record.profile_id if 'profile_id' in record.__dict__ else None,
             "line_number": record.lineno,
             "function": record.funcName,
             "message": record.getMessage(),

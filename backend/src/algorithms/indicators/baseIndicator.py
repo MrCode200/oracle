@@ -8,7 +8,7 @@ import pandas_ta as ta
 logger = logging.getLogger("oracle.app")
 
 
-class BaseModel(ABC):
+class BaseIndicator(ABC):
     """
     Defines an abstract base class for indicators.
 
@@ -39,7 +39,7 @@ class BaseModel(ABC):
 
     @abstractmethod
     def backtest(self, df: DataFrame, func_kwargs: dict[str, any], invalid_values: int, partition_amount: int,
-                 sell_threshold: float, buy_threshold: float, strategy_name: str) -> list[float]:
+                 sell_threshold: float, buy_threshold: float, indicator_name: str) -> list[float]:
         """
         Conducts a backtest on the provided market data to evaluate the performance of a trading strategy.
 
@@ -50,7 +50,7 @@ class BaseModel(ABC):
         :param func_kwargs: A dictionary of keyword arguments to be passed to the `determine_trade_signal` method.
         :param invalid_values: The number of initial rows in the DataFrame to skip, typically used to account for NaN values.
         :param partition_amount: The number of partitions to divide the data into for recalculating the Return on Investment (ROI). Must be greater than 0.
-        :param strategy_name: The name of the strategy being tested, only needed for logging.
+        :param indicator_name: The name of the strategy being tested, only needed for logging.
         :param sell_threshold: The percentage of when to sell, (default is 0.2).
         :param buy_threshold: The percentage of when to buy, (default is 0.8).
 
@@ -74,12 +74,12 @@ class BaseModel(ABC):
             is_partition_cap_reached: bool = (
                     (i - invalid_values + 1) % partition_amount == 0) if partition_amount > 1 else False
 
-            base_balance, balance, shares = BaseModel.process_trade_signal(
+            base_balance, balance, shares = BaseIndicator.process_trade_signal(
                 base_balance, balance, shares,
                 df.iloc[i].Close, df.index[i] ,trade_signal,
                 buy_threshold, sell_threshold,
                 net_worth_history, is_partition_cap_reached,
-                strategy_name
+                indicator_name
             )
 
         if not is_partition_cap_reached:
@@ -87,10 +87,11 @@ class BaseModel(ABC):
             net_worth_history.append(total_net_worth / base_balance)
 
         logger.info(f"Backtest completed with Return on Investment of {[str(roi * 100) for roi in net_worth_history]}",
-                    extra={"strategy": strategy_name})
+                    extra={"indicator": indicator_name})
 
         return net_worth_history
 
+    @abstractmethod
     def determine_trade_signal(self, df: DataFrame, index: int = 0) -> float:
         ...
 
@@ -106,7 +107,7 @@ class BaseModel(ABC):
             sell_threshold: float,
             net_worth_history: list[float],
             is_partition_cap_reached: bool,
-            strategy_name: str
+            indicator_name: str
     ) -> tuple[float, float, float]:
         """
         Applies a trade signal to update the portfolio's cash balance, owned shares, and records the ROI.
@@ -125,7 +126,7 @@ class BaseModel(ABC):
         :param buy_threshold: The percentage of when to buy, (default is 0.8).
         :param net_worth_history: A list storing the historical values of the portfolio for ROI tracking.
         :param is_partition_cap_reached: A flag indicating whether the ROI should be recorded for the current period.
-        :param strategy_name: The name of the strategy used for logging purposes.
+        :param indicator_name: The name of the strategy used for logging purposes.
 
         :return: A tuple containing:
             - updated `original_balance` (float): The updated balance after executing the trade.
@@ -142,13 +143,13 @@ class BaseModel(ABC):
             shares = balance / latest_price
             balance = 0
             logger.debug(
-                "Executed Buy of `{}` shares; with a price of `{}`; date: `{}`".format(shares, latest_price, date),
-                extra={"strategy": strategy_name})
+                "Executed Buy on signal `{}` and shares `{}` with a price of `{}`; date: `{}`".format(trade_signal, shares, latest_price, date),
+                extra={"strategy": indicator_name})
 
         elif trade_signal <= sell_threshold and shares > 0:  # Sell
             logger.debug(
-                "Executed Sell of `{}` shares; with a price of `{}`; date: `{}`".format(shares, latest_price, date),
-                extra={"strategy": strategy_name})
+                "Executed Sell on signal `{}` and shares `{}` with a price of `{}`; date: `{}`".format(trade_signal, shares, latest_price, date),
+                extra={"strategy": indicator_name})
             balance += shares * latest_price
             shares = 0
 
@@ -160,7 +161,7 @@ class BaseModel(ABC):
 
             logger.debug(
                 f"Appended ROI, Total Net Worth:{total_net_worth}; ROI: {net_worth_history[-1]}",
-                extra={"strategy": strategy_name})
+                extra={"strategy": indicator_name})
 
         return base_balance, balance, shares
 

@@ -2,14 +2,14 @@ from logging import getLogger
 
 from pandas import DataFrame, Series
 
-from ..baseModel import BaseModel
-from backend.src.algorithms.utils import check_crossover, trend_based_pullback, register_model
+from backend.src.algorithms.indicators.baseIndicator import BaseIndicator
+from backend.src.algorithms.indicators.utils import check_crossover, trend_based_pullback, register_indicator
 
 logger = getLogger("oracle.app")
 
 
-@register_model
-class MovingAverageConvergenceDivergence(BaseModel):
+@register_indicator
+class MovingAverageConvergenceDivergence(BaseIndicator):
     """
     A class to represent the Moving Average Convergence Divergence (MACD) strategy.
 
@@ -150,7 +150,10 @@ class MovingAverageConvergenceDivergence(BaseModel):
                  or None if the DataFrame is empty or invalid.
         """
 
-        return self.determine_trade_signal(df)
+        confidence = self.determine_trade_signal(df)
+        logger.info(f"MACD evaluation result: {confidence}", extra={"indicator": "MACD"})
+
+        return confidence
 
     def backtest(self, df: DataFrame, partition_amount: int = 1, sell_threshold: float = -0.8,
                  buy_threshold: float = 0.8) -> list[float]:
@@ -180,5 +183,5 @@ class MovingAverageConvergenceDivergence(BaseModel):
             buy_threshold=buy_threshold,
             sell_threshold=sell_threshold,
             partition_amount=partition_amount,
-            strategy_name="MACD"
+            indicator_name="MACD"
         )

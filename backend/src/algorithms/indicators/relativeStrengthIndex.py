@@ -4,14 +4,14 @@ import pandas
 from pandas import DataFrame, Series
 from pandas_ta import rsi
 
-from ..baseModel import BaseModel
-from backend.src.algorithms.utils import register_model
+from backend.src.algorithms.indicators.baseIndicator import BaseIndicator
+from backend.src.algorithms.indicators.utils import register_indicator
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 
 
-@register_model
-class RelativeStrengthIndex(BaseModel):
+@register_indicator
+class RelativeStrengthIndex(BaseIndicator):
     """
     Implements the Relative Strength Index (RSI) trading strategy.
 
@@ -85,7 +85,7 @@ class RelativeStrengthIndex(BaseModel):
         rsi_series: pandas.Series = rsi(close=df.Close, length=self.period)
         signal: float = self.determine_trade_signal(rsi_series.iloc[-1])
 
-        logger.info("RSI evaluation result: {}".format(signal), extra={"strategy": "RSI"})
+        logger.info("RSI evaluation result: {}".format(signal), extra={"indicator": "RSI"})
 
         return signal
 
@@ -118,5 +118,5 @@ class RelativeStrengthIndex(BaseModel):
             buy_threshold=buy_threshold,
             func_kwargs=signal_func_kwargs,
             partition_amount=partition_amount,
-            strategy_name="RSI"
+            indicator_name="RSI"
         )
