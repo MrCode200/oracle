@@ -23,9 +23,11 @@ with base_engine.connect() as conn:
 engine: Engine = create_engine(DATABASE_URL)
 
 
-from .models import Base, Profile, Order
-from .operations import (profileOperations, orderOperations,
-                         select_profile, delete_profile, add_profile, add_order, select_orders, update_profile)
+from .models import Base, Profile, Order, Plugin, Indicator
+from .operations import (get_profile, get_order, get_plugin, get_indicator,
+                         create_profile, create_order, create_plugin, create_indicator,
+                         delete_plugin, delete_profile, delete_indicator,
+                         update_profile, update_plugin, update_indicator)
 
 
 Base.metadata.create_all(engine)

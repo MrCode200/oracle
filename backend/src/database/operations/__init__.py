@@ -1,2 +1,4 @@
-from .profileOperations import add_profile, select_profile, delete_profile, update_profile
-from .orderOperations import add_order, select_orders
+from .profileOperations import create_profile, get_profile, delete_profile, update_profile
+from .pluginOperations import create_plugin, get_plugin, delete_plugin, update_plugin
+from .indicatorOperations import create_indicator, get_indicator, delete_indicator, update_indicator
+from .orderOperations import create_order, get_order

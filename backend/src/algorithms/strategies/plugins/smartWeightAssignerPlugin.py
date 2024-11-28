@@ -5,7 +5,7 @@ from backend.src.api import fetch_historical_data
 
 class SmartWeightAssignerPlugin(BasePlugin):
     def __init__(self):
-        super().__init__(PluginPriority.BEFORE_EXECUTION)
+        super().__init__(PluginPriority.BEFORE_EVALUATION)
 
     def run(self, strategy: BaseStrategy, indicator_confidences: dict[str, dict[str, float]] = None):
         all_results: dict[str, dict[str, float]] = {}
@@ -16,12 +16,12 @@ class SmartWeightAssignerPlugin(BasePlugin):
                 data = fetch_historical_data(ticker, **indicator_settings["fetch_settings"])
 
                 perf_history: list[float] = indicator_settings["indicator"].backtest(df=data, partition_amount=10) * indicator_settings["weight"]
-                average_confidence: float = sum(perf_history)/len(perf_history)
-                results[indicator_name] = average_confidence
+                average_perf: float = sum(perf_history)/len(perf_history)
+                results[indicator_name] = average_perf
 
             all_results[ticker] = results
 
-        for ticker, results in all_results.items():
-            sum_of_confidences: float = sum(results.values())
-            for indicator_name, confidence in results.items():
+        for ticker, perfs in all_results.items():
+            sum_of_confidences: float = sum(perfs.values())
+            for indicator_name, confidence in perfs.items():
                 strategy.profile.algorithms_settings[ticker][indicator_name]["weight"] = confidence/sum_of_confidences

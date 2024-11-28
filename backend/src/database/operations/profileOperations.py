@@ -1,61 +1,55 @@
 from logging import getLogger
 from typing import Type
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
-from .. import engine, Profile
-from ...services.entities import Status
+from backend.src.database import engine, Profile
+from backend.src.services.entities import Status
 
 logger = getLogger("oracle.app")
 
 Session = sessionmaker(bind=engine)
 
 
-def add_profile(profile_name: str, profile_settings: dict[str, float], wallet: dict,
-                algorithm_settings: dict, algorithm_weights: dict, fetch_settings: dict) -> Profile:
+def create_profile(profile_name: str, wallet: dict) -> Profile | None:
     """
-    Adds a new profile to the database.
+    Creates a new profile in the database.
 
     :param profile_name: The name of the profile.
-    :param profile_settings: The setting for the profile.
     :param wallet: The wallet information for the profile.
-    :param algorithm_settings: The algorithm settings for the profile.
-    :param algorithm_weights: The algorithm weights for each weight.
-    :param fetch_settings: The fetch settings for the profile.
-    :return: The added profile object.
+
+    :return: The newly created profile object.
     """
     session = Session()
 
     try:
-        new_profile = Profile(
-            profile_name=profile_name,
-            profile_settings=profile_settings,
-            wallet=wallet,
-            algorithm_settings=algorithm_settings,
-            algorithm_weights=algorithm_weights,
-            fetch_settings=fetch_settings
-        )
-
+        # Create and add the new profile
+        new_profile = Profile(profile_name=profile_name, wallet=wallet)
         session.add(new_profile)
         session.commit()
 
+        logger.info(f"Profile {profile_name} created successfully.")
         return new_profile
-    except Exception as e:
-        logger.error(f"Error adding profile {profile_name}", exc_info=True)
+
+    except IntegrityError as e:
+        logger.error(f"Error creating profile {profile_name}: {e}", exc_info=True)
         session.rollback()
+        return None
 
     finally:
         session.close()
 
 
-def select_profile(profile_id: int = None, profile_name: str = None):
+def get_profile(profile_id: int = None, profile_name: str = None) -> Profile | list[Type[Profile]] | None:
     """
-    Loads a profile from the database based on profile ID or profile name.
-    If no arguments are passed it will return all profiles.
+    Retrieves a profile from the database based on profile ID or profile name.
+    Returns the first matching profile or all profiles if no arguments are passed.
 
-    :param profile_id: The ID of the profile to load. Optional if profile_name is provided.
-    :param profile_name: The name of the profile to load. Optional if profile_id is provided.
-    :return: A result set containing the profile data.
+    :param profile_id: The ID of the profile to retrieve. Optional.
+    :param profile_name: The name of the profile to retrieve. Optional.
+
+    :return: A Profile object, a list of all Profile objects or None if not found.
     """
     session = Session()
 
@@ -66,77 +60,81 @@ def select_profile(profile_id: int = None, profile_name: str = None):
             return session.query(Profile).filter_by(profile_name=profile_name).first()
         else:
             return session.query(Profile).all()
+
     finally:
         session.close()
 
 
-def update_profile(profile_id: int, profile_name: str=None, profile_settings: dict=None, status: Status=None,
-                   algorithm_settings: dict=None, algorithm_weights: dict=None,fetch_settings: dict=None) -> None:
+def update_profile(profile_id: int, profile_name: str = None, status: Status = None) -> bool:
     """
     Updates a profile in the database.
 
     :param profile_id: The ID of the profile to update.
-    :param profile_name: The name of the profile.
-    :param profile_settings: The setting for the profile.
-    :param status: The status of the profile.
-    :param algorithm_settings: The algorithm settings for the profile.
-    :param algorithm_weights: The algorithm weights for each weight.
-    :param fetch_settings: The fetch settings for the profile.
+    :param profile_name: The new profile name (optional).
+    :param status: The new status of the profile (optional).
+
+    :return: True if the profile was updated successfully, False otherwise.
     """
     session = Session()
 
-    profile: Type[Profile] = session.get(Profile, profile_id)
-    if profile:
-        update_values = {}
-
-        if profile_name is not None:
-            update_values["profile_name"] = profile_name
-        if profile_settings is not None:
-            update_values["profile_settings"] = profile_settings
-        if status is not None:
-            update_values["status"] = status
-        if algorithm_settings is not None:
-            update_values["algorithm_settings"] = algorithm_settings
-        if algorithm_weights is not None:
-            update_values["algorithm_weights"] = algorithm_weights
-        if fetch_settings is not None:
-            update_values["fetch_settings"] = fetch_settings
     try:
-        if update_values:
-            session.query(Profile).get(profile_id).update(update_values)
-            session.commit()
-    except Exception:
-        logger.error(f"Error updating profile with ID {profile_id}", exc_info=True)
+        # Retrieve the profile to update
+        profile = session.get(Profile, profile_id)
+        if not profile:
+            logger.warning(f"Profile with ID {profile_id} not found.")
+            return False
+
+        # Update values if provided
+        if profile_name:
+            profile.profile_name = profile_name
+        if status is not None:
+            profile.status = status
+
+        session.commit()
+        logger.info(f"Profile {profile_id} updated successfully.")
+        return True
+
+    except Exception as e:
+        logger.error(f"Error updating profile with ID {profile_id}: {e}", exc_info=True)
         session.rollback()
+        return False
+
     finally:
         session.close()
 
 
-def delete_profile(profile_id: int = None, profile_name: str = None) -> None:
+def delete_profile(profile_id: int = None, profile_name: str = None) -> bool:
     """
     Deletes a profile from the database.
 
-    :param profile_id: The ID of the profile to load. Optional if profile_name is provided.
-    :param profile_name: The name of the profile to load. Optional if profile_id is provided.
+    :param profile_id: The ID of the profile to delete. Optional.
+    :param profile_name: The name of the profile to delete. Optional.
+
+    :return: True if the profile was deleted, False if not found or on error.
     """
     session = Session()
-    profile: Profile | None = None
 
     try:
+        # Retrieve the profile to delete
+        profile = None
         if profile_id is not None:
             profile = session.get(Profile, profile_id)
         elif profile_name is not None:
             profile = session.query(Profile).filter_by(profile_name=profile_name).first()
 
-        if profile is not None:
+        if profile:
             session.delete(profile)
             session.commit()
+            logger.info(f"Profile {profile_id if profile_id else profile_name} deleted successfully.")
+            return True
         else:
-            logger.warning(f"Profile with {profile_id=}; {profile_name=} does not exist")
+            logger.warning(f"Profile with ID {profile_id} or name {profile_name} not found.")
+            return False
 
     except Exception as e:
-        logger.error(f"Error deleting profile with ID {profile_id}", exc_info=True)
+        logger.error(f"Error deleting profile with ID {profile_id}: {e}", exc_info=True)
         session.rollback()
-        raise e
+        return False
+
     finally:
         session.close()

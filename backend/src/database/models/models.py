@@ -9,11 +9,26 @@ class Profile(Base):
     profile_id = Column(Integer, primary_key=True, autoincrement=True)
     profile_name = Column(String(50), unique=True)
     status = Column(Integer, default=0)
-    profile_settings = Column(JSON)
     wallet = Column(JSON)
-    algorithm_settings = Column(JSON)
-    algorithm_weights = Column(JSON)
+
+
+class Indicator(Base):
+    __tablename__ = "indicators"
+    indicator_id = Column(Integer, primary_key=True, autoincrement=True)
+    profile_id = Column(Integer, ForeignKey("profiles.profile_id", ondelete="CASCADE"))
+    indicator_name = Column(String(100))
+    indicator_weight = Column(Float)
+    ticker = Column(String(16))
+    indicator_settings = Column(JSON)
     fetch_settings = Column(JSON)
+
+
+class Plugin(Base):
+    __tablename__ = "plugins"
+    plugin_id = Column(Integer, primary_key=True, autoincrement=True)
+    profile_id = Column(Integer, ForeignKey("profiles.profile_id", ondelete="CASCADE"))
+    plugin_name = Column(String(100))
+    plugin_settings = Column(JSON)
 
 
 class Order(Base):

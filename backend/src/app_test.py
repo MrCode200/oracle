@@ -24,7 +24,7 @@ def init_app():
 
 logger: logging.Logger = init_app()
 
-tickers: list[str] = ["TSLA", "AAPL", "BTC-USD", "ETH-USD", "DOGE-USD"]
+tickers: list[str] = ["TSLA"]
 results_sma: dict[str, list[float]] = {}
 results_rsi: dict[str, list[float]] = {}
 results_macd: dict[str, list[float]] = {}
@@ -61,7 +61,7 @@ macd = MovingAverageConvergenceDivergence(fast_period=12, slow_period=26,
                                           weight_impact=0.25)
 
 for ticker in tickers:
-    df = fetch_historical_data(ticker, '3mo', "1h")
+    df = fetch_historical_data(ticker, '1mo', "1h")
 
     signalSMA: list[float] = sma.backtest(df=df, partition_amount=12)
     signalRSI: list[float] = [0]  # rsi.backtest(df=df, partition_amount=12)

@@ -1,1 +1,1 @@
-from .models import Base, Profile, Order
+from .models import Base, Profile, Order, Plugin, Indicator

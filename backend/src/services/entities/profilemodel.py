@@ -1,39 +1,30 @@
-from typing import Type
 from logging import getLogger
-from dataclasses import dataclass, field
 from enum import Enum
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
 
-from backend.src.utils.registry import indicator_registry, plugin_registry, profile_registry
+from backend.src.utils.registry import profile_registry
 from backend.src.algorithms.strategies.baseStrategy import BaseStrategy
+from backend.src.database import Profile, get_indicator
 
 logger = getLogger("oracle.app")
 
-unit_to_minutes = {
+interval_to_minutes = {
     '1m': 1,
     '2m': 2,
     '5m': 5,
     '15m': 15,
     '30m': 30,
     '60m': 60,
-    '1h': 60,
     '90m': 90,
+    '1h': 60,
     '1d': 1440,
     '5d': 7200,
     '1wk': 10080,
     '1mo': 43200,
-    '3mo': 129600,
-    '6mo': 259200,
-    '1y': 525600,
-    '2y': 1051200,
-    '5y': 2628000,
-    '10y': 5256000,
-    'ytd': "notImplemented",  # Example where not available
-    'max': "notImplemented"  # Example where not available
+    '3mo': 129600
 }
-
 
 class Status(Enum):
     INACTIVE = 0
@@ -43,32 +34,20 @@ class Status(Enum):
     UNKNOWN_ERROR = 100
 
 
-@dataclass
-class Profile:
-    profile_id: int
-    profile_name: str
-    status: Status
-    wallet: dict[str, float]
-    profile_settings: dict[str, any] # May be subjected to change
-    plugin_configs: dict[str, any] = field(default_factory=dict)
-    indicator_configs: dict[str, dict[str, any]] = field(default_factory=dict)
-
-    def __post_init__(self):
-        profile_registry.register(self.profile_id, self)
+class ProfileModel:
+    def __init__(self, profile: Profile):
+        self.profile_id: int = profile.profile_id
+        self.profile_name: str = profile.profile_name
+        self.status: Status = profile.status
+        self.wallet: dict[str, float] = profile.wallet
         self.strategy: BaseStrategy = BaseStrategy(profile=self)
 
-        for ticker in self.indicator_configs.keys():
-            for indicator_name, indicator_settings in self.indicator_configs[ticker].items():
-                indicator = indicator_registry.get(indicator_name)(indicator_settings["settings"])
-                self.indicator_configs[ticker][indicator_name] = indicator
+        profile_registry.register(self.profile_id, self)
 
         self.scheduler = BackgroundScheduler()
-        self.scheduler.add_listener(self._on_job_execution, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
-        # need to think about the problem of different intervals
-        self.scheduler.add_job(self._evaluate, 'interval', minutes=unit_to_minutes[self.profile_settings['interval']])
+        self.setup_schedular()
         logger.debug(f"Initialized Profile with id: {self.profile_id}; and name: {self.profile_name}",
                      extra={"profile_id": self.profile_id})
-
 
     def activate(self, run_on_start: bool = False):
         if not self._check_status_valid():
@@ -102,6 +81,14 @@ class Profile:
             return
 
         return self.strategy.backtest(profile=self)
+
+    def setup_schedular(self):
+        self.scheduler.add_listener(self._on_job_execution, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
+
+        all_intervals = [indicator.fetch_settings['interval'] for indicator in get_indicator(profile_id=self.profile_id)]
+        smallest_interval: int = min(all_intervals, key=interval_to_minutes.get)
+        self.scheduler.add_job(self._evaluate, 'interval', minutes=smallest_interval)
+
 
     def _check_status_valid(self):
         if self.status.value <= Status.UNKNOWN_ERROR.value:

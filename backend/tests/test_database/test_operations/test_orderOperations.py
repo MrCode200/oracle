@@ -1,6 +1,6 @@
 import pytest
 
-from backend.src.database import add_order, select_orders, add_profile, delete_profile, select_profile
+from backend.src.database import create_order, select_orders, add_profile, delete_profile, select_profile
 
 PROFILE_NAME = "test_profile_delta"
 BALANCE = 1000
@@ -37,7 +37,7 @@ def test_crud_operations_order(cleanup):
 
     profile_id = select_profile(profile_name=PROFILE_NAME).profile_id
 
-    add_order(profile_id=profile_id, order_type=ORDER_TYPE, ticker=TICKER, price=PRICE, quantity=QUANTITY)
+    create_order(profile_id=profile_id, order_type=ORDER_TYPE, ticker=TICKER, price=PRICE, quantity=QUANTITY)
 
     orders = select_orders(profile_id=profile_id)
 
@@ -48,7 +48,7 @@ def test_crud_operations_order(cleanup):
     assert orders[0].quantity == QUANTITY
     assert orders[0].price == PRICE
 
-    add_order(profile_id=profile_id, order_type=ORDER_TYPE, ticker=TICKER, price=PRICE, quantity=QUANTITY)
+    create_order(profile_id=profile_id, order_type=ORDER_TYPE, ticker=TICKER, price=PRICE, quantity=QUANTITY)
 
     orders = select_orders(profile_id=profile_id)
 

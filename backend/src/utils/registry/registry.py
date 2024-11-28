@@ -4,7 +4,7 @@ from logging import Logger, getLogger
 from backend.src.exceptions import MissingKeyError, DuplicateError
 
 
-class BaseRegistry:
+class Registry:
     def __init__(self, registry_name: str = "BaseRegistry", log: bool = False, logger: Logger = None,
                  raise_exception: bool = True):
         """
