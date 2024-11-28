@@ -1,6 +1,6 @@
 from backend.src.commands.utils import register_command, get_command
 from backend.src.utils.registry import indicator_registry
-from backend.src.database import select_profile
+from backend.src.database import get_profile
 
 @register_command("help")
 def command_help():
@@ -18,7 +18,7 @@ def command_list_algorithms():
 
 @register_command("list profiles")
 def command_list_profiles():
-    profiles = select_profile()
+    profiles = get_profile()
     if len(profiles) == 0:
         print("No profiles created. Create a new Profile with the 'add profile' command.")
         return

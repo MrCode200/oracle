@@ -5,7 +5,6 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
 from backend.src.database import engine, Profile
-from backend.src.services.entities import Status
 
 logger = getLogger("oracle.app")
 
@@ -65,7 +64,7 @@ def get_profile(profile_id: int = None, profile_name: str = None) -> Profile | l
         session.close()
 
 
-def update_profile(profile_id: int, profile_name: str = None, status: Status = None) -> bool:
+def update_profile(profile_id: int, profile_name: str = None, status = None) -> bool:
     """
     Updates a profile in the database.
 

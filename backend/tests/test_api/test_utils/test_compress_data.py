@@ -1,6 +1,5 @@
 import pandas as pd
 import pytest
-from pandas import DataFrame, date_range
 
 from backend.src.api.utils import compress_data
 

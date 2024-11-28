@@ -1,5 +1,6 @@
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import IntegrityError
+from sqlalchemy.exc import IntegrityError
+
 from backend.src.database import engine
 from logging import getLogger
 from typing import Type

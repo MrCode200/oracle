@@ -8,9 +8,6 @@ from algorithms.indicators import (SimpleMovingAverage,
                                    MovingAverageConvergenceDivergence,
                                    ExponentialMovingAverage)  # type: ignore
 
-from perf import evolve
-
-
 def init_app():
     setup_logger('oracle.app', logging.DEBUG, 'logs/app.jsonl', stream_in_color=True, log_in_json=True)
     logger = logging.getLogger("oracle.app")
