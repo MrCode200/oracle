@@ -1,20 +1,19 @@
 from logging import Formatter, LogRecord
 import json
 
-
 # ANSI color codes for different log levels
 LOG_COLORS: dict[str: str] = {
-    'DEBUG': '\033[94m',      # Blue
-    'INFO': '\033[92m',       # Green
-    'WARNING': '\033[93m',    # Yellow
-    'ERROR': '\033[91m',      # Red
-    'CRITICAL': '\033[95m',   # Magenta
+    'DEBUG': '\033[94m',  # Blue
+    'INFO': '\033[92m',  # Green
+    'WARNING': '\033[93m',  # Yellow
+    'ERROR': '\033[91m',  # Red
+    'CRITICAL': '\033[95m',  # Magenta
     'MSG': '\033[97m',  # Bright White
-    'RESET': '\033[0m',       # Reset to default color
+    'RESET': '\033[0m',  # Reset to default color
 }
 BOLD: str = '\033[1m'
 UNDERLINE: str = '\033[4m'
-RESET_UNDERLINE: str = '\033[24m'   # Resets underline only
+RESET_UNDERLINE: str = '\033[24m'  # Resets underline only
 
 
 class ColoredFormatter(Formatter):
@@ -33,7 +32,8 @@ class ColoredFormatter(Formatter):
         # Append extra information if available, with labels underlined
         formatted_message += (
             f"{BOLD}"
-            f"{UNDERLINE}Strategy:{RESET_UNDERLINE} {record.strategy if 'strategy' in record.__dict__ else 'None'}\n"
+            f"{UNDERLINE}indicator:{RESET_UNDERLINE} {record.strategy if 'strategy' in record.__dict__ else 'None'}\n"
+            f"{UNDERLINE}Profile:{RESET_UNDERLINE} {record.profile_id if 'profile_id' in record.__dict__ else 'None'}\n"
         )
 
         # Append the main log message
@@ -41,15 +41,19 @@ class ColoredFormatter(Formatter):
 
         return formatted_message
 
+
 class JsonFormatter(Formatter):
     def format(self, record) -> str:
         log_record: dict[str, any] = {
             "timestamp": self.formatTime(record),
             "level": record.levelname,
             "file": record.filename,
+            "indicator": record.indicator if 'indicator' in record.__dict__ else None,
+            "profile": record.profile_id if 'profile_id' in record.__dict__ else None,
             "line_number": record.lineno,
             "function": record.funcName,
             "message": record.getMessage(),
+            "exc_info": record.exc_info
         }
 
         return json.dumps(log_record)

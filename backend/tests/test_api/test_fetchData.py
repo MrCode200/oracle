@@ -5,6 +5,7 @@ from backend.src.api import fetch_historical_data
 from backend.src.exceptions import DataFetchError
 
 import logging
+
 logging.disable(logging.CRITICAL)
 
 
@@ -16,7 +17,8 @@ logging.disable(logging.CRITICAL)
         ("TSLA", "1y", "1h", None, None)
     ]
 )
-def test_fetch_successful(ticker: str, period: str, interval: str, start: str, end: str, caplog: pytest.LogCaptureFixture):
+def test_fetch_successful(ticker: str, period: str, interval: str, start: str, end: str,
+                          caplog: pytest.LogCaptureFixture):
     with caplog.at_level(logging.INFO):
         result = fetch_historical_data(ticker, period, interval, start, end)
         assert isinstance(result, DataFrame)
@@ -46,7 +48,8 @@ def test_fetch_invalid_ticker(caplog: pytest.LogCaptureFixture):
         ("AAPL", "1mo", "1d", "1700-01-01", "1700-01-31"),
     ]
 )
-def test_fetch_invalid_arguments(ticker: str, period: str, interval: str, start: str, end: str, caplog: pytest.LogCaptureFixture):
+def test_fetch_invalid_arguments(ticker: str, period: str, interval: str, start: str, end: str,
+                                 caplog: pytest.LogCaptureFixture):
     with caplog.at_level(logging.ERROR):
         try:
             result = fetch_historical_data(ticker, period, interval, start, end)

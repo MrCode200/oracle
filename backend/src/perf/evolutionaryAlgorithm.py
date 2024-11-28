@@ -1,12 +1,10 @@
 import copy
 import random
-from multiprocessing import Pool
 
 from .mathutils import randfloat
 from statistics import mean
 import logging
 
-from numpy.ma.core import arange
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 
@@ -86,7 +84,7 @@ def evolve(func: callable,
             )
             print(best_args)
 
-    This function is useful for optimizing financial trading strategies by tuning the parameters of technical indicators
+    This function is useful for optimizing financial trading algorithms by tuning the parameters of technical indicators
     like moving averages, RSI, or custom indicators to maximize profitability or accuracy.
     """
     required_keys = {"start", "stop", "step", "type"}
@@ -238,7 +236,7 @@ def init_generation(childs: int, func_settings: dict[str, dict[str, int | float]
     """
      Initializes the first generation of individuals with random values for each parameter.
 
-     This function creates the initial population of individuals (strategies) for the genetic algorithm.
+     This function creates the initial population of individuals (algorithms) for the genetic algorithm.
      Each individual is represented by a dictionary of parameters, initialized with random values between their specified ranges.
      Additionally, a default value of 1 is assigned to the `performance` for each individual.
 
@@ -275,7 +273,7 @@ def select_top_performers_and_reproduce(gen_statistics: dict[float, dict[str, in
     """
     Selects the top-performing individuals from the current generation and replicates them to form the next generation.
 
-    This function sorts the current generation of strategies based on their performance in descending order.
+    This function sorts the current generation of algorithms based on their performance in descending order.
     It selects the top performers (survivers) and replicates each to produce offspring,
     filling the new generation with a total number of individuals equal to `childs`.
 
