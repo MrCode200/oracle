@@ -1,0 +1,423 @@
+{"timestamp": "2024-11-21 14:01:48,466", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 14:01:48,470", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 14:01:48,471", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:01:48,472", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 14:01:48,473", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:01:48,473", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 14:01:48,750", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 14:01:49,036", "level": "INFO", "file": "__init__.py", "line_number": 25, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 14:01:49,036", "level": "INFO", "file": "initService.py", "line_number": 13, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 14:01:49,039", "level": "INFO", "file": "initService.py", "line_number": 30, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 14:08:28,696", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 14:08:28,697", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 14:08:28,698", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:08:28,698", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 14:08:28,699", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:08:28,699", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 14:08:28,841", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 14:08:48,265", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 14:08:48,267", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 14:08:48,267", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:08:48,267", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 14:08:48,268", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:08:48,268", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 14:08:48,408", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 14:08:59,397", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 14:08:59,399", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 14:08:59,399", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:08:59,399", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 14:08:59,400", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:08:59,400", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 14:08:59,560", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 14:08:59,674", "level": "INFO", "file": "__init__.py", "line_number": 25, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 14:08:59,675", "level": "INFO", "file": "initService.py", "line_number": 13, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 14:10:43,468", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 14:10:43,470", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 14:10:43,470", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:10:43,471", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 14:10:43,471", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:10:43,471", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 14:10:43,663", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 14:10:43,783", "level": "INFO", "file": "__init__.py", "line_number": 25, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 14:10:43,783", "level": "INFO", "file": "initService.py", "line_number": 13, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 14:12:07,868", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 14:12:07,869", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 14:12:07,870", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:12:07,870", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 14:12:07,871", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:12:07,871", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 14:12:08,016", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 14:12:08,131", "level": "INFO", "file": "__init__.py", "line_number": 25, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 14:12:08,131", "level": "INFO", "file": "initService.py", "line_number": 13, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 14:12:32,617", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 14:12:32,632", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 14:12:32,638", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:12:32,644", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 14:12:32,650", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:12:32,651", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 14:12:33,816", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 14:12:35,133", "level": "INFO", "file": "__init__.py", "line_number": 25, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 14:12:35,133", "level": "INFO", "file": "initService.py", "line_number": 12, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 14:13:16,595", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 14:13:16,597", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 14:13:16,597", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:13:16,597", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 14:13:16,598", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:13:16,598", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 14:13:16,760", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 14:13:16,879", "level": "INFO", "file": "__init__.py", "line_number": 25, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 14:13:16,879", "level": "INFO", "file": "initService.py", "line_number": 12, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 14:13:24,604", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 14:13:24,606", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 14:13:24,606", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:13:24,606", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 14:13:24,607", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:13:24,607", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 14:13:24,747", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 14:13:24,858", "level": "INFO", "file": "__init__.py", "line_number": 25, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 14:13:24,858", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 14:13:24,862", "level": "DEBUG", "file": "registry.py", "line_number": 31, "function": "get_model", "message": "Looking up MODEL_REGISTRY for name: SimpleMovingAverage"}
+{"timestamp": "2024-11-21 14:18:02,901", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 14:18:02,902", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 14:18:02,903", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:18:02,903", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 14:18:02,904", "level": "DEBUG", "file": "registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 14:18:02,904", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 14:18:03,073", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 14:18:03,187", "level": "INFO", "file": "__init__.py", "line_number": 25, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 14:18:03,187", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 14:18:03,191", "level": "DEBUG", "file": "registry.py", "line_number": 31, "function": "get_model", "message": "Looking up MODEL_REGISTRY for name: SimpleMovingAverage"}
+{"timestamp": "2024-11-21 16:37:58,707", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:37:58,709", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:37:58,709", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:37:58,710", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:37:58,710", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:37:58,711", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:37:58,885", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 16:38:08,291", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:38:08,292", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:38:08,293", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:38:08,293", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:38:08,294", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:38:08,294", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:38:08,438", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 16:38:08,504", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 16:38:08,574", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 16:38:08,574", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:38:08,578", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:38:33,420", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:38:33,421", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:38:33,422", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:38:33,422", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:38:33,422", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:38:33,423", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:38:33,565", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 16:38:33,633", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 16:38:33,703", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 16:38:33,703", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:38:33,706", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:38:54,893", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:38:54,894", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:38:54,895", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:38:54,895", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:38:54,895", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:38:54,895", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:38:55,038", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 16:38:55,098", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 16:38:55,167", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 16:38:55,167", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:38:55,170", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:39:40,325", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:39:40,327", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:39:40,328", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:39:40,328", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:39:40,329", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:39:40,329", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:39:40,329", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:39:40,333", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:41:30,605", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:41:30,608", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:41:30,609", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:41:30,609", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:41:30,610", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:41:30,610", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:41:30,610", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:41:30,614", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:42:54,478", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:42:54,496", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:42:54,505", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:42:54,535", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:42:54,554", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:42:54,554", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:42:54,554", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:42:54,574", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:43:24,485", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:43:24,486", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:43:24,487", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:43:24,487", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:43:24,488", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:43:24,488", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:43:24,488", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:43:24,491", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:45:42,900", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:45:42,901", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:45:42,902", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:45:42,902", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:45:42,903", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:45:42,903", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:45:42,903", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:45:42,907", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:46:49,160", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:46:49,161", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:46:49,162", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:46:49,162", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:46:49,163", "level": "DEBUG", "file": "algorithm_registry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:46:49,163", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:46:49,163", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:46:49,166", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:50:06,100", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:50:06,102", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:50:06,102", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:50:06,102", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:50:06,103", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:50:06,103", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:50:06,103", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:50:06,107", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:50:54,299", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:50:54,300", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:50:54,301", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:50:54,301", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:50:54,302", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:50:54,302", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:50:54,302", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:50:54,305", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:50:54,305", "level": "INFO", "file": "interface.py", "line_number": 17, "function": "init_interface", "message": "Interface Initialized Successfully..."}
+{"timestamp": "2024-11-21 16:51:38,398", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:51:38,400", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:51:38,400", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:51:38,401", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:51:38,401", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:51:38,401", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:51:38,401", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:51:38,405", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:51:38,405", "level": "INFO", "file": "interface.py", "line_number": 17, "function": "init_interface", "message": "Interface Initialized Successfully"}
+{"timestamp": "2024-11-21 16:52:08,078", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:52:08,079", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:52:08,079", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:52:08,080", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:52:08,080", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:52:08,080", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:52:08,223", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 16:52:08,289", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 16:52:08,359", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 16:52:08,359", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:52:08,363", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:52:08,363", "level": "INFO", "file": "interface.py", "line_number": 9, "function": "init_interface", "message": "Initializing Interface..."}
+{"timestamp": "2024-11-21 16:52:08,364", "level": "INFO", "file": "interface.py", "line_number": 15, "function": "init_interface", "message": "All Commands Registered Successfully..."}
+{"timestamp": "2024-11-21 16:52:08,364", "level": "INFO", "file": "interface.py", "line_number": 17, "function": "init_interface", "message": "Interface Initialized Successfully"}
+{"timestamp": "2024-11-21 16:52:51,222", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:52:51,225", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:52:51,226", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:52:51,227", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:52:51,227", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:52:51,228", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:52:51,703", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 16:52:51,831", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 16:52:52,068", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 16:52:52,069", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:52:52,083", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:52:52,083", "level": "INFO", "file": "interface.py", "line_number": 9, "function": "init_interface", "message": "Initializing Interface..."}
+{"timestamp": "2024-11-21 16:53:39,444", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:53:39,447", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:53:39,448", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:53:39,449", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:53:39,449", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:53:39,449", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:53:39,931", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 16:53:40,072", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 16:53:40,297", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 16:53:40,297", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:53:40,311", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:53:40,311", "level": "INFO", "file": "interface.py", "line_number": 9, "function": "init_interface", "message": "Initializing Interface..."}
+{"timestamp": "2024-11-21 16:54:22,686", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:54:22,687", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:54:22,688", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:54:22,688", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:54:22,688", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:54:22,688", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:54:22,865", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 16:54:22,929", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 16:54:22,999", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 16:54:22,999", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:54:23,002", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:54:23,002", "level": "INFO", "file": "interface.py", "line_number": 9, "function": "init_interface", "message": "Initializing Interface..."}
+{"timestamp": "2024-11-21 16:54:23,003", "level": "INFO", "file": "interface.py", "line_number": 16, "function": "init_interface", "message": "All Commands Registered Successfully..."}
+{"timestamp": "2024-11-21 16:54:23,003", "level": "INFO", "file": "interface.py", "line_number": 18, "function": "init_interface", "message": "Interface Initialized Successfully"}
+{"timestamp": "2024-11-21 16:54:30,454", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:54:30,459", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:54:30,460", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:54:30,461", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:54:30,462", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:54:30,462", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:54:30,948", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 16:54:31,092", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 16:54:31,303", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 16:54:31,303", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:54:31,316", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:54:31,317", "level": "INFO", "file": "interface.py", "line_number": 9, "function": "init_interface", "message": "Initializing Interface..."}
+{"timestamp": "2024-11-21 16:54:43,909", "level": "INFO", "file": "interface.py", "line_number": 16, "function": "init_interface", "message": "All Commands Registered Successfully..."}
+{"timestamp": "2024-11-21 16:54:43,909", "level": "INFO", "file": "interface.py", "line_number": 18, "function": "init_interface", "message": "Interface Initialized Successfully"}
+{"timestamp": "2024-11-21 16:55:59,885", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:55:59,889", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:55:59,890", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:55:59,890", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:55:59,891", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:55:59,891", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:56:00,386", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 16:56:00,522", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 16:56:00,747", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 16:56:00,747", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:56:00,762", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:56:00,762", "level": "INFO", "file": "interface.py", "line_number": 9, "function": "init_interface", "message": "Initializing Interface..."}
+{"timestamp": "2024-11-21 16:56:01,647", "level": "INFO", "file": "interface.py", "line_number": 16, "function": "init_interface", "message": "All Commands Registered Successfully..."}
+{"timestamp": "2024-11-21 16:56:01,647", "level": "INFO", "file": "interface.py", "line_number": 18, "function": "init_interface", "message": "Interface Initialized Successfully"}
+{"timestamp": "2024-11-21 16:57:13,157", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:57:13,165", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:57:13,166", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:57:13,167", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:57:13,168", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:57:13,168", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:57:13,814", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 16:57:13,982", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 16:57:14,294", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 16:57:14,294", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:57:14,317", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:57:14,317", "level": "INFO", "file": "interface.py", "line_number": 9, "function": "init_interface", "message": "Initializing Interface..."}
+{"timestamp": "2024-11-21 16:57:35,586", "level": "INFO", "file": "interface.py", "line_number": 16, "function": "init_interface", "message": "All Commands Registered Successfully..."}
+{"timestamp": "2024-11-21 16:57:35,586", "level": "INFO", "file": "interface.py", "line_number": 18, "function": "init_interface", "message": "Interface Initialized Successfully"}
+{"timestamp": "2024-11-21 16:58:17,402", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:58:17,405", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:58:17,406", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:58:17,407", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:58:17,408", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:58:17,408", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:58:17,891", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 16:58:18,043", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 16:58:18,285", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 16:58:18,285", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:58:18,299", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:58:18,299", "level": "INFO", "file": "interface.py", "line_number": 9, "function": "init_interface", "message": "Initializing Interface..."}
+{"timestamp": "2024-11-21 16:58:18,301", "level": "INFO", "file": "interface.py", "line_number": 16, "function": "init_interface", "message": "All Commands Registered Successfully..."}
+{"timestamp": "2024-11-21 16:58:18,301", "level": "INFO", "file": "interface.py", "line_number": 18, "function": "init_interface", "message": "Interface Initialized Successfully"}
+{"timestamp": "2024-11-21 16:59:12,772", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 16:59:12,773", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 16:59:12,773", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:59:12,774", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 16:59:12,774", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 16:59:12,774", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 16:59:12,920", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 16:59:13,001", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 16:59:13,071", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 16:59:13,071", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 16:59:13,075", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 16:59:13,075", "level": "INFO", "file": "interface.py", "line_number": 9, "function": "init_interface", "message": "Initializing Interface..."}
+{"timestamp": "2024-11-21 16:59:13,076", "level": "INFO", "file": "interface.py", "line_number": 16, "function": "init_interface", "message": "All Commands Registered Successfully..."}
+{"timestamp": "2024-11-21 16:59:13,076", "level": "INFO", "file": "interface.py", "line_number": 18, "function": "init_interface", "message": "Interface Initialized Successfully"}
+{"timestamp": "2024-11-21 17:01:15,104", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 17:01:15,105", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 17:01:15,105", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 17:01:15,106", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 17:01:15,106", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 17:01:15,106", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 17:01:15,299", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 17:01:15,366", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 17:01:15,442", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 17:01:15,442", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 17:01:15,446", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 17:01:15,446", "level": "INFO", "file": "interface.py", "line_number": 9, "function": "init_interface", "message": "Initializing Interface..."}
+{"timestamp": "2024-11-21 17:01:15,451", "level": "INFO", "file": "interface.py", "line_number": 16, "function": "init_interface", "message": "All Commands Registered Successfully..."}
+{"timestamp": "2024-11-21 17:01:15,451", "level": "INFO", "file": "interface.py", "line_number": 18, "function": "init_interface", "message": "Interface Initialized Successfully"}
+{"timestamp": "2024-11-21 17:01:30,252", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 17:01:30,254", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 17:01:30,254", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 17:01:30,255", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 17:01:30,255", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 17:01:30,255", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 17:01:30,411", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 17:01:30,468", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 17:01:30,539", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 17:01:30,539", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 17:01:30,542", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 17:01:30,542", "level": "INFO", "file": "interface.py", "line_number": 9, "function": "init_interface", "message": "Initializing Interface..."}
+{"timestamp": "2024-11-21 17:01:30,544", "level": "INFO", "file": "interface.py", "line_number": 16, "function": "init_interface", "message": "All Commands Registered Successfully..."}
+{"timestamp": "2024-11-21 17:01:30,544", "level": "INFO", "file": "interface.py", "line_number": 18, "function": "init_interface", "message": "Interface Initialized Successfully"}
+{"timestamp": "2024-11-21 17:02:46,462", "level": "ERROR", "file": "algorithmRegistry.py", "line_number": 32, "function": "get_model", "message": "Model /list_algorithm not registered.\nREGISTER: {'RelativeStrengthIndex': <class 'algorithms.indicators.relativeStrengthIndex.RelativeStrengthIndex'>, 'SimpleMovingAverage': <class 'algorithms.indicators.simpleMovingAverage.SimpleMovingAverage'>, 'MovingAverageConvergenceDivergence': <class 'algorithms.indicators.movingAverageConvergenceDivergence.MovingAverageConvergenceDivergence'>, 'ExponentialMovingAverage': <class 'algorithms.indicators.exponentialMovingAverage.ExponentialMovingAverage'>}"}
+{"timestamp": "2024-11-21 17:02:46,462", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 33, "function": "get_model", "message": "Looking up MODEL_REGISTRY for name: /list_algorithm"}
+{"timestamp": "2024-11-21 17:03:29,453", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 17:03:29,454", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 17:03:29,455", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 17:03:29,455", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 17:03:29,455", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 17:03:29,455", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 17:03:29,630", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 17:03:29,694", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 17:03:29,762", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 17:03:29,762", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 17:03:29,766", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 17:03:29,766", "level": "INFO", "file": "interface.py", "line_number": 9, "function": "init_interface", "message": "Initializing Interface..."}
+{"timestamp": "2024-11-21 17:03:29,768", "level": "INFO", "file": "interface.py", "line_number": 16, "function": "init_interface", "message": "All Commands Registered Successfully..."}
+{"timestamp": "2024-11-21 17:03:29,768", "level": "INFO", "file": "interface.py", "line_number": 18, "function": "init_interface", "message": "Interface Initialized Successfully"}
+{"timestamp": "2024-11-21 17:05:39,290", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 17:05:39,292", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 17:05:39,293", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 17:05:39,294", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 17:05:39,295", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 17:05:39,295", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 17:05:39,470", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 17:05:39,521", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 17:05:39,591", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 17:05:39,591", "level": "INFO", "file": "initService.py", "line_number": 11, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 17:05:39,595", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 17:05:39,595", "level": "INFO", "file": "interface.py", "line_number": 9, "function": "init_interface", "message": "Initializing Interface..."}
+{"timestamp": "2024-11-21 17:05:39,598", "level": "INFO", "file": "interface.py", "line_number": 16, "function": "init_interface", "message": "All Commands Registered Successfully..."}
+{"timestamp": "2024-11-21 17:05:39,598", "level": "INFO", "file": "interface.py", "line_number": 18, "function": "init_interface", "message": "Interface Initialized Successfully"}
+{"timestamp": "2024-11-21 17:06:08,586", "level": "ERROR", "file": "algorithmRegistry.py", "line_number": 32, "function": "get_model", "message": "Model /list algorithms not registered.\nREGISTER: {'RelativeStrengthIndex': <class 'algorithms.indicators.relativeStrengthIndex.RelativeStrengthIndex'>, 'SimpleMovingAverage': <class 'algorithms.indicators.simpleMovingAverage.SimpleMovingAverage'>, 'MovingAverageConvergenceDivergence': <class 'algorithms.indicators.movingAverageConvergenceDivergence.MovingAverageConvergenceDivergence'>, 'ExponentialMovingAverage': <class 'algorithms.indicators.exponentialMovingAverage.ExponentialMovingAverage'>}"}
+{"timestamp": "2024-11-21 17:06:08,586", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 33, "function": "get_model", "message": "Looking up MODEL_REGISTRY for name: /list algorithms"}
+{"timestamp": "2024-11-21 17:14:03,957", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 17:14:03,959", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 17:14:03,959", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 17:14:03,959", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 17:14:03,960", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 17:14:03,960", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 17:14:04,144", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 17:14:04,213", "level": "INFO", "file": "__init__.py", "line_number": 19, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 17:14:04,289", "level": "INFO", "file": "__init__.py", "line_number": 32, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 17:30:42,412", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle..."}
+{"timestamp": "2024-11-21 17:30:42,414", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry"}
+{"timestamp": "2024-11-21 17:30:42,414", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry"}
+{"timestamp": "2024-11-21 17:30:42,414", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry"}
+{"timestamp": "2024-11-21 17:30:42,415", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry"}
+{"timestamp": "2024-11-21 17:30:42,415", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully..."}
+{"timestamp": "2024-11-21 17:30:42,570", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database..."}
+{"timestamp": "2024-11-21 17:30:42,654", "level": "INFO", "file": "__init__.py", "line_number": 20, "function": "<module>", "message": "Ensured Database Exists..."}
+{"timestamp": "2024-11-21 17:30:42,768", "level": "INFO", "file": "__init__.py", "line_number": 33, "function": "<module>", "message": "Database Successfully Initialized!"}
+{"timestamp": "2024-11-21 17:30:42,773", "level": "INFO", "file": "initService.py", "line_number": 12, "function": "init_service", "message": "Initializing Service, Loading Profiles..."}
+{"timestamp": "2024-11-21 17:30:42,773", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!"}
+{"timestamp": "2024-11-21 17:30:42,773", "level": "INFO", "file": "interface.py", "line_number": 9, "function": "init_interface", "message": "Initializing Interface..."}
+{"timestamp": "2024-11-21 17:30:42,775", "level": "INFO", "file": "interface.py", "line_number": 15, "function": "init_interface", "message": "All Commands Registered Successfully..."}
+{"timestamp": "2024-11-21 17:30:42,775", "level": "INFO", "file": "interface.py", "line_number": 17, "function": "init_interface", "message": "Interface Initialized Successfully"}
+{"timestamp": "2024-11-21 17:31:16,215", "level": "WARNING", "file": "profileOperations.py", "line_number": 94, "function": "delete_profile", "message": "Profile with profile_id=None; profile_name='test' does not exist"}
+{"timestamp": "2024-11-21 19:49:11,119", "level": "INFO", "file": "app.py", "line_number": 21, "function": "init_app", "message": "Initialized Oracle...", "exc_info": null}
+{"timestamp": "2024-11-21 19:49:11,122", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `RelativeStrengthIndex` to registry", "exc_info": null}
+{"timestamp": "2024-11-21 19:49:11,124", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `SimpleMovingAverage` to registry", "exc_info": null}
+{"timestamp": "2024-11-21 19:49:11,126", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `MovingAverageConvergenceDivergence` to registry", "exc_info": null}
+{"timestamp": "2024-11-21 19:49:11,127", "level": "DEBUG", "file": "algorithmRegistry.py", "line_number": 18, "function": "register_model", "message": "Registered `ExponentialMovingAverage` to registry", "exc_info": null}
+{"timestamp": "2024-11-21 19:49:11,127", "level": "INFO", "file": "app.py", "line_number": 24, "function": "init_app", "message": "All Models Registered Successfully...", "exc_info": null}
+{"timestamp": "2024-11-21 19:49:11,325", "level": "INFO", "file": "__init__.py", "line_number": 9, "function": "<module>", "message": "Initializing Database...", "exc_info": null}
+{"timestamp": "2024-11-21 19:49:11,422", "level": "INFO", "file": "__init__.py", "line_number": 20, "function": "<module>", "message": "Ensured Database Exists...", "exc_info": null}
+{"timestamp": "2024-11-21 19:49:11,518", "level": "INFO", "file": "__init__.py", "line_number": 33, "function": "<module>", "message": "Database Successfully Initialized!", "exc_info": null}
+{"timestamp": "2024-11-21 19:49:11,522", "level": "INFO", "file": "initService.py", "line_number": 12, "function": "init_service", "message": "Initializing Service, Loading Profiles...", "exc_info": null}
+{"timestamp": "2024-11-21 19:49:11,522", "level": "INFO", "file": "initService.py", "line_number": 27, "function": "init_service", "message": "Initialized Service Successfully, all profiles loaded!", "exc_info": null}
+{"timestamp": "2024-11-21 19:49:11,522", "level": "INFO", "file": "interface.py", "line_number": 9, "function": "init_interface", "message": "Initializing Interface...", "exc_info": null}
+{"timestamp": "2024-11-21 19:49:11,525", "level": "INFO", "file": "interface.py", "line_number": 15, "function": "init_interface", "message": "All Commands Registered Successfully...", "exc_info": null}
+{"timestamp": "2024-11-21 19:49:11,525", "level": "INFO", "file": "interface.py", "line_number": 17, "function": "init_interface", "message": "Interface Initialized Successfully", "exc_info": null}

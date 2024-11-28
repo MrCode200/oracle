@@ -1,0 +1,79 @@
+import json
+
+import sqlalchemy as sa
+from sqlalchemy.testing.suite.test_reflection import metadata
+
+with open('backend/config/config.json', 'r') as f:
+    db_config = json.load(f).get('DB_CONFIG')
+
+DATABASE_URL = f"mysql+mysqlconnector://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}"
+
+engine = sa.create_engine(DATABASE_URL)
+engine.connect()
+
+profile_table = sa.Table(
+    "profiles",
+    sa.MetaData(),
+    sa.Column("profile_id", sa.Integer, primary_key=True, autoincrement=True),
+    sa.Column("profile_name", sa.String(50), unique=True),
+    sa.Column("balance", sa.Float),
+    sa.Column("stop_loss", sa.Float),
+    sa.Column("wallet", sa.JSON),
+    sa.Column("algorithms_settings", sa.JSON),
+    sa.Column("fetch_settings", sa.JSON)
+)
+
+order_table = sa.Table(
+    "orders",
+    sa.MetaData(),
+    sa.Column("order_id", sa.Integer, primary_key=True, autoincrement=True),
+    sa.Column("profile_id", sa.Integer, sa.ForeignKey("profile.profile_id")),
+    sa.Column("type", sa.String(4)),
+    sa.Column("ticker", sa.String(16)),
+    sa.Column("quantity", sa.Integer),
+    sa.Column("price", sa.Float),
+    sa.Column("timestamp", sa.DateTime)
+)
+
+
+def insert_profile(profile_name: str, balance: float, stop_loss: float, wallet: dict[str, float],
+                algorithm_settings: dict[str, dict[str, any]], fetch_setting: dict[str, str]) -> None:
+    """
+    Adds a new profile to the database.
+
+    :param profile_name: The name of the profile. Must be unique.
+    :param balance: The initial balance for the profile.
+    :param stop_loss: The stop loss value for the profile.
+    :param wallet: The wallet configuration for the profile.
+    :param algorithm_settings: The settings for algorithms associated with the profile and their corresponding algorithm class name.
+    :param fetch_setting: The settings for data fetching associated with the profile.
+    """
+    query = profile_table.insert(profile_table.insert(), profile_name=profile_name, balance=balance,
+                                 stop_loss=stop_loss,
+                                 wallet=wallet, algorithm_settings=algorithm_settings, fetch_setting=fetch_setting)
+    with engine.connect() as conn:
+        conn.execute(query)
+
+
+def select_profile(profile_id: int = None, profile_name: str = None) -> sa.engine.ResultProxy:
+    """
+    Loads a profile from the database based on profile ID or profile name.
+    If no arguments are passed it will return all profiles.
+
+    :param profile_id: The ID of the profile to load. Optional if profile_name is provided.
+    :param profile_name: The name of the profile to load. Optional if profile_id is provided.
+    :return: A result set containing the profile data.
+    """
+    if profile_id is not None:
+        query = profile_table.select().where(profile_table.c.profile_name == profile_name)
+    elif profile_name is not None:
+        query = profile_table.select().where(profile_table.c.profile_id == profile_id)
+    else:
+        query = profile_table.select()
+
+    with engine.connect() as conn:
+        return conn.execute(query)
+
+
+def main():
+    metadata.create_all(engine)

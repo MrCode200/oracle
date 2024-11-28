@@ -1,0 +1,33 @@
+import sqlalchemy as sa
+
+from backend.src.database import DATABASE_URL
+
+
+engine = sa.create_engine(DATABASE_URL)
+metadata = sa.MetaData()
+
+
+profile_table = sa.Table(
+    "profiles",
+    metadata,
+    sa.Column("profile_id", sa.Integer, primary_key=True, autoincrement=True),
+    sa.Column("profile_name", sa.String(50), unique=True),
+    sa.Column("balance", sa.Float),
+    sa.Column("stop_loss", sa.Float),
+    sa.Column("wallet", sa.JSON),
+    sa.Column("algorithm_settings", sa.JSON),
+    sa.Column("fetch_settings", sa.JSON)
+)
+
+
+order_table = sa.Table(
+    "orders",
+    metadata,
+    sa.Column("order_id", sa.Integer, primary_key=True, autoincrement=True),
+    sa.Column("profile_id", sa.Integer, sa.ForeignKey("profiles.profile_id")),
+    sa.Column("type", sa.String(4)),
+    sa.Column("ticker", sa.String(16)),
+    sa.Column("quantity", sa.Integer),
+    sa.Column("price", sa.Float),
+    sa.Column("timestamp", sa.DateTime)
+)
