@@ -1,1 +1,1 @@
-from .profilemodel import ProfileModel, Status
+from .profileModel import ProfileModel, Status

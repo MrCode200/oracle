@@ -11,12 +11,13 @@ logger = getLogger("oracle.app")
 Session = sessionmaker(bind=engine)
 
 
-def create_profile(profile_name: str, wallet: dict) -> Profile | None:
+def create_profile(profile_name: str, wallet: dict, strategy_settings: dict) -> Profile | None:
     """
     Creates a new profile in the database.
 
     :param profile_name: The name of the profile.
     :param wallet: The wallet information for the profile.
+    :param strategy_settings: The strategy settings for the profile.
 
     :return: The newly created profile object.
     """
@@ -24,7 +25,7 @@ def create_profile(profile_name: str, wallet: dict) -> Profile | None:
 
     try:
         # Create and add the new profile
-        new_profile = Profile(profile_name=profile_name, wallet=wallet)
+        new_profile = Profile(profile_name=profile_name, wallet=wallet, strategy_settings=strategy_settings)
         session.add(new_profile)
         session.commit()
 
@@ -64,13 +65,15 @@ def get_profile(profile_id: int = None, profile_name: str = None) -> Profile | l
         session.close()
 
 
-def update_profile(profile_id: int, profile_name: str = None, status = None) -> bool:
+def update_profile(profile_id: int, profile_name: str = None, status = None, wallet: dict = None, strategy_settings: dict = None) -> bool:
     """
     Updates a profile in the database.
 
     :param profile_id: The ID of the profile to update.
     :param profile_name: The new profile name (optional).
     :param status: The new status of the profile (optional).
+    :param wallet: The new wallet information for the profile (optional).
+    :param strategy_settings: The new strategy settings for the profile (optional).
 
     :return: True if the profile was updated successfully, False otherwise.
     """
@@ -88,6 +91,10 @@ def update_profile(profile_id: int, profile_name: str = None, status = None) -> 
             profile.profile_name = profile_name
         if status is not None:
             profile.status = status
+        if wallet:
+            profile.wallet = wallet
+        if strategy_settings:
+            profile.strategy_settings = strategy_settings
 
         session.commit()
         logger.info(f"Profile {profile_id} updated successfully.")

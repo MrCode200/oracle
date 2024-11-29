@@ -10,6 +10,7 @@ class Profile(Base):
     profile_name = Column(String(50), unique=True)
     status = Column(Integer, default=0)
     wallet = Column(JSON)
+    strategy_settings = Column(JSON)
 
 
 class Indicator(Base):
@@ -19,8 +20,8 @@ class Indicator(Base):
     indicator_name = Column(String(100))
     indicator_weight = Column(Float)
     ticker = Column(String(16))
+    interval = Column(String(6))
     indicator_settings = Column(JSON)
-    fetch_settings = Column(JSON)
 
 
 class Plugin(Base):

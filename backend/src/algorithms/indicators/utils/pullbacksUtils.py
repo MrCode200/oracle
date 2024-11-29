@@ -17,7 +17,7 @@ def trend_based_pullback(indicator_series: Series, base_line: float, tolerance: 
     :param tolerance: The allowed deviation to consider as a valid pullback.
     :param lookback_window: The number of periods to look back for potential pullback behavior.
         Automatically chooses the len(indicator_series) if lookback_period > len(indicator_series)
-    :param direction: Direction of the pullback ('both', 'up', or 'down') from the threshold.
+    :param direction: Direction of the pullback ('both', 'up', or 'down') from the limit.
     :param return_pullback_strength: Whether to return the strength of the pullback.
     :param magnitude_weight: The weight for the magnitude calculation.
     :param rate_of_change_weight: The weight for the rate of change calculation.
@@ -44,8 +44,8 @@ def trend_based_pullback(indicator_series: Series, base_line: float, tolerance: 
     pullback_found: bool = False
     pullback_direction: str = None
 
-    value_entered_threshold_index: int = None
-    value_above_threshold_index: int = None
+    value_entered_limit_index: int = None
+    value_above_limit_index: int = None
 
     if direction in ['both', 'up']:
         if current_value > tolerance:
@@ -56,16 +56,16 @@ def trend_based_pullback(indicator_series: Series, base_line: float, tolerance: 
                 if current_value < base_line:
                     break
 
-                # Check if the indicator entered the threshold and then pulls back
+                # Check if the indicator entered the limit and then pulls back
                 if base_line < current_value < tolerance:
-                    value_entered_threshold_index = i
-                # Check if the indicator entered the threshold and then pulls back
+                    value_entered_limit_index = i
+                # Check if the indicator entered the limit and then pulls back
                 elif current_value > tolerance:
-                    value_above_threshold_index = i
+                    value_above_limit_index = i
 
-                # Check if there was a value above the threshold before a value in the threshold
-                if value_above_threshold_index is not None and value_entered_threshold_index is not None:
-                    if value_above_threshold_index > value_entered_threshold_index:
+                # Check if there was a value above the limit before a value in the limit
+                if value_above_limit_index is not None and value_entered_limit_index is not None:
+                    if value_above_limit_index > value_entered_limit_index:
                         pullback_direction = 'up'
                         pullback_found = True
 
@@ -78,16 +78,16 @@ def trend_based_pullback(indicator_series: Series, base_line: float, tolerance: 
                 if current_value > 0:
                     break
 
-                # Check if the indicator entered the threshold and then pulls back
+                # Check if the indicator entered the limit and then pulls back
                 if base_line > current_value > -tolerance:
-                    value_entered_threshold_index = i
-                # Check if the indicator entered the threshold and then pulls back
+                    value_entered_limit_index = i
+                # Check if the indicator entered the limit and then pulls back
                 elif current_value < -tolerance:
-                    value_above_threshold_index = i
+                    value_above_limit_index = i
 
-                # Check if there was a value below the threshold before a value in the threshold
-                if value_above_threshold_index is not None and value_entered_threshold_index is not None:
-                    if value_above_threshold_index < value_entered_threshold_index:
+                # Check if there was a value below the limit before a value in the limit
+                if value_above_limit_index is not None and value_entered_limit_index is not None:
+                    if value_above_limit_index < value_entered_limit_index:
                         pullback_direction = 'down'
                         pullback_found = True
 
@@ -95,16 +95,16 @@ def trend_based_pullback(indicator_series: Series, base_line: float, tolerance: 
         return pullback_found
 
     if pullback_direction == 'up':
-        closest_value_to_base_line = min(indicator_series.iloc[-value_above_threshold_index:])
+        closest_value_to_base_line = min(indicator_series.iloc[-value_above_limit_index:])
     elif pullback_direction == 'down':
-        closest_value_to_base_line = max(indicator_series.iloc[-value_above_threshold_index:])
+        closest_value_to_base_line = max(indicator_series.iloc[-value_above_limit_index:])
 
 
     pullback_magnitude: float = abs(current_value - closest_value_to_base_line)
     max_magnitude: float = max(abs(indicator_series.max() - base_line), abs(indicator_series.min() - base_line))
     pullback_magnitude_signal: float = pullback_magnitude / max_magnitude
 
-    pullback_index: int = indicator_series.iloc[-value_above_threshold_index:].index[indicator_series == closest_value_to_base_line].values[-1]
+    pullback_index: int = indicator_series.iloc[-value_above_limit_index:].index[indicator_series == closest_value_to_base_line].values[-1]
     rate_of_change: float = abs((current_value - closest_value_to_base_line)) / (len(indicator_series) - pullback_index)
     max_rate_of_change: float = max(abs(indicator_series.max() - indicator_series.min()) / lookback_window)
     rate_of_change_signal: float = rate_of_change / max_rate_of_change

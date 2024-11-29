@@ -25,12 +25,12 @@ def validate_profile_name(profile_name):
 
 
 def validate_profile_settings(profile_settings):
-    if {"sell_threshold", "buy_threshold", "stop_loss", "limit"} == profile_settings.keys():
-        raise ValueError("Profile settings cannot contain sell_threshold, buy_threshold, stop_loss, or limit.")
-    if profile_settings["sell_threshold"] < 0 or profile_settings["sell_threshold"] > -1:
-        raise ValueError("Sell threshold must be between 0 and -1.")
-    if profile_settings["buy_threshold"] < 0 or profile_settings["buy_threshold"] > 1:
-        raise ValueError("Buy threshold must be between 0 and 1.")
+    if {"sell_limit", "buy_limit", "stop_loss", "limit"} == profile_settings.keys():
+        raise ValueError("Profile settings cannot contain sell_limit, buy_limit, stop_loss, or limit.")
+    if profile_settings["sell_limit"] < 0 or profile_settings["sell_limit"] > -1:
+        raise ValueError("Sell limit must be between 0 and -1.")
+    if profile_settings["buy_limit"] < 0 or profile_settings["buy_limit"] > 1:
+        raise ValueError("Buy limit must be between 0 and 1.")
     if profile_settings["stop_loss"] < 0 or profile_settings["stop_loss"] > 1:
         raise ValueError("Stop loss must be between 0 and 1.")
     if profile_settings["limit"] < 0 or profile_settings["limit"] > 1:

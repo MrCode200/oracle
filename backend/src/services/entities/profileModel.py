@@ -40,7 +40,7 @@ class ProfileModel:
         self.profile_name: str = profile.profile_name
         self.status: Status = profile.status
         self.wallet: dict[str, float] = profile.wallet
-        self.strategy: BaseStrategy = BaseStrategy(profile=self)
+        self.strategy: BaseStrategy = BaseStrategy(profile=self, **profile.strategy_settings)
 
         profile_registry.register(self.profile_id, self)
 
@@ -71,7 +71,7 @@ class ProfileModel:
         if not self._check_status_valid():
             return
 
-        self.strategy.evaluate()
+        self.strategy.determine_trade_signals()
 
         logger.debug(f"Evaluation Finished for Profile with id: {self.profile_id}; and name: {self.profile_name}",
                      extra={"profile_id": self.profile_id})
@@ -88,7 +88,6 @@ class ProfileModel:
         all_intervals = [indicator.fetch_settings['interval'] for indicator in get_indicator(profile_id=self.profile_id)]
         smallest_interval: int = min(all_intervals, key=interval_to_minutes.get)
         self.scheduler.add_job(self._evaluate, 'interval', minutes=smallest_interval)
-
 
     def _check_status_valid(self):
         if self.status.value <= Status.UNKNOWN_ERROR.value:

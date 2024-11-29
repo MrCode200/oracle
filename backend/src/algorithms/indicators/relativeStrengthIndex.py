@@ -15,7 +15,7 @@ class RelativeStrengthIndex(BaseIndicator):
 
     The RSI is a momentum oscillator that measures the speed and change of price movements.
     It oscillates between 0 and 100 and is typically used to identify overbought or oversold conditions.
-    This strategy evaluates whether the market conditions are ripe for buying or selling based on RSI thresholds.
+    This strategy evaluates whether the market conditions are ripe for buying or selling based on RSI limits.
 
     Methods
     -------
@@ -39,8 +39,8 @@ class RelativeStrengthIndex(BaseIndicator):
         Initializes the Relative Strength Index (RSI) trading strategy.
 
         :key period: The period to use for RSI calculation (default is 14).
-        :key lower_band: The lower RSI threshold for a buy signal (default is 30).
-        :key upper_band: The upper RSI threshold for a sell signal (default is 70).
+        :key lower_band: The lower RSI limit for a buy signal (default is 30).
+        :key upper_band: The upper RSI limit for a sell signal (default is 70).
         """
         self.period = period
         self.lower_band = lower_band
@@ -87,8 +87,8 @@ class RelativeStrengthIndex(BaseIndicator):
 
         return signal
 
-    def backtest(self, df: DataFrame, partition_amount: int = 1, sell_threshold: float = -0.8,
-                 buy_threshold: float = 0.8) -> list[float]:
+    def backtest(self, df: DataFrame, partition_amount: int = 1, sell_limit: float = -0.8,
+                 buy_limit: float = 0.8) -> list[float]:
         """
         Backtests the RSI strategy on historical data.
 
@@ -97,8 +97,8 @@ class RelativeStrengthIndex(BaseIndicator):
 
         :param df: The DataFrame containing the market data with a 'Close' column.
         :key partition_amount: The amount of paritions which get returned at which to recalculate the Return on Investiment (default is 1)..
-        :key sell_threshold: The percentage of when to sell, (default is 0.2).
-        :key buy_threshold: The percentage of when to buy, (default is 0.8).
+        :key sell_limit: The percentage of when to sell, (default is 0.2).
+        :key buy_limit: The percentage of when to buy, (default is 0.8).
 
         :return: A list of parition_amount times of the Return on Investiment.
 
@@ -112,8 +112,8 @@ class RelativeStrengthIndex(BaseIndicator):
         return super(RelativeStrengthIndex, self).backtest(
             df=df,
             invalid_values=self.period + 1,
-            sell_threshold=sell_threshold,
-            buy_threshold=buy_threshold,
+            sell_limit=sell_limit,
+            buy_limit=buy_limit,
             func_kwargs=signal_func_kwargs,
             partition_amount=partition_amount,
             indicator_name="RSI"

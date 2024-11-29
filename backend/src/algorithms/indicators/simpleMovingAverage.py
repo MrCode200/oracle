@@ -111,8 +111,8 @@ class SimpleMovingAverage(BaseIndicator):
         logger.info(f"SMA evaluation result: {confidence}", extra={"indicator": "SMA"})
         return confidence
 
-    def backtest(self, df: DataFrame, partition_amount: int = 1, sell_threshold: float = -0.8,
-                 buy_threshold: float = 0.8) -> list[float]:
+    def backtest(self, df: DataFrame, partition_amount: int = 1, sell_limit: float = -0.8,
+                 buy_limit: float = 0.8) -> list[float]:
         """
         Runs a backtest on the data and returns final profit or loss.
 
@@ -122,8 +122,8 @@ class SimpleMovingAverage(BaseIndicator):
 
         :param df: The DataFrame containing the market data with a 'Close' column.
         :key partition_amount: The amount of paritions which get returned at which to recalculate the Return on Investiment (default is 1).
-        :param sell_threshold: The percentage of when to sell, (default is -0.8).
-        :param buy_threshold: The percentage of when to buy, (default is 0.8).
+        :param sell_limit: The percentage of when to sell, (default is -0.8).
+        :param buy_limit: The percentage of when to buy, (default is 0.8).
 
         :return: A list of partition_amount times of the Return on Investment.
         """
@@ -140,8 +140,8 @@ class SimpleMovingAverage(BaseIndicator):
         return super(SimpleMovingAverage, self).backtest(
             df=df,
             invalid_values=invalid_values,
-            sell_threshold=sell_threshold,
-            buy_threshold=buy_threshold,
+            sell_limit=sell_limit,
+            buy_limit=buy_limit,
             func_kwargs=signal_func_kwargs,
             partition_amount=partition_amount,
             indicator_name="SMA"

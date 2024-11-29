@@ -39,7 +39,7 @@ class MovingAverageConvergenceDivergence(BaseIndicator):
         :key crossover_weight_impact: How strong the impact of the weights are on the crossover output. Example: 1 - (1- weight) * weight_impact
         :key zero_line_crossover_weight: The weight assigned to the zero line crossover signal (default is 1).
         :key zero_line_pullback_lookback: The number of periods to look back for the zero line pullback (default is 10).
-        :key zero_line_pullback_tolerance_percent: The threshold for detecting pullbacks from the zero line (default is 0.1).
+        :key zero_line_pullback_tolerance_percent: The limit for detecting pullbacks from the zero line (default is 0.1).
         :key zero_line_pullback_weight: The weight assigned to the zero line pullback signal (default is 1).
         :key return_pullback_strength: Whether to return the strength of the pullback.
         :key magnitude_weight: The weight for the magnitude calculation.
@@ -154,8 +154,8 @@ class MovingAverageConvergenceDivergence(BaseIndicator):
 
         return confidence
 
-    def backtest(self, df: DataFrame, partition_amount: int = 1, sell_threshold: float = -0.8,
-                 buy_threshold: float = 0.8) -> list[float]:
+    def backtest(self, df: DataFrame, partition_amount: int = 1, sell_limit: float = -0.8,
+                 buy_limit: float = 0.8) -> list[float]:
         """
         Backtests the MACD strategy on historical data.
 
@@ -165,8 +165,8 @@ class MovingAverageConvergenceDivergence(BaseIndicator):
         :param df: The pandas DataFrame containing the market data (at least a 'Close' column).
         :param partition_amount: The number of partitions to divide the data into for backtesting,
                                  which determines how often the Return on Investment (ROI) is recalculated.
-        :param sell_threshold: The percentage of when to sell, (default is -0.8).
-        :param buy_threshold: The percentage of when to buy, (default is 0.8).
+        :param sell_limit: The percentage of when to sell, (default is -0.8).
+        :param buy_limit: The percentage of when to buy, (default is 0.8).
 
         :return: A list of ROI values calculated at each partition of the backtest.
         """
@@ -179,8 +179,8 @@ class MovingAverageConvergenceDivergence(BaseIndicator):
             df=df,
             invalid_values=self.fast_period,
             func_kwargs=signal_func_kwargs,
-            buy_threshold=buy_threshold,
-            sell_threshold=sell_threshold,
+            buy_limit=buy_limit,
+            sell_limit=sell_limit,
             partition_amount=partition_amount,
             indicator_name="MACD"
         )

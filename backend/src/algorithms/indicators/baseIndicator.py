@@ -44,7 +44,7 @@ class BaseIndicator(ABC):
 
     @abstractmethod
     def backtest(self, df: DataFrame, func_kwargs: dict[str, any], invalid_values: int, partition_amount: int,
-                 sell_threshold: float, buy_threshold: float, indicator_name: str) -> list[float]:
+                 sell_limit: float, buy_limit: float, indicator_name: str) -> list[float]:
         """
         Conducts a backtest on the provided market data to evaluate the performance of a trading strategy.
 
@@ -56,16 +56,13 @@ class BaseIndicator(ABC):
         :param invalid_values: The number of initial rows in the DataFrame to skip, typically used to account for NaN values.
         :param partition_amount: The number of partitions to divide the data into for recalculating the Return on Investment (ROI). Must be greater than 0.
         :param indicator_name: The name of the strategy being tested, only needed for logging.
-        :param sell_threshold: The percentage of when to sell, (default is 0.2).
-        :param buy_threshold: The percentage of when to buy, (default is 0.8).
+        :param sell_limit: The percentage of when to sell, (default is 0.2).
+        :param buy_limit: The percentage of when to buy, (default is 0.8).
 
         :returns: A list of floats representing the ROI for each partition.
 
         :raises ValueError: If `partition_amount` is less than or equal to 0.
         """
-        if partition_amount <= 0:
-            raise ValueError("Partition amount must be greater than 0")
-
         base_balance: float = 1_000_000
         balance: float = base_balance
         shares: float = 0
@@ -82,7 +79,7 @@ class BaseIndicator(ABC):
             base_balance, balance, shares = BaseIndicator.process_trade_signal(
                 base_balance, balance, shares,
                 df.iloc[i].Close, df.index[i] ,trade_signal,
-                buy_threshold, sell_threshold,
+                buy_limit, sell_limit,
                 net_worth_history, is_partition_cap_reached,
                 indicator_name
             )
@@ -108,8 +105,8 @@ class BaseIndicator(ABC):
             latest_price: float,
             date: str,
             trade_signal: float,
-            buy_threshold: float,
-            sell_threshold: float,
+            buy_limit: float,
+            sell_limit: float,
             net_worth_history: list[float],
             is_partition_cap_reached: bool,
             indicator_name: str
@@ -127,8 +124,8 @@ class BaseIndicator(ABC):
         :param latest_price: The latest market price of the asset being traded.
         :param date: The date of the current market data point.
         :param trade_signal: The trade signal, where 1 represents a buy signal and 0 represents a sell signal.
-        :param sell_threshold: The percentage of when to sell, (default is 0.2).
-        :param buy_threshold: The percentage of when to buy, (default is 0.8).
+        :param sell_limit: The percentage of when to sell, (default is 0.2).
+        :param buy_limit: The percentage of when to buy, (default is 0.8).
         :param net_worth_history: A list storing the historical values of the portfolio for ROI tracking.
         :param is_partition_cap_reached: A flag indicating whether the ROI should be recorded for the current period.
         :param indicator_name: The name of the strategy used for logging purposes.
@@ -144,14 +141,14 @@ class BaseIndicator(ABC):
             - If `should_record_roi` is True, the method will record the portfolio's total value at that point,
               updating the `portfolio_value_history` with the current ROI.
         """
-        if trade_signal >= buy_threshold and balance != 0:
+        if trade_signal >= buy_limit and balance != 0:
             shares = balance / latest_price
             balance = 0
             logger.debug(
                 "Executed Buy on signal `{}` and shares `{}` with a price of `{}`; date: `{}`".format(trade_signal, shares, latest_price, date),
                 extra={"strategy": indicator_name})
 
-        elif trade_signal <= sell_threshold and shares > 0:  # Sell
+        elif trade_signal <= sell_limit and shares > 0:  # Sell
             logger.debug(
                 "Executed Sell on signal `{}` and shares `{}` with a price of `{}`; date: `{}`".format(trade_signal, shares, latest_price, date),
                 extra={"strategy": indicator_name})

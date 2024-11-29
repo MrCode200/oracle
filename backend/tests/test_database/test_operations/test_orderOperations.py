@@ -4,7 +4,7 @@ from backend.src.database import create_order, select_orders, add_profile, delet
 
 PROFILE_NAME = "test_profile_delta"
 BALANCE = 1000
-PROFILE_SETTINGS = {"sell_threshold": 0.5, "buy_threshold": 0.5, "stop_loss": 0.5, "limit": 0.5}
+PROFILE_SETTINGS = {"sell_limit": 0.5, "buy_limit": 0.5, "stop_loss": 0.5, "limit": 0.5}
 WALLET = {"BTC": 100}
 ALGORITHM_SETTINGS = {"SimpleMovingAverage": {"crossover_weight_impact": 0.5}}
 FETCH_SETTINGS = {"period": "1d", "interval": "1d"}

@@ -7,18 +7,20 @@ from backend.src.database import get_indicator, get_plugin, delete_plugin, creat
 
 
 class BaseStrategy:
-    def __init__(self, profile: 'ProfileModel'):
+    def __init__(self, profile: 'ProfileModel', buy_limit: float = 0.75, sell_limit: float = -0.75):
         """
         Initialize the strategy.
 
         :param profile: Profile model associated with the strategy
         """
         self.profile: 'ProfileModel' = profile
-        self.indicators: dict[str, dict[str, any]] = self.load_indicators()
-        self.plugins: dict[int, BasePlugin] = self.load_plugins()
+        self.indicators: dict[str, dict[str, any]] = self.load_indicators(profile.profile_id, profile.wallet)
+        self.plugins: dict[int, BasePlugin] = self.load_plugins(profile.profile_id)
+        self.buy_limit: float = buy_limit
+        self.sell_limit: float = sell_limit
 
     @staticmethod
-    def load_indicators(profile_id, profile_wallet) -> dict[str, dict[str, any]]:
+    def load_indicators(profile_id: int, profile_wallet: dict[str, float]) -> dict[str, dict[str, any]]:
         """
         Load indicators for a given profile.
 
@@ -41,7 +43,7 @@ class BaseStrategy:
         return indicators
 
     @staticmethod
-    def load_plugins(profile_id) -> dict[int, BasePlugin]:
+    def load_plugins(profile_id: int) -> dict[int, BasePlugin]:
         """
         Load plugins for a given profile.
 
@@ -55,7 +57,7 @@ class BaseStrategy:
 
         return plugins
 
-    def evaluate(self) -> dict[str, float]:
+    def determine_trade_signals(self) -> dict[str, float]:
         """
         Evaluate the strategy.
 
@@ -64,12 +66,35 @@ class BaseStrategy:
 
         :return: Dictionary of ticker confidences
         """
+        def _eval_indicators() -> dict[str, dict[int, float]]:
+            """
+            Evaluate the indicators.
+
+            This method evaluates the indicators for each ticker, and returns a
+            dictionary of ticker confidences.
+
+            :return: Dictionary of ticker confidences
+            """
+            model_confidences: dict[str, dict[int, float]] = {}
+            for ticker, indicators in self.indicators.keys():
+                ticker_confidences: dict[int, float] = {}
+
+                for indicator_model, indicator in self.indicators[ticker].values():
+                    data: DataFrame = fetch_historical_data(ticker, period="1y", interval=indicator_model.interval)
+
+                    confidence: float = indicator.evaluate(df=data) * indicator_model.weight
+                    ticker_confidences[indicator_model.indicator_id] = confidence
+
+                model_confidences[ticker] = ticker_confidences
+
+            return model_confidences
+
         for plugin in self.plugins.values():
             if plugin.priority == PluginPriority.BEFORE_EVALUATION:
                 plugin.run(self)
 
-        indicator_confidences: dict[str, dict[int, float]] = self._eval_indicators()
-        # TODO:Just looping through all plugins and giving them the result that was edited, could become problematic in the future depending on the feature of the plugin
+        indicator_confidences: dict[str, dict[int, float]] = _eval_indicators()
+        # TODO: Just looping through all plugins and giving them the result that was edited, could become problematic in the future depending on the feature of the plugin
         for plugin in self.plugins.values():
             if plugin.priority == PluginPriority.AFTER_EVALUATION:
                 indicator_confidences = plugin.run(self, indicator_confidences)
@@ -85,31 +110,15 @@ class BaseStrategy:
 
         return normalized_confidences
 
-    def _eval_indicators(self) -> dict[str, dict[int, float]]:
-        """
-        Evaluate the indicators.
+    def backtest(self, profile, backtest_days: int, base_balance: float = 1_000_000, partition_amount: int = 1) -> list[float]:
+        balance: float = base_balance
+        shares: float = 0
+        net_worth_history: list[float] = []
 
-        This method evaluates the indicators for each ticker, and returns a
-        dictionary of ticker confidences.
 
-        :return: Dictionary of ticker confidences
-        """
-        model_confidences: dict[str, dict[int, float]] = {}
-        for ticker, indicators in self.indicators.keys():
-            ticker_confidences: dict[int, float] = {}
 
-            for indicator_model, indicator in self.indicators[ticker].values():
-                data: DataFrame = fetch_historical_data(ticker, **indicator_model.fetch_settings)
+        return net_worth_history
 
-                confidence: float = indicator.evaluate(df=data) * indicator_model.weight
-                ticker_confidences[indicator_model.indicator_id] = confidence
-
-            model_confidences[ticker] = ticker_confidences
-
-        return model_confidences
-
-    def backtest(self, profile):
-        pass
 
     def add_plugin(self, plugin: BasePlugin) -> bool:
         """
