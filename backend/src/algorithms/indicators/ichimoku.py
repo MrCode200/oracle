@@ -141,13 +141,29 @@ class Ichimoku(BaseIndicator):
         return 0#'no crossover'
 
     @staticmethod
-    def backtest_kian(balance,df ):
+    def backtest_kian(balance, df):
+        df = df.copy()
+        btc = 0
+        ranges = [(i, i + 54) for i in range(0, 667)]  # (0,54),(1,55)
+        last_state = "sell"
+        print("starting money :", balance)
+        for i in ranges:
 
-        for n in range(0,3):
-            cdf = df.iloc[n:54+n]
-            print(cdf)
-            res = Ichimoku.run(cdf)
-            print(res)
+            res = Ichimoku.determine_trade_signal(df.iloc[i[0]:i[1]])
+            if res >= 0.3 and last_state == "sell":
+                btc = balance / df["Close"].iloc[i[1]]
+                print("Buy BTC :", btc, "  |  Price : ", df["Close"].iloc[i[1]])
+                balance = 0
+                last_state = "buy"
+
+            elif res <= -0.3 and last_state == "buy":
+                balance = btc * df["Close"].iloc[i[1]]
+                print("Sell BTC:", btc, "  |  Price : ", df["Close"].iloc[i[1]], "  |  balance :", balance, "$")
+                btc = 0
+                last_state = "sell"
+        if balance == 0:
+            return btc * df["Close"].iloc[-1] / 10
+        return balance / 10
 
 
     def backtest(self, df: pd.DataFrame, partition_amount: int = 1, sell_threshold: float = -0.8, buy_threshold: float = 0.8):
