@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "Oracle"
+version = "0.1.0"
+description = "A trading bot"
+authors = ["MrCode200 <navidyaghmaei@gmail.com>", "kian19955 <you@example.com>"]
+readme = "../README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "^2.2.3"
+yfinance = "^0.2.50"
+pandas-ta = "^0.3.14b0"
+sqlalchemy = "^2.0.36"
+python-dotenv = "^1.0.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+mypy = "^1.13.0"
+black = "^24.10.0"
+isort = "^5.13.2"
+
+[tool.poetry.scripts]
+run = "backend.src.app:main"
+
+
