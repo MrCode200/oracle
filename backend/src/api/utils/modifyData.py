@@ -34,6 +34,7 @@ def determine_interval(interval: str) -> str:
         return "1" + interval[-1]
 
 
+# TODO: Fix code for compress_data
 def compress_data(data_frame: pd.DataFrame, interval: str) -> pd.DataFrame:
     """
     The first three char of interval  are numbers => 00
