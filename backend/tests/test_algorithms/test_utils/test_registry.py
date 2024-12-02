@@ -1,7 +1,8 @@
 import pytest
 
-from backend.src.utils.registry.indicatorRegistry import get_indicator, register_indicator
 from backend.src.exceptions import RegistryError
+from backend.src.utils.registry.indicatorRegistry import (get_indicator,
+                                                          register_indicator)
 
 
 def test_register_indicator():

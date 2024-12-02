@@ -1,10 +1,10 @@
+import logging
+
 import pytest
 from pandas import DataFrame
 
 from backend.src.api import fetch_historical_data
 from backend.src.exceptions import DataFetchError
-
-import logging
 
 logging.disable(logging.CRITICAL)
 

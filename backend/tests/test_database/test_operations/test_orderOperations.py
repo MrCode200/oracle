@@ -1,6 +1,7 @@
 import pytest
 
-from backend.src.database import create_order, select_orders, add_profile, delete_profile, select_profile
+from backend.src.database import (add_profile, create_order, delete_profile,
+                                  select_orders, select_profile)
 
 PROFILE_NAME = "test_profile_delta"
 BALANCE = 1000
