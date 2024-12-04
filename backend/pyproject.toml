@@ -2,7 +2,7 @@
 name = "Oracle"
 version = "0.1.0"
 description = "A trading bot"
-authors = ["MrCode200 <navidyaghmaei@gmail.com>", "kian19955 <you@example.com>"]
+authors = ["MrCode200 <navidyaghmaei@gmail.com>", "kian19955 <kiansharifi84@gmail.com>"]
 readme = "../README.md"
 
 [tool.poetry.dependencies]
