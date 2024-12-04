@@ -2,6 +2,8 @@ import json
 import logging
 import sys
 
+from backend.src.services.cli import init_cli
+
 sys.path.append("/workspaces/oracle/backend")
 
 from custom_logger.loggingManager import setup_logger  # type: ignore
@@ -22,9 +24,9 @@ def init_app():
     logger = logging.getLogger("oracle.app")
     logger.info("Initialized Oracle...")
 
-    import database  # type: ignore
-
     init_service()
+
+    init_cli()
 
 
 if __name__ == "__main__":

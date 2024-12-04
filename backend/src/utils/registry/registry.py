@@ -1,3 +1,4 @@
+from functools import wraps
 from logging import Logger, getLogger
 from typing import Any, Dict, Hashable, Union
 
@@ -51,7 +52,7 @@ class Registry:
 
         for key in keys:
             if key in self._REGISTRY:
-                self.logger.warning(f"{self.registry_name}: {key} already registered.") if self.log else None
+                self.logger.debug(f"{self.registry_name}: {key} already registered.") if self.log else None
 
                 if self.raise_exception:
                     raise DuplicateError(
@@ -63,6 +64,43 @@ class Registry:
 
             self._REGISTRY[key] = value
             self.logger.debug(f"{self.registry_name}: Registered {key} to registry") if self.log else None
+
+    def register_function(self, keys: Union[Hashable, list[Hashable]]) -> Any:
+        """
+        A decorator to register a function itself to the registry.
+        This registration happens only once when the function is first defined.
+
+        :param keys: The key(s) to register the function with.
+        :return: The decorated function.
+        """
+        has_registered: bool = False
+
+        def decorator(func):
+            nonlocal has_registered
+            if not has_registered:
+                self.register(keys, func)
+                has_registered = True
+
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
+
+            return wrapper
+
+        return decorator
+
+
+    def register_class(self, keys: Union[Hashable, list[Hashable]]) -> None:
+        """
+        A decorator to register the result of a class to the registry.
+
+        :param keys: The key(s) to register the class result with.
+        :return: The decorated class.
+        """
+        def decorator(cls):
+            self.register(keys, cls)
+            return cls
+        return decorator
 
 
     def get(
