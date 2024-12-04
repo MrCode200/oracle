@@ -40,7 +40,6 @@ class BaseIndicator(ABC):
     def evaluate(df: DataFrame) -> float:
         ...
 
-    @abstractmethod
     def backtest(self, df: DataFrame, partition_amount: int,
                  sell_limit: float, buy_limit: float) -> list[float]:
         """
