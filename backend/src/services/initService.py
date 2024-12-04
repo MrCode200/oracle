@@ -1,6 +1,6 @@
 from logging import getLogger
 
-from backend.src.services.entities import ProfileModel, Status
+from backend.src.services.entities import ProfileModel
 
 logger = getLogger("oracle.app")
 

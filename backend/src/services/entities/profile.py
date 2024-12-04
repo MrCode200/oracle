@@ -80,7 +80,7 @@ class ProfileModel:
         if not self._check_status_valid():
             return
 
-        self.strategy.determine_trade_signals()
+        self.strategy.evaluate()
 
         logger.debug(
             f"Evaluation Finished for Profile with id: {self.profile_id}; and name: {self.profile_name}",
@@ -91,7 +91,7 @@ class ProfileModel:
         if not self._check_status_valid():
             return
 
-        return self.strategy.backtest(profile=self)
+        return self.strategy.backtest()
 
     def add_plugin(self, plugin: 'BasePlugin', **kwargs):
         # TODO: How to add plugin settings
