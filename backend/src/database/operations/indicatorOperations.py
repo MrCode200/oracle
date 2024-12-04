@@ -1,10 +1,9 @@
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import IntegrityError
-
-from backend.src.database import engine
 from logging import getLogger
 
-from backend.src.database import Indicator
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import sessionmaker
+
+from backend.src.database import Indicator, engine
 
 logger = getLogger("oracle.app")
 Session = sessionmaker(bind=engine)
@@ -75,12 +74,21 @@ def get_indicator(profile_id: int = None, indicator_id: int = None, ticker: str 
         session.close()
 
 
-def update_indicator(indicator_id: int, indicator_settings: dict):
+def update_indicator(
+    indicator_id: int,
+    indicator_weight: float = None,
+    ticker: str = None,
+    interval: str = None,
+    indicator_settings: dict = None,
+) -> bool:
     """
     Updates an existing indicator in the database.
 
     :param indicator_id: The ID of the indicator to update.
-    :param indicator_settings: The new settings for the indicator.
+    :param indicator_weight: The weight assigned to the indicator when calculating.
+    :param ticker: The ticker of the indicator.
+    :param interval: The interval of the indicator when fetching data.
+    :param indicator_settings: The settings of the indicator.
     :return:
     """
     session = Session()
@@ -89,7 +97,16 @@ def update_indicator(indicator_id: int, indicator_settings: dict):
         indicator = session.get(Indicator, indicator_id)
 
         if indicator:
-            indicator.indicator_settings = indicator_settings
+            if indicator_weight is not None:
+                indicator.indicator_weight = indicator_weight
+            if ticker is not None:
+                indicator.ticker = ticker
+            if interval is not None:
+                indicator.interval = interval
+            if indicator_settings is not None:
+                indicator.indicator_settings = indicator_settings
+
+            session.add(indicator)
             session.commit()
             logger.info(f"Indicator {indicator_id} updated successfully.")
             return True

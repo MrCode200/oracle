@@ -1,5 +1,5 @@
-from logging import Formatter
 import json
+from logging import Formatter
 
 # ANSI color codes for different log levels
 LOG_COLORS: dict[str, str] = {

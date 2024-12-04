@@ -1,12 +1,12 @@
-from logging import getLogger
 from enum import Enum
+from logging import getLogger
 
+from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
 
+from backend.src.database import Profile, get_indicator, create_plugin
+from backend.src.services.entities import BaseStrategy
 from backend.src.utils.registry import profile_registry
-from backend.src.algorithms.strategies.baseStrategy import BaseStrategy
-from backend.src.database import Profile, get_indicator
 
 logger = getLogger("oracle.app")
 
@@ -48,7 +48,7 @@ class ProfileModel:
         profile_registry.register(self.profile_id, self)
 
         self.scheduler = BackgroundScheduler()
-        self.setup_schedular()
+        self._setup_schedular()
         logger.debug(
             f"Initialized Profile with id: {self.profile_id}; and name: {self.profile_name}",
             extra={"profile_id": self.profile_id},
@@ -93,7 +93,19 @@ class ProfileModel:
 
         return self.strategy.backtest(profile=self)
 
-    def setup_schedular(self):
+    def add_plugin(self, plugin: 'BasePlugin', **kwargs):
+        # TODO: How to add plugin settings
+        new_plugin = create_plugin(
+            profile_id=self.profile_id,
+            plugin_name=plugin.__class__.__name__,
+            plugin_settings=kwargs,
+        )
+        self.strategy.add_plugin(new_plugin)
+
+    def remove_plugin(self, plugin_id: int):
+        self.strategy.remove_plugin(plugin_id)
+
+    def _setup_schedular(self):
         self.scheduler.add_listener(
             self._on_job_execution, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR
         )

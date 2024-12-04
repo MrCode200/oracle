@@ -1,8 +1,7 @@
+import json
 from logging import getLogger
 
-from sqlalchemy import create_engine, text, Engine
-import json
-
+from sqlalchemy import Engine, create_engine, text
 
 logger = getLogger("oracle.app")
 
@@ -25,24 +24,12 @@ with base_engine.connect() as conn:
 engine: Engine = create_engine(DATABASE_URL)
 
 
-from .models import Base, Profile, Order, Plugin, Indicator
-from .operations import (
-    get_profile,
-    get_order,
-    get_plugin,
-    get_indicator,
-    create_profile,
-    create_order,
-    create_plugin,
-    create_indicator,
-    delete_plugin,
-    delete_profile,
-    delete_indicator,
-    update_profile,
-    update_plugin,
-    update_indicator,
-)
-
+from .models import Base, Indicator, Order, Plugin, Profile
+from .operations import (create_indicator, create_order, create_plugin,
+                         create_profile, delete_indicator, delete_plugin,
+                         delete_profile, get_indicator, get_order, get_plugin,
+                         get_profile, update_indicator, update_plugin,
+                         update_profile)
 
 Base.metadata.create_all(engine)
 

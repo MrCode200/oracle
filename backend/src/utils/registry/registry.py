@@ -1,7 +1,8 @@
-from typing import Hashable, Dict, Any, Union
 from logging import Logger, getLogger
+from typing import Any, Dict, Hashable, Union
 
-from backend.src.exceptions import MissingKeyError, DuplicateError
+from backend.src.exceptions import DuplicateError, MissingKeyError
+
 
 # fmt: off
 class Registry:

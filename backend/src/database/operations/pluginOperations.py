@@ -1,8 +1,10 @@
-from backend.src.database import engine, Plugin
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import IntegrityError
 from logging import getLogger
 from typing import Type
+
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import sessionmaker
+
+from backend.src.database import Plugin, engine
 
 logger = getLogger("oracle.app")
 

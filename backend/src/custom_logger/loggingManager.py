@@ -1,13 +1,9 @@
 import logging
-from logging import getLogger
-
-from logging import StreamHandler
+from logging import DEBUG, Formatter, StreamHandler, getLogger
 from logging.handlers import TimedRotatingFileHandler
 
-from logging import DEBUG
-
-from logging import Formatter
-from backend.src.custom_logger.loggingFormatters import ColoredFormatter, JsonFormatter  # type: ignore
+from backend.src.custom_logger.loggingFormatters import (  # type: ignore
+    ColoredFormatter, JsonFormatter)
 
 
 def setup_logger(
