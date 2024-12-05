@@ -19,8 +19,8 @@ class MovingAverageConvergenceDivergence(BaseIndicator):
     _EA_SETTINGS = {}
 
     def __init__(self, fast_period: int = 12, slow_period: int = 26,
-                 signal_line_period: int = 9, max_momentum_lookback: int = 100, momentum_signal_weight: float = 1,
-                 return_crossover_weight: bool = True, max_crossover_gradient_degree: float = 90,
+                 signal_line_period: int = 9, momentum_max_lookback: int = 100, momentum_signal_weight: float = 1,
+                 crossover_return_weight: bool = True, crossover_max_gradient_degree: float = 90,
                  crossover_gradient_signal_weight: float = 1.0, crossover_weight_impact: float = 1.0,
                  zero_line_crossover_weight: float = 1, zero_line_pullback_lookback: int = 10,
                  zero_line_pullback_tolerance_percent: float = 0.1, zero_line_pullback_weight: float = 1,
@@ -32,10 +32,10 @@ class MovingAverageConvergenceDivergence(BaseIndicator):
         :key slow_period: The period used for the long-term EMA (default is 26).
         :key fast_period: The period used for the short-term EMA (default is 12).
         :key signal_line_period: The period used for the signal line EMA (default is 9).
-        :key max_momentum_lookback: The number of periods to look back for momentum analysis (default is 100).
+        :key momentum_max_lookback: The number of periods to look back for momentum analysis (default is 100).
         :key momentum_signal_weight: The weight assigned to the momentum signal (default is 1).
-        :key return_crossover_weight: If True, also returns the strength of the crossover.
-        :key max_crossover_gradient_degree: The maximum degree of the gradient which gets used to calculate the strength of the crossover.
+        :key crossover_return_weight: If True, also returns the strength of the crossover.
+        :key crossover_max_gradient_degree: The maximum degree of the gradient which gets used to calculate the strength of the crossover.
         :key crossover_gradient_signal_weight: The weight used for the strength calculated based on the gradient for the crossover.
         :key crossover_weight_impact: How strong the impact of the weights are on the crossover output. Example: 1 - (1- weight) * weight_impact
         :key zero_line_crossover_weight: The weight assigned to the zero line crossover signal (default is 1).
@@ -55,10 +55,10 @@ class MovingAverageConvergenceDivergence(BaseIndicator):
         self.fast_period = fast_period
         self.slow_period = slow_period
         self.signal_line_period = signal_line_period
-        self.max_momentum_lookback = max_momentum_lookback
+        self.max_momentum_lookback = momentum_max_lookback
         self.momentum_signal_weight = momentum_signal_weight
-        self.return_crossover_weigth = return_crossover_weight
-        self.max_crossover_gradient_degree = max_crossover_gradient_degree
+        self.return_crossover_weigth = crossover_return_weight
+        self.max_crossover_gradient_degree = crossover_max_gradient_degree
         self.crossover_gradient_signal_weight = crossover_gradient_signal_weight
         self.crossover_weight_impact = crossover_weight_impact
         self.zero_line_crossover_weight = zero_line_crossover_weight
@@ -125,8 +125,10 @@ class MovingAverageConvergenceDivergence(BaseIndicator):
         # If no pullback signal is generated, set it to 0.
         if not zero_line_pullback_signal:
             zero_line_pullback_signal = 0
+        else:
+            # Can be removed if it ever happens (o′┏▽┓｀o)
+            logger.critical(f"Zero Line Pullback Signal: {zero_line_pullback_signal}", extra={"indicator": "MACD"})
 
-        # Calculate the overall weight based on the individual components: momentum, crossover, and pullback.
         base_weight = self.momentum_signal_weight + self.zero_line_crossover_weight + self.zero_line_pullback_weight
         weight = 1 if base_weight == 0 else (normalized_momentum_signal * self.momentum_signal_weight +
                                              zero_line_crossover_signal * self.zero_line_crossover_weight +

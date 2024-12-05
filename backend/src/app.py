@@ -24,6 +24,9 @@ def init_app():
     logger = logging.getLogger("oracle.app")
     logger.info("Initialized Oracle...")
 
+    import backend.src.services.indicators as indicators
+    logger.info("All Indicators Registered Successfully...")
+
     init_service()
 
     init_cli()
