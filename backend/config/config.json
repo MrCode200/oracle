@@ -1,0 +1,15 @@
+{
+  "LOG_CONFIG": {
+    "level": 10,
+    "path": "logs/app.jsonl",
+    "stream_in_color": true,
+    "log_in_json": true
+  },
+  "DB_CONFIG": {
+    "host": "localhost",
+    "user": "root",
+    "password": "root",
+    "database": "oracle",
+    "auto_rollback": true
+  }
+}
