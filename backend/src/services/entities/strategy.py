@@ -1,6 +1,7 @@
+from backend.src.database import (Plugin, create_plugin, delete_plugin,
+                                  get_indicator, get_plugin)
 from backend.src.services.plugin import BasePlugin
 from backend.src.utils.registry import indicator_registry, plugin_registry
-from backend.src.database import get_indicator, get_plugin, delete_plugin, create_plugin, Plugin
 
 
 class BaseStrategy:

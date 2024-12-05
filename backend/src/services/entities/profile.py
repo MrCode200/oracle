@@ -4,8 +4,8 @@ from logging import getLogger
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from backend.src.database import Profile, get_indicator, create_plugin
-from backend.src.services.entities import BaseStrategy
+from backend.src.database import Profile, create_plugin, get_indicator
+from .strategy import BaseStrategy
 from backend.src.utils.registry import profile_registry
 
 logger = getLogger("oracle.app")
@@ -60,7 +60,7 @@ class ProfileModel:
         self.status = Status.ACTIVE
 
         if run_on_start:
-            self._evaluate()
+            self.evaluate()
 
         self.scheduler.start()
         logger.info(
@@ -76,7 +76,7 @@ class ProfileModel:
             extra={"profile_id": self.profile_id},
         )
 
-    def _evaluate(self):
+    def evaluate(self):
         if not self._check_status_valid():
             return
 
@@ -115,7 +115,7 @@ class ProfileModel:
             for indicator in get_indicator(profile_id=self.profile_id)
         ]
         smallest_interval: int = min(all_intervals, key=interval_to_minutes.get)
-        self.scheduler.add_job(self._evaluate, "interval", minutes=smallest_interval)
+        self.scheduler.add_job(self.evaluate, "interval", minutes=smallest_interval)
 
     def _check_status_valid(self):
         if self.status.value <= Status.UNKNOWN_ERROR.value:

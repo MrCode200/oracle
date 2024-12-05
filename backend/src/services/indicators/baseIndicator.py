@@ -2,8 +2,8 @@ import logging
 from abc import ABC, abstractmethod
 from math import ceil
 
-from pandas import DataFrame, isna
 import pandas_ta as ta
+from pandas import DataFrame, isna
 
 from backend.src.utils.registry import indicator_registry
 
@@ -37,7 +37,7 @@ class BaseIndicator(ABC):
         return cls._EA_SETTINGS
 
     @abstractmethod
-    def evaluate(df: DataFrame) -> float:
+    def evaluate(self, df: DataFrame) -> float:
         ...
 
     def backtest(self, df: DataFrame, partition_amount: int,

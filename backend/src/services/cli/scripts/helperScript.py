@@ -1,26 +1,27 @@
-from backend.src.utils.registry import command_registry
-from backend.src.database import delete_profile
+from backend.src.database import get_profile
+from backend.src.utils.registry import command_registry, indicator_registry
 
 
-@register_command("add profile")
-def command_add_profile():
-    ...
+@command_registry.register_function("help")
+def command_help():
+    print("Available commands:")
+    for command in command_registry.get().keys():
+        print(command)
 
 
-@register_command("update profiles")
-def command_update_profile():
-    ...
+@command_registry.register_function("list algorithms")
+def command_list_algorithms():
+    print("Available algorithms:")
+    for indicator in indicator_registry.get().keys():
+        print(indicator)
 
 
-@register_command("display profile")
-def command_display_profile():
-    ...
-
-@register_command("del profile", "delete profile")
-def command_delete_profile():
-    profile_name = input("Enter profile name: ")
-    check = input(f"Are you sure you want to delete {profile_name}? (y/n): ")
-    if check.lower() != "y":
+@command_registry.register_function("list profiles")
+def command_list_profiles():
+    profiles = get_profile()
+    if len(profiles) == 0:
+        print("No profiles created. Create a new Profile with the 'add profile' command.")
         return
-    print("Deleting profile...")
-    delete_profile(profile_name=profile_name)
+    print("Available profiles:")
+    for profile in profiles:
+        print(f"{profile.profile_id}: {profile.profile_name} | Status: {profile.status}")

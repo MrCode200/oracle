@@ -1,22 +1,22 @@
-from backend.src.commands.utils import register_command
 from backend.src.database import delete_profile
+from backend.src.utils.registry import command_registry
 
 
-@register_command("add profile")
+@command_registry.register_function("add profile")
 def command_add_profile():
     ...
 
 
-@register_command("update profiles")
+@command_registry.register_function("update profiles")
 def command_update_profile():
     ...
 
 
-@register_command("display profile")
+@command_registry.register_function("display profile")
 def command_display_profile():
     ...
 
-@register_command("del profile", "delete profile")
+@command_registry.register_function(["del profile", "delete profile"])
 def command_delete_profile():
     profile_name = input("Enter profile name: ")
     check = input(f"Are you sure you want to delete {profile_name}? (y/n): ")
