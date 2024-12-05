@@ -66,6 +66,7 @@ class BaseIndicator(ABC):
 
         partition_amount: int = ceil((len(df)) / partition_amount) if partition_amount > 1 else 1
 
+        is_partition_cap_reached: bool = False
         for i in range(len(df)):
             trade_signal: float = self.evaluate(df.iloc[:i])
 

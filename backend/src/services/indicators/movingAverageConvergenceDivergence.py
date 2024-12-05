@@ -84,6 +84,8 @@ class MovingAverageConvergenceDivergence(BaseIndicator):
         :return: The trade signal as an integer (1 for buy, -1 for sell, 0 for neutral),
                  or None if the DataFrame is empty or invalid.
         """
+        if len(df) < self.slow_period:
+            return 0
 
         long_term_ema: Series = df['Close'].ewm(span=self.slow_period, adjust=False).mean()
         short_term_ema: Series = df['Close'].ewm(span=self.fast_period, adjust=False).mean()

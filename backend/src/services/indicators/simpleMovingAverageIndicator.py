@@ -78,6 +78,9 @@ class SimpleMovingAverage(BaseIndicator):
 
         :return: The trade confidence (1 for Buy, -1 for Sell, or 0 for Hold).
         """
+        if len(df) < self.long_period:
+            return 0
+
         short_sma_series: pandas.Series = sma(close=df.Close, length=self.short_period)
         long_sma_series: pandas.Series = sma(close=df.Close, length=self.long_period)
 

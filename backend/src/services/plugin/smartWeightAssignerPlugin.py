@@ -14,7 +14,7 @@ class SmartWeightAssignerPlugin(BasePlugin):
         self.period: str = period
         super().__init__(PluginPriority.BEFORE_EVALUATION, strategy)
 
-    def run(self, indicator_confidences: dict[str, dict[str, float]] = None):
+    def run(self, strategy: 'BaseStrategy', indicator_confidences: dict[str, dict[str, float]] = None):
         all_results: dict[str, dict[str, float]] = {}
         for ticker in self.strategy.profile.wallet.keys():
             results: dict[str, float] = {}
