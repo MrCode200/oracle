@@ -1,3 +1,4 @@
+# from backend.src.api import fetch_historical_data
 from backend.src.database import (
     Plugin,
     create_plugin,
@@ -6,6 +7,7 @@ from backend.src.database import (
     get_plugin,
 )
 from backend.src.services import indicators
+from backend.src.services.indicators import BaseIndicator
 from backend.src.services.plugin import BasePlugin
 from backend.src.utils.registry import indicator_registry, plugin_registry
 
@@ -43,16 +45,23 @@ class BaseStrategy:
         """
         indicators: dict[str, dict[str, any]] = {}
 
-        for ticker in profile_wallet.keys():
-            indicators[ticker] = {}
+        ticker_indicators: list[BaseIndicator] | BaseIndicator = get_indicator(
+            profile_id=profile_id
+        )
 
-            for indicator in get_indicator(profile_id=profile_id, ticker=ticker):
-                indicators[indicator.ticker][indicator.indicator_id] = {
-                    "indicator_model": indicator,
-                    "indicator": indicator_registry.get(indicator.indicator_name)(
-                        **indicator.indicator_settings
-                    ),
-                }
+        if ticker_indicators is None:
+            return {}
+
+        if not isinstance(ticker_indicators, list):
+            ticker_indicators = [ticker_indicators]
+
+        for indicator in ticker_indicators:
+            indicators[indicator.ticker][indicator.indicator_id] = {
+                "indicator_data": indicator,
+                "indicator_instance": indicator_registry.get(indicator.indicator_name)(
+                    **indicator.indicator_settings
+                ),
+            }
 
         return indicators
 
@@ -66,15 +75,22 @@ class BaseStrategy:
         """
         plugins: dict[int, BasePlugin] = {}
 
-        for plugin in get_plugin(profile_id=profile_id):
+        plugins_models: list[Plugin] | Plugin = get_plugin(profile_id=profile_id)
+
+        if plugins_models is None:
+            return {}
+
+        if not isinstance(plugins_models, list):
+            plugins_models = [plugins_models]
+
+        for plugin in plugins_models:
             plugins[plugin.plugin_id] = plugin_registry.get(plugin.plugin_name)(
                 **plugin.plugin_settings
             )
 
         return plugins
 
-    def evaluate(self):...
-
+    def evaluate(self): ...
 
     def backtest(self): ...
 

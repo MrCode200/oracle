@@ -24,7 +24,6 @@ class Indicator(Base):
     interval = Column(String(6))
     indicator_settings = Column(JSON)
 
-
 class Plugin(Base):
     __tablename__ = "plugins"
     plugin_id = Column(Integer, primary_key=True, autoincrement=True)
