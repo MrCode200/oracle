@@ -22,18 +22,20 @@ def convert_to_dto(profile: ProfileModel) -> ProfileDTO | None:
         id=profile.id,
         name=profile.name,
         status=profile.status,
+        balance=profile.balance,
         wallet=profile.wallet,
         strategy_settings=profile.strategy_settings
     )
 
 
 def create_profile(
-        name: str, wallet: dict, strategy_settings: dict
+        name: str, balance: float, wallet: dict, strategy_settings: dict
 ) -> ProfileDTO | None:
     """
     Creates a new profile in the database.
 
     :param name: The name of the profile.
+    :param balance: The balance of the profile.
     :param wallet: The wallet information for the profile.
     :param strategy_settings: The strategy settings for the profile.
 
@@ -45,6 +47,7 @@ def create_profile(
         # Create and add the new profile
         new_profile = ProfileModel(
             name=name,
+            balance=balance,
             wallet=wallet,
             strategy_settings=strategy_settings,
         )
@@ -66,7 +69,7 @@ def create_profile(
 
 def get_profile(
         id: int = None, name: str = None
-) -> dict[str, any] | list[dict[str, any]] | None:
+) -> ProfileDTO | list[ProfileDTO] | None:
     """
     Retrieves a profile from the database based on profile ID or profile name.
     Returns the first matching profile or all profiles if no arguments are passed.
@@ -162,7 +165,6 @@ def delete_profile(
     session = Session()
 
     try:
-        # Retrieve the profile to delete
         profile = None
         if id is not None:
             profile = session.get(ProfileModel, id)

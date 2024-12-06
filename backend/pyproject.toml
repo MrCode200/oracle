@@ -12,6 +12,7 @@ yfinance = "^0.2.50"
 pandas-ta = "^0.3.14b0"
 sqlalchemy = "^2.0.36"
 python-dotenv = "^1.0.1"
+apscheduler = "^3.11.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"

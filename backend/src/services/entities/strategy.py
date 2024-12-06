@@ -3,7 +3,7 @@ from backend.src.database import (
     create_plugin,
     delete_plugin,
     get_indicator,
-    get_plugin, Indicator, create_indicator, delete_indicator,
+    get_plugin, create_indicator, delete_indicator, PluginDTO, IndicatorDTO,
 )
 from backend.src.services.indicators import BaseIndicator
 from backend.src.services.plugin import BasePlugin
@@ -12,10 +12,10 @@ from backend.src.utils.registry import indicator_registry, plugin_registry
 
 class BaseStrategy:
     def __init__(
-        self,
-        profile: "ProfileModel",
-        buy_limit: float = 0.75,
-        sell_limit: float = -0.75,
+            self,
+            profile: "ProfileModel",
+            buy_limit: float = 0.75,
+            sell_limit: float = -0.75,
     ):
         """
         Initialize the strategy.
@@ -23,7 +23,7 @@ class BaseStrategy:
         :param profile: Profile model associated with the strategy
         """
         self.profile: "ProfileModel" = profile
-        self.indicators: dict[str, dict[str, any]] = self.load_indicators(
+        self.indicators: dict[int, dict[str, any]] = self.load_indicators(
             profile.id, profile.wallet
         )
         self.plugins: dict[int, BasePlugin] = self.load_plugins(profile.id)
@@ -32,8 +32,8 @@ class BaseStrategy:
 
     @staticmethod
     def load_indicators(
-        profile_id: int, profile_wallet: dict[str, float]
-    ) -> dict[str, dict[str, any]]:
+            profile_id: int, profile_wallet: dict[str, float]
+    ) -> dict[int, dict[str, any]]:
         """
         Load indicators for a given profile.
 
@@ -41,7 +41,7 @@ class BaseStrategy:
         :param profile_wallet: Wallet associated with the profile
         :return: Dictionary of indicators, keyed by ticker and then by indicator ID
         """
-        indicators: dict[str, dict[str, any]] = {}
+        indicators: dict[int, dict[str, any]] = {}
 
         indicators_data: list[BaseIndicator] | BaseIndicator = get_indicator(
             profile_id=profile_id
@@ -88,19 +88,32 @@ class BaseStrategy:
 
         return plugins
 
-    def evaluate(self): ...
+    def evaluate(self):
+        ...
 
-    def backtest(self): ...
-    def add_indicatorDTO (self,indicator: BaseIndicator) ->bool :
+    def backtest(self):
+        ...
 
-        new_indicator:Indicator = create_indicator()#TODO
+    def add_indicator(self, indicator: BaseIndicator, weight: float, ticker: str, interval: str) -> bool:
+        new_indicator: IndicatorDTO = create_indicator(
+            profile_id=self.profile.id,
+            name=indicator.__class__.__name__,
+            weight=weight,
+            ticker=ticker,
+            interval=interval,
+            settings=indicator.__dict__,
+        )
         if indicator is not None:
-            self.plugins[new_indicator.plugin_id] = indicator
+            self.indicators[new_indicator.id] = {
+                "indicator_data": indicator,
+                "indicator_instance": indicator
+            }
             return True
         return False
-    def remove_indicatorDTO(self,id) ->bool :
-        if delete_indicator(plugin_id=id):
-            del self.plugins[id]
+
+    def remove_indicator(self, indicator_id) -> bool:
+        if delete_indicator(id=indicator_id):
+            del self.indicators[indicator_id]
             return True
         return False
 
@@ -111,13 +124,13 @@ class BaseStrategy:
         :param plugin: The plugin to be added.
         :return: True if the plugin was added successfully, False otherwise.
         """
-        new_plugin: PluginModel = create_plugin(
+        new_plugin: PluginDTO = create_plugin(
             profile_id=self.profile.id,
             name=plugin.__name__,
             settings=plugin.__dict__,
         )
         if plugin is not None:
-            self.plugins[new_plugin.plugin_id] = plugin
+            self.plugins[new_plugin.id] = plugin
             return True
         return False
 

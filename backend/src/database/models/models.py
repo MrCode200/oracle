@@ -10,6 +10,7 @@ class ProfileModel(Base):  # type: ignore
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), unique=True)
     status = Column(Integer, default=0)
+    balance = Column(Float)
     wallet = Column(JSON)
     strategy_settings = Column(JSON)
 

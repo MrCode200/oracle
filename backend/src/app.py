@@ -3,6 +3,7 @@ import logging
 import sys
 
 from backend.src.services.cli import init_cli
+from backend.src.utils import load_config
 
 sys.path.append("/workspaces/oracle/backend")
 
@@ -11,8 +12,7 @@ from services import init_service  # type: ignore
 
 
 def init_app():
-    with open("backend/config/config.json", "r") as f:
-        log_config = json.load(f).get("LOG_CONFIG")
+    log_config = load_config("LOG_CONFIG")
 
     setup_logger(
         "oracle.app",

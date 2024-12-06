@@ -3,12 +3,13 @@ from logging import getLogger
 
 from sqlalchemy import Engine, create_engine, text
 
+from ..utils import load_config
+
 logger = getLogger("oracle.app")
 
 logger.info("Initializing Database...")
 
-with open("backend/config/config.json", "r") as f:
-    DB_CONFIG = json.load(f).get("DB_CONFIG")
+DB_CONFIG = load_config("DB_CONFIG")
 DATABASE_URL = f"mysql+mysqlconnector://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}/{DB_CONFIG['database']}"
 BASE_URL = f"mysql+mysqlconnector://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}"
 
@@ -26,11 +27,10 @@ engine: Engine = create_engine(DATABASE_URL)
 
 from .models import Base, IndicatorModel, OrderModel, PluginModel, ProfileModel
 from .dtos import IndicatorDTO, OrderDTO, PluginDTO, ProfileDTO
-from .operations import (create_indicator, create_order, create_plugin,
-                         create_profile, delete_indicator, delete_plugin,
-                         delete_profile, get_indicator, get_order, get_plugin,
-                         get_profile, update_indicator, update_plugin,
-                         update_profile)
+from .operations import (create_indicator, create_order, create_plugin, create_profile,
+                         delete_indicator, delete_plugin, delete_profile,
+                         get_indicator, get_order, get_plugin, get_profile,
+                         update_indicator, update_plugin, update_profile)
 
 Base.metadata.create_all(engine)
 

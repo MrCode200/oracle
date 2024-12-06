@@ -5,6 +5,7 @@ class ProfileDTO:
     id: int
     name: str
     status: int
+    balance: float
     wallet: dict[str, float]
     strategy_settings: dict[str, any]
 

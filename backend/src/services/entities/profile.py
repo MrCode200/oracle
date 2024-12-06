@@ -4,7 +4,7 @@ from logging import getLogger
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from backend.src.database import ProfileModel, create_plugin, get_indicator, IndicatorDTO
+from backend.src.database import ProfileModel, create_plugin, get_indicator, IndicatorDTO, ProfileDTO
 from .strategy import BaseStrategy
 from backend.src.utils.registry import profile_registry
 from ..indicators import BaseIndicator
@@ -37,10 +37,11 @@ class Status(Enum):
 
 
 class Profile:
-    def __init__(self, profile: ProfileModel):
+    def __init__(self, profile: ProfileDTO):
         self.id: int = profile.id
         self.profile_name: str = profile.name
-        self.status: Status = profile.status
+        self.status: Status = Status(profile.status)
+        self.balance: float = profile.balance
         self.wallet: dict[str, float] = profile.wallet
         self.strategy: BaseStrategy = BaseStrategy(
             profile=self, **profile.strategy_settings
@@ -96,37 +97,44 @@ class Profile:
 
         return self.strategy.backtest()
 
-    def add_plugin(self, plugin: 'BasePlugin', **kwargs):
-        # TODO: How to add plugin settings
-        new_plugin = create_plugin(
-            profile_id=self.id,
-            name=plugin.__class__.__name__,
-            settings=kwargs,
+    def add_indicator(self, indicator: 'BaseIndicator', weight: float, ticker: str, interval: str):
+        self.strategy.add_indicator(
+            indicator=indicator,
+            weight=weight,
+            ticker=ticker,
+            interval=interval
         )
-        self.strategy.add_plugin(new_plugin)
+
+        self._update_scheduler()
+
+    def remove_indicator(self, indicator_id: int):
+        self.strategy.remove_indicator(indicator_id)
+
+    def add_plugin(self, plugin: 'BasePlugin'):
+        self.strategy.add_plugin(plugin)
 
     def remove_plugin(self, plugin_id: int):
         self.strategy.remove_plugin(plugin_id)
 
     def _setup_schedular(self):
+        self.scheduler.add_listener(
+            self._on_job_execution, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR
+        )
+
+        self._update_scheduler()
+
+    def _update_scheduler(self):
         indicators: list[IndicatorDTO] | IndicatorDTO | None = get_indicator(profile_id=self.id)
         if not indicators:
             logger.info(f"No indicators found for Profile with id: {self.id}", extra={"profile_id": self.id})
             return
 
-        all_intervals = [
-            indicator.fetch_settings["interval"]
+        all_intervals: list[int] = [
+            interval_to_minutes[indicator.interval]
             for indicator in indicators
         ]
 
-        self.scheduler.add_listener(
-            self._on_job_execution, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR
-        )
-
-        self._update_scheduler(all_intervals)
-
-    def _update_scheduler(self, all_intervals: list[str]):
-        smallest_interval: int = min(all_intervals, key=interval_to_minutes.get)
+        smallest_interval: int = min(all_intervals)
 
         if hasattr(self, 'job') and self.job:
             self.job.remove()

@@ -29,7 +29,7 @@ def convert_to_dto(indicator: IndicatorModel) -> IndicatorDTO | None:
 
 def create_indicator(
         profile_id: int,
-        indicator_name: str,
+        name: str,
         weight: float,
         ticker: str,
         interval: str,
@@ -39,7 +39,7 @@ def create_indicator(
     Creates a new indicator for the profile in the database.
 
     :param profile_id: The ID of the profile.
-    :param indicator_name: The name of the indicator.
+    :param name: The name of the indicator.
     :param settings: The settings of the indicator.
 
     :return: The newly created Indicator object.
@@ -49,7 +49,7 @@ def create_indicator(
     try:
         new_indicator = IndicatorModel(
             profile_id=profile_id,
-            name=indicator_name,
+            name=name,
             weight=weight,
             ticker=ticker,
             interval=interval,
@@ -71,7 +71,7 @@ def create_indicator(
         )
 
     except IntegrityError as e:
-        logger.error(f"Error adding Indicator {indicator_name}: {e}", exc_info=True)
+        logger.error(f"Error adding Indicator {name}: {e}", exc_info=True)
         session.rollback()
 
     finally:
@@ -100,8 +100,13 @@ def get_indicator(
                 ).all()
             ]
 
-        if profile_id:
-            return [convert_to_dto(indicator) for indicator in session.query(IndicatorModel, profile_id).all()]
+        if id:
+            indicator: IndicatorModel = session.get(IndicatorModel, id)
+            if indicator:
+                return convert_to_dto(indicator)
+            else:
+                logger.error(f"Indicator with ID {id} not found.")
+                return None
 
         if id:
             return convert_to_dto(session.get(IndicatorModel, id))
@@ -110,7 +115,8 @@ def get_indicator(
 
     except Exception as e:
         logger.error(f"Error getting indicator: {e}", exc_info=True)
-        return None  # or you can raise a custom exception if preferred
+        raise
+        return None
 
     finally:
         session.close()
