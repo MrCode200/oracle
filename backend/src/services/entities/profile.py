@@ -4,7 +4,7 @@ from logging import getLogger
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from backend.src.database import ProfileModel, create_plugin, get_indicator, IndicatorDTO, ProfileDTO
+from backend.src.database import ProfileModel, create_plugin, get_indicator, IndicatorDTO, ProfileDTO, PluginDTO
 from .strategy import BaseStrategy
 from backend.src.utils.registry import profile_registry
 from ..indicators import BaseIndicator
@@ -107,14 +107,14 @@ class Profile:
 
         self._update_scheduler()
 
-    def remove_indicator(self, indicator_id: int):
-        self.strategy.remove_indicator(indicator_id)
+    def remove_indicator(self, indicator_dto: IndicatorDTO):
+        self.strategy.remove_indicator(indicator_dto)
 
     def add_plugin(self, plugin: 'BasePlugin'):
         self.strategy.add_plugin(plugin)
 
-    def remove_plugin(self, plugin_id: int):
-        self.strategy.remove_plugin(plugin_id)
+    def remove_plugin(self, plugin_dto: PluginDTO):
+        self.strategy.remove_plugin(plugin_dto)
 
     def _setup_schedular(self):
         self.scheduler.add_listener(

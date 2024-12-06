@@ -23,70 +23,10 @@ class BaseStrategy:
         :param profile: Profile model associated with the strategy
         """
         self.profile: "ProfileModel" = profile
-        self.indicators: dict[int, dict[str, any]] = self.load_indicators(
-            profile.id, profile.wallet
-        )
-        self.plugins: dict[int, BasePlugin] = self.load_plugins(profile.id)
+        self.indicators: list[IndicatorDTO] = get_indicator(profile_id=profile.id)
+        self.plugins: list[PluginDTO] = get_plugin(profile_id=profile.id)
         self.buy_limit: float = buy_limit
         self.sell_limit: float = sell_limit
-
-    @staticmethod
-    def load_indicators(
-            profile_id: int, profile_wallet: dict[str, float]
-    ) -> dict[int, dict[str, any]]:
-        """
-        Load indicators for a given profile.
-
-        :param profile_id: ID of the profile
-        :param profile_wallet: Wallet associated with the profile
-        :return: Dictionary of indicators, keyed by ticker and then by indicator ID
-        """
-        indicators: dict[int, dict[str, any]] = {}
-
-        indicators_data: list[BaseIndicator] | BaseIndicator = get_indicator(
-            profile_id=profile_id
-        )
-
-        if indicators_data is None:
-            return {}
-
-        if not isinstance(indicators_data, list):
-            indicators_data = [indicators_data]
-
-        for indicator in indicators_data:
-            indicators[indicator.id] = {
-                "indicator_data": indicator,
-                "indicator_instance": indicator_registry.get(indicator.name)(
-                    **indicator.settings
-                ),
-            }
-
-        return indicators
-
-    @staticmethod
-    def load_plugins(profile_id: int) -> dict[int, BasePlugin]:
-        """
-        Load plugins for a given profile.
-
-        :param profile_id: ID of the profile
-        :return: Dictionary of plugins, keyed by plugin ID
-        """
-        plugins: dict[int, BasePlugin] = {}
-
-        plugins_models: list[PluginModel] | PluginModel = get_plugin(profile_id=profile_id)
-
-        if plugins_models is None:
-            return {}
-
-        if not isinstance(plugins_models, list):
-            plugins_models = [plugins_models]
-
-        for plugin in plugins_models:
-            plugins[plugin.id] = plugin_registry.get(plugin.name)(
-                **plugin.settings
-            )
-
-        return plugins
 
     def evaluate(self):
         ...
@@ -103,17 +43,14 @@ class BaseStrategy:
             interval=interval,
             settings=indicator.__dict__,
         )
-        if indicator is not None:
-            self.indicators[new_indicator.id] = {
-                "indicator_data": indicator,
-                "indicator_instance": indicator
-            }
+        if new_indicator is not None:
+            self.indicators.append(new_indicator)
             return True
         return False
 
-    def remove_indicator(self, indicator_id) -> bool:
-        if delete_indicator(id=indicator_id):
-            del self.indicators[indicator_id]
+    def remove_indicator(self, indicator_dto: IndicatorDTO) -> bool:
+        if delete_indicator(id=indicator_dto.id):
+            self.indicators.remove(indicator_dto)
             return True
         return False
 
@@ -129,19 +66,19 @@ class BaseStrategy:
             name=plugin.__name__,
             settings=plugin.__dict__,
         )
-        if plugin is not None:
-            self.plugins[new_plugin.id] = plugin
+        if new_plugin is not None:
+            self.plugins.append(new_plugin)
             return True
         return False
 
-    def remove_plugin(self, plugin_id: int) -> bool:
+    def remove_plugin(self, plugin_dto: PluginDTO) -> bool:
         """
         Removes a plugin from the strategy.
 
-        :param plugin_id: The ID of the plugin to be removed.
+        :param plugin_dto: The plugin to be removed.
         :return: True if the plugin was removed successfully, False otherwise.
         """
-        if delete_plugin(id=plugin_id):
-            del self.plugins[plugin_id]
+        if delete_plugin(id=plugin_dto.id):
+            self.plugins.remove(plugin_dto)
             return True
         return False
