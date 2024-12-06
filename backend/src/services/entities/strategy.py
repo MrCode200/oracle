@@ -5,6 +5,7 @@ from backend.src.database import (
     get_indicator,
     get_plugin,
 )
+from backend.src.services import indicators
 from backend.src.services.plugin import BasePlugin
 from backend.src.utils.registry import indicator_registry, plugin_registry
 
@@ -72,7 +73,8 @@ class BaseStrategy:
 
         return plugins
 
-    def evaluate(self): ...
+    def evaluate(self):...
+
 
     def backtest(self): ...
 

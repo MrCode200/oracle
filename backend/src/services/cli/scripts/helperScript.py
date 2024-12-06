@@ -25,3 +25,6 @@ def command_list_profiles():
     print("Available profiles:")
     for profile in profiles:
         print(f"{profile.profile_id}: {profile.profile_name} | Status: {profile.status}")
+@command_registry.register_function("open profile")
+def command_open_profile():
+    name = input("enter the name :")
