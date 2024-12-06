@@ -4,7 +4,7 @@ from backend.src.database import (
     create_plugin,
     delete_plugin,
     get_indicator,
-    get_plugin,
+    get_plugin, Indicator, create_indicator, delete_indicator,
 )
 from backend.src.services import indicators
 from backend.src.services.indicators import BaseIndicator
@@ -93,6 +93,18 @@ class BaseStrategy:
     def evaluate(self): ...
 
     def backtest(self): ...
+    def add_indicatorDTO (self,indicator: BaseIndicator) ->bool :
+
+        new_indicator:Indicator = create_indicator()#TODO
+        if indicator is not None:
+            self.plugins[new_indicator.plugin_id] = indicator
+            return True
+        return False
+    def remove_indicatorDTO(self,id) ->bool :
+        if delete_indicator(plugin_id=id):
+            del self.plugins[id]
+            return True
+        return False
 
     def add_plugin(self, plugin: BasePlugin) -> bool:
         """
