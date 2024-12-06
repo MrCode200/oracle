@@ -1,1 +1,1 @@
-from .models import Base, Profile, Order, Plugin, Indicator  # type: ignore
+from .models import Base, ProfileModel, OrderModel, PluginModel, IndicatorModel  # type: ignore

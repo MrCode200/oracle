@@ -36,14 +36,14 @@ def test_crud_operations_order(cleanup):
         fetch_settings=FETCH_SETTINGS,
     )
 
-    profile_id = select_profile(profile_name=PROFILE_NAME).profile_id
+    profile_id = select_profile(profile_name=PROFILE_NAME).id
 
     create_order(profile_id=profile_id, order_type=ORDER_TYPE, ticker=TICKER, price=PRICE, quantity=QUANTITY)
 
     orders = select_orders(profile_id=profile_id)
 
     assert len(orders) == 1
-    assert orders[0].profile_id == profile_id
+    assert orders[0].id == profile_id
     assert orders[0].type == ORDER_TYPE
     assert orders[0].ticker == TICKER
     assert orders[0].quantity == QUANTITY

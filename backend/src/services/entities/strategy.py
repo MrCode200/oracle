@@ -1,12 +1,10 @@
-# from backend.src.api import fetch_historical_data
 from backend.src.database import (
-    Plugin,
+    PluginModel,
     create_plugin,
     delete_plugin,
     get_indicator,
     get_plugin, Indicator, create_indicator, delete_indicator,
 )
-from backend.src.services import indicators
 from backend.src.services.indicators import BaseIndicator
 from backend.src.services.plugin import BasePlugin
 from backend.src.utils.registry import indicator_registry, plugin_registry
@@ -26,9 +24,9 @@ class BaseStrategy:
         """
         self.profile: "ProfileModel" = profile
         self.indicators: dict[str, dict[str, any]] = self.load_indicators(
-            profile.profile_id, profile.wallet
+            profile.id, profile.wallet
         )
-        self.plugins: dict[int, BasePlugin] = self.load_plugins(profile.profile_id)
+        self.plugins: dict[int, BasePlugin] = self.load_plugins(profile.id)
         self.buy_limit: float = buy_limit
         self.sell_limit: float = sell_limit
 
@@ -45,21 +43,21 @@ class BaseStrategy:
         """
         indicators: dict[str, dict[str, any]] = {}
 
-        ticker_indicators: list[BaseIndicator] | BaseIndicator = get_indicator(
+        indicators_data: list[BaseIndicator] | BaseIndicator = get_indicator(
             profile_id=profile_id
         )
 
-        if ticker_indicators is None:
+        if indicators_data is None:
             return {}
 
-        if not isinstance(ticker_indicators, list):
-            ticker_indicators = [ticker_indicators]
+        if not isinstance(indicators_data, list):
+            indicators_data = [indicators_data]
 
-        for indicator in ticker_indicators:
-            indicators[indicator.ticker][indicator.indicator_id] = {
+        for indicator in indicators_data:
+            indicators[indicator.id] = {
                 "indicator_data": indicator,
-                "indicator_instance": indicator_registry.get(indicator.indicator_name)(
-                    **indicator.indicator_settings
+                "indicator_instance": indicator_registry.get(indicator.name)(
+                    **indicator.settings
                 ),
             }
 
@@ -75,7 +73,7 @@ class BaseStrategy:
         """
         plugins: dict[int, BasePlugin] = {}
 
-        plugins_models: list[Plugin] | Plugin = get_plugin(profile_id=profile_id)
+        plugins_models: list[PluginModel] | PluginModel = get_plugin(profile_id=profile_id)
 
         if plugins_models is None:
             return {}
@@ -84,8 +82,8 @@ class BaseStrategy:
             plugins_models = [plugins_models]
 
         for plugin in plugins_models:
-            plugins[plugin.plugin_id] = plugin_registry.get(plugin.plugin_name)(
-                **plugin.plugin_settings
+            plugins[plugin.id] = plugin_registry.get(plugin.name)(
+                **plugin.settings
             )
 
         return plugins
@@ -113,10 +111,10 @@ class BaseStrategy:
         :param plugin: The plugin to be added.
         :return: True if the plugin was added successfully, False otherwise.
         """
-        new_plugin: Plugin = create_plugin(
-            profile_id=self.profile.profile_id,
-            plugin_name=plugin.__name__,
-            plugin_settings=plugin.__dict__,
+        new_plugin: PluginModel = create_plugin(
+            profile_id=self.profile.id,
+            name=plugin.__name__,
+            settings=plugin.__dict__,
         )
         if plugin is not None:
             self.plugins[new_plugin.plugin_id] = plugin
@@ -130,7 +128,7 @@ class BaseStrategy:
         :param plugin_id: The ID of the plugin to be removed.
         :return: True if the plugin was removed successfully, False otherwise.
         """
-        if delete_plugin(plugin_id=plugin_id):
+        if delete_plugin(id=plugin_id):
             del self.plugins[plugin_id]
             return True
         return False

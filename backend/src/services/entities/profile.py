@@ -4,9 +4,10 @@ from logging import getLogger
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from backend.src.database import Profile, create_plugin, get_indicator
+from backend.src.database import ProfileModel, create_plugin, get_indicator, IndicatorDTO
 from .strategy import BaseStrategy
 from backend.src.utils.registry import profile_registry
+from ..indicators import BaseIndicator
 
 logger = getLogger("oracle.app")
 
@@ -35,23 +36,23 @@ class Status(Enum):
     UNKNOWN_ERROR = 100
 
 
-class ProfileModel:
-    def __init__(self, profile: Profile):
-        self.profile_id: int = profile.profile_id
-        self.profile_name: str = profile.profile_name
+class Profile:
+    def __init__(self, profile: ProfileModel):
+        self.id: int = profile.id
+        self.profile_name: str = profile.name
         self.status: Status = profile.status
         self.wallet: dict[str, float] = profile.wallet
         self.strategy: BaseStrategy = BaseStrategy(
             profile=self, **profile.strategy_settings
         )
 
-        profile_registry.register(self.profile_id, self)
+        profile_registry.register(self.id, self)
 
         self.scheduler = BackgroundScheduler()
         self._setup_schedular()
         logger.debug(
-            f"Initialized Profile with id: {self.profile_id}; and name: {self.profile_name}",
-            extra={"profile_id": self.profile_id},
+            f"Initialized Profile with id: {self.id}; and name: {self.profile_name}",
+            extra={"profile_id": self.id},
         )
 
     def activate(self, run_on_start: bool = False):
@@ -62,18 +63,20 @@ class ProfileModel:
         if run_on_start:
             self.evaluate()
 
-        self.scheduler.start()
+        if not self.scheduler.running:
+            self.scheduler.start()
         logger.info(
-            f"Activated Profile with id: {self.profile_id}; and name: {self.profile_name}",
-            extra={"profile_id": self.profile_id},
+            f"Activated Profile with id: {self.id}; and name: {self.profile_name}",
+            extra={"profile_id": self.id},
         )
 
     def deactivate(self):
-        self.scheduler.shutdown(wait=True)
+        if self.scheduler.running:
+            self.scheduler.shutdown(wait=True)
         self.status = Status.INACTIVE
         logger.info(
-            f"Deactivated Profile with id: {self.profile_id}; and name: {self.profile_name}",
-            extra={"profile_id": self.profile_id},
+            f"Deactivated Profile with id: {self.id}; and name: {self.profile_name}",
+            extra={"profile_id": self.id},
         )
 
     def evaluate(self):
@@ -83,8 +86,8 @@ class ProfileModel:
         self.strategy.evaluate()
 
         logger.debug(
-            f"Evaluation Finished for Profile with id: {self.profile_id}; and name: {self.profile_name}",
-            extra={"profile_id": self.profile_id},
+            f"Evaluation Finished for Profile with id: {self.id}; and name: {self.profile_name}",
+            extra={"profile_id": self.id},
         )
 
     def backtest(self):
@@ -96,9 +99,9 @@ class ProfileModel:
     def add_plugin(self, plugin: 'BasePlugin', **kwargs):
         # TODO: How to add plugin settings
         new_plugin = create_plugin(
-            profile_id=self.profile_id,
-            plugin_name=plugin.__class__.__name__,
-            plugin_settings=kwargs,
+            profile_id=self.id,
+            name=plugin.__class__.__name__,
+            settings=kwargs,
         )
         self.strategy.add_plugin(new_plugin)
 
@@ -106,22 +109,35 @@ class ProfileModel:
         self.strategy.remove_plugin(plugin_id)
 
     def _setup_schedular(self):
+        indicators: list[IndicatorDTO] | IndicatorDTO | None = get_indicator(profile_id=self.id)
+        if not indicators:
+            logger.info(f"No indicators found for Profile with id: {self.id}", extra={"profile_id": self.id})
+            return
+
+        all_intervals = [
+            indicator.fetch_settings["interval"]
+            for indicator in indicators
+        ]
+
         self.scheduler.add_listener(
             self._on_job_execution, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR
         )
 
-        all_intervals = [
-            indicator.fetch_settings["interval"]
-            for indicator in get_indicator(profile_id=self.profile_id)
-        ]
+        self._update_scheduler(all_intervals)
+
+    def _update_scheduler(self, all_intervals: list[str]):
         smallest_interval: int = min(all_intervals, key=interval_to_minutes.get)
-        self.scheduler.add_job(self.evaluate, "interval", minutes=smallest_interval)
+
+        if hasattr(self, 'job') and self.job:
+            self.job.remove()
+
+        self.job = self.scheduler.add_job(self.evaluate, "interval", minutes=smallest_interval)
 
     def _check_status_valid(self):
         if self.status.value <= Status.UNKNOWN_ERROR.value:
             logger.error(
-                f"Profile with id {self.profile_id} is in error state: {self.status}\nDeactivating Profile",
-                extra={"profile_id": self.profile_id},
+                f"Profile with id {self.id} is in error state: {self.status}\nDeactivating Profile",
+                extra={"profile_id": self.id},
             )
             self.deactivate()
             return False
@@ -131,12 +147,12 @@ class ProfileModel:
     def _on_job_execution(self, event):
         if event.exception:
             logger.error(
-                f"Job {event.job_id} for profile {self.profile_name} with id {self.profile_id} failed to execute.",
+                f"Job {event.job_id} for profile {self.profile_name} with id {self.id} failed to execute. Status: {self.status}",
                 exc_info=True,
-                extra={"profile_id": self.profile_id},
+                extra={"profile_id": self.id},
             )
         else:
             logger.info(
-                f"Job {event.job_id} for profile {self.profile_name} with id {self.profile_id} executed successfully.",
-                extra={"profile_id": self.profile_id},
+                f"Job {event.job_id} for profile {self.profile_name} with id {self.id} executed successfully.",
+                extra={"profile_id": self.id},
             )

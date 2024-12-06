@@ -24,7 +24,8 @@ with base_engine.connect() as conn:
 engine: Engine = create_engine(DATABASE_URL)
 
 
-from .models import Base, Indicator, Order, Plugin, Profile
+from .models import Base, IndicatorModel, OrderModel, PluginModel, ProfileModel
+from .dtos import IndicatorDTO, OrderDTO, PluginDTO, ProfileDTO
 from .operations import (create_indicator, create_order, create_plugin,
                          create_profile, delete_indicator, delete_plugin,
                          delete_profile, get_indicator, get_order, get_plugin,

@@ -8,9 +8,9 @@ def command_add_profile():
     wallet = input("Enter the wallet :")
     settings = input("Enter the settings :")
 
-    result=create_profile(name,{"USD":int(wallet)},{"buy_limit":settings,"sell_limit":10})
-    ind=create_indicator(get_profile(profile_name=name).profile_id,"MA cross",{"long":51,"short":14})
-    print(get_profile(profile_name=name).profile_id)
+    new_profile=create_profile(name,{"USD":int(wallet)},{"buy_limit":settings,"sell_limit":10})
+    ind=create_indicator(new_profile.id, "SimpleMovingAverage", {"long_period":51, "short_period":14}, ticker="BTC")
+    print(get_profile(profile_name=name).id)
 
 
 @command_registry.register_function("update profiles")

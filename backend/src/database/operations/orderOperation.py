@@ -4,16 +4,33 @@ from typing import Type
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
-from backend.src.database import Order, engine
+from backend.src.database import OrderModel, OrderDTO, engine
 
 logger = getLogger("oracle.app")
 
 Session = sessionmaker(bind=engine)
 
 
+def convert_to_dto(order: OrderModel) -> OrderDTO | None:
+    """
+    Helper function to convert an IndicatorModel to an IndicatorDTO.
+    """
+    if not order:
+        return None
+    return OrderDTO(
+        id=order.id,
+        profile_id=order.profile_id,
+        type=order.type,
+        ticker=order.ticker,
+        quantity=order.quantity,
+        price=order.price,
+        timestamp=order.timestamp,
+    )
+
+
 def create_order(
-    profile_id: int, order_type: str, ticker: str, quantity: int, price: float
-) -> Order:
+        profile_id: int, order_type: str, ticker: str, quantity: int, price: float
+) -> OrderDTO:
     """
     Creates a new order for the profile in the database.
 
@@ -28,7 +45,7 @@ def create_order(
     session = Session()
 
     try:
-        new_order = Order(
+        new_order = OrderModel(
             profile_id=profile_id,
             type=order_type,
             ticker=ticker,
@@ -41,7 +58,7 @@ def create_order(
         logger.info(
             f"Order for {ticker} created successfully for profile {profile_id}."
         )
-        return new_order
+        return convert_to_dto(new_order)
 
     except IntegrityError as e:
         logger.error(f"Error creating order for {ticker}: {e}", exc_info=True)
@@ -52,15 +69,15 @@ def create_order(
 
 
 def get_order(
-    order_id: int | None = None,
-    profile_id: int | None = None,
-    ticker: str | None = None,
-    order_type: str | None = None,
-) -> Order | list[Type[Order]] | None:
+        id: int | None = None,
+        profile_id: int | None = None,
+        ticker: str | None = None,
+        order_type: str | None = None,
+) -> OrderDTO | list[OrderDTO] | None:
     """
     Retrieves an order from the database by ID, profile ID, or ticker.
 
-    :param order_id: The ID of the order.
+    :param id: The ID of the order.
     :param profile_id: The ID of the profile.
     :param ticker: The ticker of the asset.
     :param order_type: The type of the order.
@@ -70,16 +87,20 @@ def get_order(
     session = Session()
 
     try:
-        if order_id is not None:
-            return session.get(Order, order_id)
+        if id is not None:
+            return convert_to_dto(session.get(OrderModel, id))
         elif profile_id is not None:
-            return session.query(Order).filter_by(profile_id=profile_id).all()
+            return [convert_to_dto(order) for order in session.query(OrderModel).filter_by(profile_id=profile_id).all()]
         elif ticker is not None:
-            return session.query(Order).filter_by(ticker=ticker).all()
+            return [convert_to_dto(order) for order in session.query(OrderModel).filter_by(ticker=ticker).all()]
         elif order_type is not None:
-            return session.query(Order).filter_by(type=order_type).all()
+            return [convert_to_dto(order) for order in session.query(OrderModel).filter_by(type=order_type).all()]
         else:
-            return session.query(Order).all()
+            return [convert_to_dto(order) for order in session.query(OrderModel).all()]
+
+    except Exception as e:
+        logger.error(f"Error retrieving order: {e}", exc_info=True)
+        return None
 
     finally:
         session.close()

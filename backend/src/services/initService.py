@@ -1,6 +1,6 @@
 from logging import getLogger
 
-from backend.src.services.entities import ProfileModel
+from backend.src.services.entities import Profile
 
 logger = getLogger("oracle.app")
 
@@ -12,6 +12,6 @@ def init_service():
     logger.info("Initializing Service, Loading Profiles...")
 
     for profile in profiles:
-        ProfileModel(profile)
+        Profile(profile)
 
     logger.info("Initialized Service Successfully, all profiles loaded!")

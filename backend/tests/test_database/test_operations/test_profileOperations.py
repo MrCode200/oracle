@@ -32,7 +32,7 @@ def test_crud_operations_profile(cleanup):
 
     profile = select_profile(profile_name=PROFILE_NAME)
     assert profile is not None
-    assert profile.profile_name == PROFILE_NAME
+    assert profile.name == PROFILE_NAME
     assert profile.balance == BALANCE
     assert profile.profile_settings == PROFILE_SETTINGS
     assert profile.wallet == WALLET
