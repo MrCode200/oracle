@@ -12,6 +12,8 @@ class ProfileDTO:
     status: int
     balance: float
     wallet: dict[str, float]
+    paper_balance: float
+    paper_wallet: dict[str, float]
     strategy_settings: dict[str, any]
 
 @dataclass

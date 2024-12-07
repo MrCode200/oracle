@@ -24,6 +24,8 @@ def convert_to_dto(profile: ProfileModel) -> ProfileDTO | None:
         status=profile.status,
         balance=profile.balance,
         wallet=profile.wallet,
+        paper_balance=profile.paper_balance,
+        paper_wallet=profile.paper_wallet,
         strategy_settings=profile.strategy_settings
     )
 
@@ -49,6 +51,8 @@ def create_profile(
             name=name,
             balance=balance,
             wallet=wallet,
+            paper_balance=balance,
+            paper_wallet=wallet,
             strategy_settings=strategy_settings,
         )
 
@@ -105,7 +109,10 @@ def update_profile(
         id: int,
         name: str | None = None,
         status: str | None = None,
+        balance: float | None = None,
         wallet: dict | None = None,
+        paper_balance: float | None = None,
+        paper_wallet: dict | None = None,
         strategy_settings: dict | None = None,
 ) -> bool:
     """
@@ -114,7 +121,10 @@ def update_profile(
     :param id: The ID of the profile to update.
     :param name: The new profile name (optional).
     :param status: The new status of the profile (optional).
+    :param balance: The new balance of the profile (optional).
     :param wallet: The new wallet information for the profile (optional).
+    :param paper_balance: The new paper balance of the profile (optional).
+    :param paper_wallet: The new paper wallet information for the profile (optional).
     :param strategy_settings: The new strategy settings for the profile (optional).
 
     :return: True if the profile was updated successfully, False otherwise.
@@ -133,8 +143,14 @@ def update_profile(
             profile.name = name
         if status is not None:
             profile.status = status
+        if balance:
+            profile.balance = balance
         if wallet:
             profile.wallet = wallet
+        if paper_balance:
+            profile.paper_balance = paper_balance
+        if paper_wallet:
+            profile.paper_wallet = paper_wallet
         if strategy_settings:
             profile.strategy_settings = strategy_settings
 

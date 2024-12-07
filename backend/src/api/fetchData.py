@@ -6,7 +6,7 @@ from yfinance import Ticker  # type: ignore
 
 from backend.src.exceptions import DataFetchError
 
-from .utils import compress_data, determine_interval  # type: ignore
+from backend.src.api.utils import compress_data, determine_interval  # type: ignore
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 
@@ -20,7 +20,8 @@ def fetch_info_data(ticker: str) -> Optional[dict]:  # type: ignore
     """
     try:
         ticker_obj = Ticker(ticker)
-        if ticker_obj.info is None or ticker_obj:
+        info = ticker_obj.info
+        if not info:
             logger.warning(
                 f"Failed to fetch info data, probably due to invalid ticker: {ticker}"
             )
@@ -85,3 +86,7 @@ def fetch_historical_data(  # type: ignore
         if not isinstance(e, DataFetchError):
             logger.error(f"Error fetching history data: {e}")
             raise DataFetchError(f"Failed to fetch history data: {e}")
+
+
+if __name__ == '__main__':
+    print(type(fetch_info_data("TSLA")['currentPrice']))

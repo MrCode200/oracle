@@ -4,10 +4,12 @@ from logging import getLogger
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from backend.src.database import ProfileModel, create_plugin, get_indicator, IndicatorDTO, ProfileDTO, PluginDTO
+from backend.src.database import ProfileModel, create_plugin, get_indicator, IndicatorDTO, ProfileDTO, PluginDTO, \
+    update_profile
 from .strategy import BaseStrategy
 from backend.src.utils.registry import profile_registry
 from ..indicators import BaseIndicator
+from ...api import fetch_info_data
 
 logger = getLogger("oracle.app")
 
@@ -43,6 +45,8 @@ class Profile:
         self.status: Status = Status(profile.status)
         self.balance: float = profile.balance
         self.wallet: dict[str, float] = profile.wallet
+        self.paper_balance: float = profile.paper_balance
+        self.paper_wallet: dict[str, float] = profile.paper_wallet
         self.strategy: BaseStrategy = BaseStrategy(
             profile=self, **profile.strategy_settings
         )
@@ -96,6 +100,42 @@ class Profile:
             return
 
         return self.strategy.backtest()
+
+    def trade_agent(self, orders: dict[str, float]):
+        if not self._check_status_valid():
+            return
+
+        if self.status == Status.PAPER_TRADING:
+            self._paper_trade_agent(orders)
+
+    def _paper_trade_agent(self, orders: dict[str, float]):
+        for ticker, money_allocation in orders.items():
+            ticker_current_price = fetch_info_data(ticker)["currentPrice"]
+
+            if money_allocation < 0:
+                num_of_assets: float = self.paper_wallet[ticker]
+
+                self.paper_balance += num_of_assets * ticker_current_price
+                self.paper_wallet[ticker] = 0
+
+                logger.info(f"Profile with id {self.id} Sold {num_of_assets} of {ticker} at {ticker_current_price}",
+                            extra={"profile_id": self.id, "ticker": ticker})
+
+            elif money_allocation > 0:
+                num_of_shares: float = (self.paper_balance * money_allocation) / ticker_current_price
+
+                self.paper_wallet[ticker] += num_of_shares
+                self.paper_balance -= (self.paper_balance * money_allocation)
+
+                logger.info(
+                    f"Profile with id {self.id} Bought {num_of_shares} of {ticker} at {ticker_current_price}",
+                    extra={"profile_id": self.id, "ticker": ticker})
+
+        if not update_profile(self.id, paper_balance=self.paper_balance, paper_wallet=self.paper_wallet):
+            logger.error(
+                f"Failed to update Profile with id: {self.id}; and name: {self.profile_name}",
+                extra={"profile_id": self.id},
+            )
 
     def add_indicator(self, indicator: 'BaseIndicator', weight: float, ticker: str, interval: str):
         self.strategy.add_indicator(

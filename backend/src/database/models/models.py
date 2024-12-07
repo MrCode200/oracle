@@ -12,6 +12,8 @@ class ProfileModel(Base):  # type: ignore
     status = Column(Integer, default=0)
     balance = Column(Float)
     wallet = Column(JSON)
+    paper_balance = Column(Float)
+    paper_wallet = Column(JSON)
     strategy_settings = Column(JSON)
 
 

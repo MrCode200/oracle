@@ -1,8 +1,5 @@
 import pandas as pd
 
-from backend.src.api import fetch_historical_data
-
-
 def determine_interval(interval: str) -> str:
     """
     Determines the valid interval for data processing.
@@ -76,4 +73,3 @@ def compress_data(data_frame: pd.DataFrame, interval: str) -> pd.DataFrame:
         )
 
     return new_data_frame
-data_frame =fetch_historical_data("BTC-USD", '1y', "1h")
