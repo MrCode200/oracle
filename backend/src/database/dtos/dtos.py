@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from backend.src.services.indicators import BaseIndicator
+from backend.src.services.plugin import BasePlugin
 from backend.src.utils.registry import indicator_registry, plugin_registry
 
 
@@ -23,7 +25,7 @@ class IndicatorDTO:
     settings: dict[str, any]
 
     def __post_init__(self):
-        self.instance: 'BaseIndicator' = indicator_registry.get(self.name)(**self.settings)
+        self.instance: BaseIndicator = indicator_registry.get(self.name)(**self.settings)
 
 @dataclass
 class PluginDTO:
@@ -33,7 +35,7 @@ class PluginDTO:
     settings: dict[str, any]
 
     def __post_init__(self):
-        self.instance: 'BasePlugin' = plugin_registry.get(self.name)(**self.settings)
+        self.instance: BasePlugin = plugin_registry.get(self.name)(**self.settings)
 
 @dataclass
 class OrderDTO:
