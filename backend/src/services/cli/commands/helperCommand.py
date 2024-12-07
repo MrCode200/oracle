@@ -1,4 +1,5 @@
 from backend.src.database import get_profile
+from backend.src.services.entities import Status
 from backend.src.utils.registry import command_registry, indicator_registry
 
 
@@ -24,7 +25,7 @@ def command_list_profiles():
         return
     print("Available profiles:")
     for profile in profiles:
-        print(f"{profile.id}: {profile.name} | Status: {profile.status}")
+        print(f"ID: {profile.id}; Name: {profile.name} | Status: {Status(profile.status)}")
 @command_registry.register_function("open profile")
 def command_open_profile():
     name = input("enter the name :")

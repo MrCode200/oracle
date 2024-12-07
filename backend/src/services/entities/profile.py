@@ -8,8 +8,8 @@ from backend.src.database import ProfileModel, create_plugin, get_indicator, Ind
     update_profile
 from .strategy import BaseStrategy
 from backend.src.utils.registry import profile_registry
-from ..indicators import BaseIndicator
-from ...api import fetch_info_data
+from backend.src.services.indicators import BaseIndicator
+from backend.src.api import fetch_info_data
 
 logger = getLogger("oracle.app")
 
@@ -31,17 +31,17 @@ interval_to_minutes = {
 
 
 class Status(Enum):
-    INACTIVE = 0
-    ACTIVE = 1
-    PAPER_TRADING = 2
-    GRADIANT_EXIT = 3
+    INACTIVE: int = 0
+    ACTIVE: int = 1
+    PAPER_TRADING: int = 2
+    GRADIANT_EXIT: int = 3
     UNKNOWN_ERROR = 100
 
 
 class Profile:
     def __init__(self, profile: ProfileDTO):
         self.id: int = profile.id
-        self.profile_name: str = profile.name
+        self.name: str = profile.name
         self.status: Status = Status(profile.status)
         self.balance: float = profile.balance
         self.wallet: dict[str, float] = profile.wallet
@@ -51,12 +51,12 @@ class Profile:
             profile=self, **profile.strategy_settings
         )
 
-        profile_registry.register(self.id, self)
+        profile_registry.register([self.id, self.name], self)
 
         self.scheduler = BackgroundScheduler()
         self._setup_schedular()
         logger.debug(
-            f"Initialized Profile with id: {self.id}; and name: {self.profile_name}",
+            f"Initialized Profile with id: {self.id}; and name: {self.name}",
             extra={"profile_id": self.id},
         )
 
@@ -70,19 +70,41 @@ class Profile:
 
         if not self.scheduler.running:
             self.scheduler.start()
-        logger.info(
-            f"Activated Profile with id: {self.id}; and name: {self.profile_name}",
-            extra={"profile_id": self.id},
-        )
+
+        if update_profile(self.id, status=self.status.value):
+            logger.info(
+                f"Activated Profile with id: {self.id}; and name: {self.name}",
+                extra={"profile_id": self.id},
+            )
+        else:
+            logger.error(
+                f"Failed to activate Profile with id: {self.id}; and name: {self.name}. Deactivating Profile",
+                extra={"profile_id": self.id},
+            )
+            self.deactivate()
 
     def deactivate(self):
         if self.scheduler.running:
             self.scheduler.shutdown(wait=True)
+
         self.status = Status.INACTIVE
         logger.info(
-            f"Deactivated Profile with id: {self.id}; and name: {self.profile_name}",
+            f"Deactivated Profile with id: {self.id}; and name: {self.name}",
             extra={"profile_id": self.id},
         )
+
+        if update_profile(self.id, status=self.status.value):
+            logger.info(
+                f"Deactivated Profile with id: {self.id}; and name: {self.name}",
+                extra={"profile_id": self.id},
+            )
+        else:
+            logger.error(
+                f"Failed to deactivate Profile with id: {self.id}; and name: {self.name}.\n"
+                f"Due to safety for your money the Profile will stay locally deactivated. Pls note that on a restart the Profile will be Active.",
+                extra={"profile_id": self.id},
+            )
+            # TODO: add status not sync to Status
 
     def evaluate(self):
         if not self._check_status_valid():
@@ -91,7 +113,7 @@ class Profile:
         self.strategy.evaluate()
 
         logger.debug(
-            f"Evaluation Finished for Profile with id: {self.id}; and name: {self.profile_name}",
+            f"Evaluation Finished for Profile with id: {self.id}; and name: {self.name}",
             extra={"profile_id": self.id},
         )
 
@@ -121,7 +143,10 @@ class Profile:
                 logger.info(f"Profile with id {self.id} Sold {num_of_assets} of {ticker} at {ticker_current_price}",
                             extra={"profile_id": self.id, "ticker": ticker})
 
-            elif money_allocation > 0:
+        for ticker, money_allocation in orders.items():
+            ticker_current_price = fetch_info_data(ticker)["currentPrice"]
+
+            if money_allocation > 0:
                 num_of_shares: float = (self.paper_balance * money_allocation) / ticker_current_price
 
                 self.paper_wallet[ticker] += num_of_shares
@@ -133,7 +158,7 @@ class Profile:
 
         if not update_profile(self.id, paper_balance=self.paper_balance, paper_wallet=self.paper_wallet):
             logger.error(
-                f"Failed to update Profile with id: {self.id}; and name: {self.profile_name}",
+                f"Failed to update Profile with id: {self.id}; and name: {self.name}",
                 extra={"profile_id": self.id},
             )
 
@@ -182,7 +207,7 @@ class Profile:
         self.job = self.scheduler.add_job(self.evaluate, "interval", minutes=smallest_interval)
 
     def _check_status_valid(self):
-        if self.status.value <= Status.UNKNOWN_ERROR.value:
+        if self.status.value >= Status.UNKNOWN_ERROR.value:
             logger.error(
                 f"Profile with id {self.id} is in error state: {self.status}\nDeactivating Profile",
                 extra={"profile_id": self.id},
@@ -195,12 +220,12 @@ class Profile:
     def _on_job_execution(self, event):
         if event.exception:
             logger.error(
-                f"Job {event.job_id} for profile {self.profile_name} with id {self.id} failed to execute. Status: {self.status}",
+                f"Job {event.job_id} for profile {self.name} with id {self.id} failed to execute. Status: {self.status}",
                 exc_info=True,
                 extra={"profile_id": self.id},
             )
         else:
             logger.info(
-                f"Job {event.job_id} for profile {self.profile_name} with id {self.id} executed successfully.",
+                f"Job {event.job_id} for profile {self.name} with id {self.id} executed successfully.",
                 extra={"profile_id": self.id},
             )

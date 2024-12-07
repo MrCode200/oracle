@@ -11,5 +11,9 @@
     "password": "root",
     "database": "oracle",
     "auto_rollback": true
+  },
+  "PROFILE_CONFIG": {
+    "continue_status": false,
+    "sell_on_exit": true
   }
 }

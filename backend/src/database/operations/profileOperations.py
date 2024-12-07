@@ -31,7 +31,7 @@ def convert_to_dto(profile: ProfileModel) -> ProfileDTO | None:
 
 
 def create_profile(
-        name: str, balance: float, wallet: dict, strategy_settings: dict
+        name: str, balance: float, wallet: dict, paper_balance: float, strategy_settings: dict
 ) -> ProfileDTO | None:
     """
     Creates a new profile in the database.
@@ -51,7 +51,7 @@ def create_profile(
             name=name,
             balance=balance,
             wallet=wallet,
-            paper_balance=balance,
+            paper_balance=paper_balance,
             paper_wallet=wallet,
             strategy_settings=strategy_settings,
         )

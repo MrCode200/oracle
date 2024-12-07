@@ -10,7 +10,7 @@ def command_add_profile():
     wallet = input("Enter the wallet :")
     settings = input("Enter the settings :")
 
-    new_profile_dot: ProfileDTO = create_profile(name, {"USD": int(wallet)}, {"buy_limit": settings, "sell_limit": 10})
+    new_profile_dot: ProfileDTO = create_profile(name, 10, {"USD": int(wallet)}, 100, {"buy_limit": settings, "sell_limit": 10})
     new_profile: Profile = Profile(new_profile_dot)
     new_indicator = SimpleMovingAverage()
     new_profile.add_indicator(
@@ -41,4 +41,4 @@ def command_delete_profile():
     if check.lower() != "y":
         return
     print("Deleting profile...")
-    delete_profile(profile_name=profile_name)
+    delete_profile(name=profile_name)

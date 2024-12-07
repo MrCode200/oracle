@@ -27,6 +27,7 @@ class IndicatorModel(Base):
     interval = Column(String(6))
     settings = Column(JSON)
 
+
 class PluginModel(Base):
     __tablename__ = "plugins"
     id = Column(Integer, primary_key=True, autoincrement=True)
