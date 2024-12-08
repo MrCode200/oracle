@@ -56,7 +56,7 @@ class Profile:
         self.scheduler = BackgroundScheduler()
         self._setup_schedular()
         logger.debug(
-            f"Initialized Profile with id: {self.id}; and name: {self.name}",
+            f"Initialized Profile with ID {self.id} and name: {self.name}",
             extra={"profile_id": self.id},
         )
 
@@ -73,12 +73,12 @@ class Profile:
 
         if update_profile(self.id, status=self.status.value):
             logger.info(
-                f"Activated Profile with id: {self.id}; and name: {self.name}",
+                f"Activated Profile with ID {self.id} and name: {self.name}",
                 extra={"profile_id": self.id},
             )
         else:
             logger.error(
-                f"Failed to activate Profile with id: {self.id}; and name: {self.name}. Deactivating Profile",
+                f"Failed to activate Profile with ID {self.id} and name: {self.name}. Deactivating Profile",
                 extra={"profile_id": self.id},
             )
             self.deactivate()
@@ -89,19 +89,19 @@ class Profile:
 
         self.status = Status.INACTIVE
         logger.info(
-            f"Deactivated Profile with id: {self.id}; and name: {self.name}",
+            f"Deactivated Profile with ID {self.id} and name: {self.name}",
             extra={"profile_id": self.id},
         )
 
         if update_profile(self.id, status=self.status.value):
             logger.info(
-                f"Deactivated Profile with id: {self.id}; and name: {self.name}",
+                f"Deactivated Profile with ID {self.id} and name: {self.name}",
                 extra={"profile_id": self.id},
             )
         else:
             logger.error(
-                f"Failed to deactivate Profile with id: {self.id}; and name: {self.name}.\n"
-                f"Due to safety for your money the Profile will stay locally deactivated. Pls note that on a restart the Profile will be Active.",
+                f"Failed to deactivate Profile with ID {self.id} and name: {self.name}.\n"
+                f"Due to Risk Reasons Profile will stay locally deactivated. Pls note that on a restart the Profile will be Active.",
                 extra={"profile_id": self.id},
             )
             # TODO: add status not sync to Status
@@ -110,18 +110,24 @@ class Profile:
         if not self._check_status_valid():
             return
 
+        # TODO: get value and call agent
         self.strategy.evaluate()
 
-        logger.debug(
-            f"Evaluation Finished for Profile with id: {self.id}; and name: {self.name}",
+        logger.info(
+            f"Evaluation Finished for Profile with ID {self.id} and name: {self.name}",
             extra={"profile_id": self.id},
         )
 
-    def backtest(self):
+    def backtest(self) -> dict[str, float] | None:
         if not self._check_status_valid():
             return
 
-        return self.strategy.backtest()
+        backtest_result = self.strategy.backtest()
+
+        logger.info(
+            f"Backtesting for Profile with ID {self.id} and name: {self.name}",
+            extra={"profile_id": self.id}, )
+        return backtest_result
 
     def trade_agent(self, orders: dict[str, float]):
         if not self._check_status_valid():
@@ -186,6 +192,11 @@ class Profile:
             self._on_job_execution, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR
         )
 
+        logger.info(
+            f"Initialized Scheduler for Profile with ID {self.id} and name: {self.name}",
+            extra={"profile_id": self.id},
+        )
+
         self._update_scheduler()
 
     def _update_scheduler(self):
@@ -206,6 +217,11 @@ class Profile:
 
         self.job = self.scheduler.add_job(self.evaluate, "interval", minutes=smallest_interval)
 
+        logger.info(
+            f"Updated Scheduler minutes for Profile with ID {self.id} and name: {self.name}",
+            extra={"profile_id": self.id},
+        )
+
     def _check_status_valid(self):
         if self.status.value >= Status.UNKNOWN_ERROR.value:
             logger.error(
@@ -225,7 +241,7 @@ class Profile:
                 extra={"profile_id": self.id},
             )
         else:
-            logger.info(
+            logger.debug(
                 f"Job {event.job_id} for profile {self.name} with id {self.id} executed successfully.",
                 extra={"profile_id": self.id},
             )

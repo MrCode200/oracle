@@ -35,15 +35,17 @@ def fetch_info_data(ticker: str) -> Optional[dict]:  # type: ignore
     except Exception as e:
         if not isinstance(e, DataFetchError):
             logger.error(f"Error fetching info data: {e}")
-            raise DataFetchError(f"Failed to fetch info data: {e}")
+            raise DataFetchError(
+                message=f"Error fetching info data. Exception {e}", ticker=ticker
+            )
 
 
 def fetch_historical_data(  # type: ignore
-    ticker: str,
-    period: str = "1m",
-    interval: str = "1d",
-    start: str | None = None,
-    end: str | None = None,
+        ticker: str,
+        period: str = "1m",
+        interval: str = "1d",
+        start: str | None = None,
+        end: str | None = None,
 ) -> DataFrame:
     """
     Fetch historical market chart data from Yahoo Finance using yfinance.
@@ -63,18 +65,17 @@ def fetch_historical_data(  # type: ignore
             period=period, interval=determine_interval(interval), start=start, end=end
         )
 
-        df = compress_data(df, interval)
-
         if not df.empty:
-            logger.info(f"Fetched Data: {ticker = }; {period = }; {interval = };")
+            logger.info(f"Fetched Data: {ticker = }; {period = }; {interval = };", extra={"ticker": ticker})
+            df = compress_data(df, interval)
             return df
         else:
             logger.error(
-                "No data fetched for the given parameters, try using max for period",
+                f"Failed to fetch data. Data Frame is empty. Parameters: {ticker = }; {period = }; {interval = }; {start = }; {end = };",
                 exc_info=True,
             )
             raise DataFetchError(
-                message="Data Frame is empty. No data fetched for the given parameters",
+                message="Failed to fetch data. Data Frame is empty. No data fetched for the given parameters",
                 ticker=ticker,
                 period=period,
                 interval=interval,
@@ -85,8 +86,11 @@ def fetch_historical_data(  # type: ignore
     except Exception as e:
         if not isinstance(e, DataFetchError):
             logger.error(f"Error fetching history data: {e}")
-            raise DataFetchError(f"Failed to fetch history data: {e}")
-
-
-if __name__ == '__main__':
-    print(type(fetch_info_data("TSLA")['currentPrice']))
+            DataFetchError(
+                message=f"Failed to fetch data. Unknown error occurred. {e}",
+                ticker=ticker,
+                period=period,
+                interval=interval,
+                start=start,
+                end=end,
+            )

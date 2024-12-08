@@ -39,6 +39,7 @@ def create_profile(
     :param name: The name of the profile.
     :param balance: The balance of the profile.
     :param wallet: The wallet information for the profile.
+    :param paper_balance: The paper balance of the profile.
     :param strategy_settings: The strategy settings for the profile.
 
     :return: The newly created profile object.
@@ -59,11 +60,14 @@ def create_profile(
         session.add(new_profile)
         session.commit()
 
-        logger.info(f"Profile {name} created successfully.")
+        logger.info(
+            f"Profile {new_profile.id=}; {name=}; {balance=}; {wallet=}; {paper_balance=}; {strategy_settings=}; created successfully.")
         return convert_to_dto(new_profile)
 
     except IntegrityError as e:
-        logger.error(f"Error creating profile {name}: {e}", exc_info=True)
+        logger.error(
+            f"Error creating profile {new_profile.id=}; {name=}; {balance=}; {wallet=}; {paper_balance=}; {strategy_settings=}: {e}",
+            exc_info=True)
         session.rollback()
         return None
 
@@ -87,14 +91,16 @@ def get_profile(
 
     try:
         if id is not None:
-            profile: Type[ProfileModel] | None = session.get(ProfileModel, id)
-            return convert_to_dto(profile)
+            logger.info(f"Profile with ID {id} retrieved.")
+            return convert_to_dto(session.get(ProfileModel, id))
 
         elif name is not None:
             profile: Type[ProfileModel] | None = session.query(ProfileModel).filter_by(name=name).first()
+            logger.info(f"Profile where {name=} retrieved.")
             return convert_to_dto(profile)
         else:
             profiles: list[Type[ProfileModel]] = session.query(ProfileModel).all()
+            logger.info(f"All Profiles retrieved.")
             return [convert_to_dto(profile) for profile in profiles]
 
     except Exception as e:
@@ -155,11 +161,12 @@ def update_profile(
             profile.strategy_settings = strategy_settings
 
         session.commit()
-        logger.info(f"Profile {id} updated successfully.")
+        logger.info(
+            f"Profile with ID {id} updated {name=}; {status=}; {balance=}; {wallet=}; {paper_balance=}; {paper_wallet=}; {strategy_settings=}; successfully.")
         return True
 
     except Exception as e:
-        logger.error(f"Error updating profile with ID {id}: {e}", exc_info=True)
+        logger.error(f"Error updating {name=}; {status=}; {balance=}; {wallet=}; {paper_balance=}; {paper_wallet=}; {strategy_settings=}; for profile with ID {id}: {e}", exc_info=True)
         session.rollback()
         return False
 

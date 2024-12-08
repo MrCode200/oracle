@@ -49,12 +49,12 @@ def create_plugin(
         session.commit()
 
         logger.info(
-            f"Plugin {name} created successfully for profile {profile_id}."
+            f"Plugin {name=}; {settings=}; created successfully for {profile_id=}."
         )
         return convert_to_dto(new_plugin)
 
     except IntegrityError as e:
-        logger.error(f"Error creating plugin {name}: {e}", exc_info=True)
+        logger.error(f"Error creating plugin {name=}; {settings=}; for {profile_id=}: {e}", exc_info=True)
         session.rollback()
         return None
 
@@ -80,17 +80,21 @@ def get_plugin(
 
     try:
         if id is not None:
+            logger.info(f"Plugin with ID {id} retrieved.")
             return convert_to_dto(session.get(PluginModel, id))
         elif profile_id is not None:
-            return [convert_to_dto(plugin) for plugin in
+            plugin_dtos: list[PluginDTO] = [convert_to_dto(plugin) for plugin in
                     session.query(PluginModel).filter_by(profile_id=profile_id).all()]
         elif name is not None:
-            return convert_to_dto(session.query(PluginModel).filter_by(name=name).first())
+            plugin_dtos: list[PluginDTO] = convert_to_dto(session.query(PluginModel).filter_by(name=name).first())
         else:
-            return [convert_to_dto(plugin) for plugin in session.query(PluginModel).all()]
+            plugin_dtos: list[PluginDTO] = [convert_to_dto(plugin) for plugin in session.query(PluginModel).all()]
+
+        logger.info(f"{len(plugin_dtos)} Plugins where {id=}; {profile_id=}; {name=} retrieved.")
+        return plugin_dtos
 
     except Exception as e:
-        logger.error(f"Error retrieving plugin: {e}", exc_info=True)
+        logger.error(f"Error retrieving plugin(s) where {id=}; {profile_id=}; {name=}: {e}", exc_info=True)
         return None
 
     finally:
@@ -98,14 +102,14 @@ def get_plugin(
 
 
 def update_plugin(
-        id: int, name: str | None = None, plugin_settings: dict | None = None
+        id: int, name: str | None = None, settings: dict | None = None
 ) -> bool:
     """
     Updates a plugin in the database.
 
     :param id: The ID of the plugin to update.
     :param name: The new plugin name (optional).
-    :param plugin_settings: The new plugin settings (optional).
+    :param settings: The new plugin settings (optional).
 
     :return: True if the plugin was updated successfully, False otherwise.
     """
@@ -119,15 +123,15 @@ def update_plugin(
 
         if name:
             plugin.name = name
-        if plugin_settings:
-            plugin.plugin_settings = plugin_settings
+        if settings:
+            plugin.plugin_settings = settings
 
         session.commit()
-        logger.info(f"Plugin {id} updated successfully.")
+        logger.info(f"Plugin with ID {id} updated {name=}; {settings=}; successfully.")
         return True
 
     except Exception as e:
-        logger.error(f"Error updating plugin with ID {id}: {e}", exc_info=True)
+        logger.error(f"Error updating {name=}; {settings=} for plugin with ID {id}: {e}", exc_info=True)
         session.rollback()
         return False
 
@@ -150,7 +154,7 @@ def delete_plugin(id: int) -> bool:
         if plugin:
             session.delete(plugin)
             session.commit()
-            logger.info(f"Plugin {id} deleted successfully.")
+            logger.info(f"Plugin with ID {id} deleted successfully.")
             return True
         else:
             logger.warning(f"Plugin with ID {id} not found.")

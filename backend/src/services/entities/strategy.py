@@ -9,6 +9,10 @@ from backend.src.services.indicators import BaseIndicator
 from backend.src.services.plugin import BasePlugin
 from backend.src.utils.registry import indicator_registry, plugin_registry
 
+import logging
+
+logger = logging.getLogger("oracle.app")
+
 
 class BaseStrategy:
     def __init__(
@@ -45,13 +49,23 @@ class BaseStrategy:
         )
         if new_indicator is not None:
             self.indicators.append(new_indicator)
+            logger.info(f"Added indicator with ID {new_indicator.id} to profile with ID {self.profile.id}.",
+                        extra={"profile_id": self.profile.id})
             return True
+        logger.error(f"Failed to add indicator to profile with ID {self.profile.id}.",
+                     extra={"profile_id": self.profile.id})
         return False
 
     def remove_indicator(self, indicator_dto: IndicatorDTO) -> bool:
         if delete_indicator(id=indicator_dto.id):
             self.indicators.remove(indicator_dto)
+
+            logger.info(f"Removed indicator with ID {indicator_dto.id} from profile with ID {self.profile.id}.",
+                        extra={"profile_id": self.profile.id})
             return True
+
+        logger.error(f"Failed to remove indicator with ID {indicator_dto.id} from profile with ID {self.profile.id}.",
+                     extra={"profile_id": self.profile.id})
         return False
 
     def add_plugin(self, plugin: BasePlugin) -> bool:
@@ -66,9 +80,16 @@ class BaseStrategy:
             name=plugin.__name__,
             settings=plugin.__dict__,
         )
+
         if new_plugin is not None:
             self.plugins.append(new_plugin)
+
+            logger.info(f"Added plugin with ID {new_plugin.id} to profile with ID {self.profile.id}.",
+                        extra={"profile_id": self.profile.id})
             return True
+
+        logger.error(f"Failed to add plugin to profile with ID {self.profile.id}.",
+                     extra={"profile_id": self.profile.id})
         return False
 
     def remove_plugin(self, plugin_dto: PluginDTO) -> bool:
@@ -80,5 +101,11 @@ class BaseStrategy:
         """
         if delete_plugin(id=plugin_dto.id):
             self.plugins.remove(plugin_dto)
+
+            logger.info(f"Removed plugin with ID {plugin_dto.id} from profile with ID {self.profile.id}.",
+                        extra={"profile_id": self.profile.id})
             return True
+
+        logger.error(f"Failed to remove plugin with ID {plugin_dto.id} from profile with ID {self.profile.id}.",
+                     extra={"profile_id": self.profile.id})
         return False

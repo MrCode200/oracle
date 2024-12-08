@@ -100,8 +100,7 @@ class SimpleMovingAverage(BaseIndicator):
             self.crossover_weight_impact,
         )
 
-        logger.info(
-            f"SMA evaluation result: {crossover_signal}", extra={"indicator": "SMA"}
-        )
+        logger.info(f"Evaluated a confidence of {crossover_signal}", extra={"indicator": self.__class__.__name__})
+
 
         return crossover_signal

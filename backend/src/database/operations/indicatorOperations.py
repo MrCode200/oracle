@@ -40,6 +40,9 @@ def create_indicator(
 
     :param profile_id: The ID of the profile.
     :param name: The name of the indicator.
+    :param weight: The weight of the indicator.
+    :param ticker: The ticker of the indicator.
+    :param interval: The interval of the indicator.
     :param settings: The settings of the indicator.
 
     :return: The newly created Indicator object.
@@ -60,6 +63,10 @@ def create_indicator(
         session.commit()
         session.refresh(new_indicator)
 
+        logger.info(
+            f"Indicator with {profile_id=}; {name=}; {weight=}; {ticker=}; {interval=}; {settings=} created successfully."
+        )
+
         return IndicatorDTO(
             id=new_indicator.id,
             profile_id=new_indicator.profile_id,
@@ -71,7 +78,7 @@ def create_indicator(
         )
 
     except IntegrityError as e:
-        logger.error(f"Error adding Indicator {name}: {e}", exc_info=True)
+        logger.error(f"Error creating Indicator {name}: {e}", exc_info=True)
         session.rollback()
 
     finally:
@@ -94,6 +101,7 @@ def get_indicator(
 
     try:
         if ticker and profile_id:
+            logger.info(f"Indicators with {profile_id=}; {ticker=} retrieved.")
             return [
                 convert_to_dto(indicator) for indicator in session.query(IndicatorModel).filter_by(
                 profile_id=profile_id, ticker=ticker
@@ -103,19 +111,25 @@ def get_indicator(
         if id:
             indicator: IndicatorModel = session.get(IndicatorModel, id)
             if indicator:
+                logger.info(f"Indicator with ID {id} retrieved.")
                 return convert_to_dto(indicator)
             else:
                 logger.error(f"Indicator with ID {id} not found.")
                 return None
 
-        if id:
-            return convert_to_dto(session.get(IndicatorModel, id))
+        if profile_id:
+            logger.info(f"Indicators with {profile_id=} retrieved.")
+            return [
+                convert_to_dto(indicator) for indicator in session.query(IndicatorModel).filter_by(
+                profile_id=profile_id
+                ).all()
+            ]
 
+        logger.info("All indicators retrieved.")
         return [convert_to_dto(indicator) for indicator in session.query(IndicatorModel).all()]
 
     except Exception as e:
-        logger.error(f"Error getting indicator: {e}", exc_info=True)
-        raise
+        logger.error(f"Error retrieving indicator: {e}", exc_info=True)
         return None
 
     finally:
@@ -156,14 +170,14 @@ def update_indicator(
 
             session.add(indicator)
             session.commit()
-            logger.info(f"Indicator {id} updated successfully.")
+            logger.info(f"Indicator with ID {id} updated {weight=}; {ticker=}; {interval=}; {settings=}; successfully.")
             return True
         else:
             logger.warning(f"Indicator with ID {id} not found.")
             return False
 
     except Exception as e:
-        logger.error(f"Error updating indicator with ID {id}: {e}", exc_info=True)
+        logger.error(f"Error updating {weight}; {ticker}; {interval}; {settings}; for indicator with ID {id}: {e}", exc_info=True)
         session.rollback()
         return False
 
@@ -186,7 +200,7 @@ def delete_indicator(id: int) -> bool:
         if indicator:
             session.delete(indicator)
             session.commit()
-            logger.info(f"Indicator {id} deleted successfully.")
+            logger.info(f"Indicator with ID {id} deleted successfully.")
             return True
         else:
             logger.warning(f"Indicator with ID {id} not found.")

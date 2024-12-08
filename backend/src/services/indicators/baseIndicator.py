@@ -138,12 +138,12 @@ class BaseIndicator(ABC):
             shares = balance / latest_price
             balance = 0
             logger.debug(
-                "Executed Buy on signal `{}` and shares `{}` with a price of `{}`; date: `{}`".format(trade_signal, shares, latest_price, date),
+                "Indicator_Backtest: Executed Buy on signal `{}` and shares `{}` with a price of `{}`; date: `{}`".format(trade_signal, shares, latest_price, date),
                 extra={"strategy": indicator_name})
 
         elif trade_signal <= sell_limit and shares > 0:  # Sell
             logger.debug(
-                "Executed Sell on signal `{}` and shares `{}` with a price of `{}`; date: `{}`".format(trade_signal, shares, latest_price, date),
+                "Indicator_Backtest: Executed Sell on signal `{}` and shares `{}` with a price of `{}`; date: `{}`".format(trade_signal, shares, latest_price, date),
                 extra={"strategy": indicator_name})
             balance += shares * latest_price
             shares = 0
@@ -155,7 +155,7 @@ class BaseIndicator(ABC):
             base_balance = total_net_worth
 
             logger.debug(
-                f"Appended ROI, Total Net Worth:{total_net_worth}; ROI: {net_worth_history[-1]}",
+                f"Indicator_Backtest: Appended ROI, Total Net Worth:{total_net_worth}; ROI: {net_worth_history[-1]}",
                 extra={"strategy": indicator_name})
 
         return base_balance, balance, shares

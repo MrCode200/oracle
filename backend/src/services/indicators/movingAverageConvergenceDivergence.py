@@ -145,6 +145,6 @@ class MovingAverageConvergenceDivergence(BaseIndicator):
             confidence = -(1 - (1 - weight) * self.weight_impact)
 
         # Log the MACD evaluation result for debugging and analysis purposes.
-        logger.info(f"MACD evaluation result: {confidence}", extra={"indicator": "MACD"})
+        logger.info(f"Evaluated a confidence of {confidence}", extra={"indicator": self.__class__.__name__})
 
         return confidence

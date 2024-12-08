@@ -52,18 +52,18 @@ class Registry:
 
         for key in keys:
             if key in self._REGISTRY:
-                self.logger.debug(f"{self.registry_name}: {key} already registered.") if self.log else None
+                self.logger.debug(f"{self.registry_name}: `{key}` already registered.") if self.log else None
 
                 if self.raise_exception:
                     raise DuplicateError(
-                        f"{self.registry_name}: {key} already registered.",
+                        f"{self.registry_name}: `{key}` already registered.",
                         registry_name=self.registry_name,
                         duplicate_item=key,
                     )
                 return
 
             self._REGISTRY[key] = value
-            self.logger.debug(f"{self.registry_name}: Registered {key} to registry") if self.log else None
+            self.logger.debug(f"{self.registry_name}: Registered `{key}` to registry") if self.log else None
 
     def register_function(self, keys: Union[Hashable, list[Hashable]]) -> Any:
         """
@@ -117,12 +117,12 @@ class Registry:
             return self._REGISTRY
 
         if key not in self._REGISTRY:
-            self.logger.warning(f"{self.registry_name}: {key} not registered.") if self.log else None
+            self.logger.warning(f"{self.registry_name}: `{key}` not registered.") if self.log else None
 
 
             if self.raise_exception:
                 raise MissingKeyError(
-                    f"{self.registry_name}: {key} not registered.",
+                    f"{self.registry_name}: `{key}` not registered.",
                     registry_name=self.registry_name,
                     missing_key=key,
                 )
@@ -144,11 +144,11 @@ class Registry:
 
         if value is None:
             if key not in self._REGISTRY:
-                self.logger.warning(f"{self.registry_name}: {key} not registered.") if self.log else None
+                self.logger.warning(f"{self.registry_name}: `{key}` not registered.") if self.log else None
 
                 if self.raise_exception:
                     raise MissingKeyError(
-                        f"{self.registry_name}: {key} not registered.",
+                        f"{self.registry_name}: `{key}` not registered.",
                         registry_name=self.registry_name,
                         missing_key=key,
                     )
@@ -156,22 +156,22 @@ class Registry:
 
             del self._REGISTRY[key]
 
-            self.logger.debug(f"{self.registry_name}: Removed {key} from registry") if self.log else None
+            self.logger.debug(f"{self.registry_name}: Removed `{key}` from registry") if self.log else None
 
         else:
             for k, v in list(self._REGISTRY.items()):
                 if v == value:
                     del self._REGISTRY[k]
-                    self.logger.debug(f"{self.registry_name}: Removed {k} from registry") if self.log else None
+                    self.logger.debug(f"{self.registry_name}: Removed `{k}` from registry") if self.log else None
 
                     return
 
-            self.logger.warning(f"{self.registry_name}: {value} not registered.") if self.log else None
+            self.logger.warning(f"{self.registry_name}: `{value}` not registered.") if self.log else None
 
 
             if self.raise_exception:
                 raise MissingKeyError(
-                    f"{self.registry_name}: {value} not registered.",
+                    f"{self.registry_name}: `{value}` not registered.",
                     registry_name=self.registry_name,
                     missing_key=value,
                 )
@@ -184,18 +184,18 @@ class Registry:
         :param value: The value to remove. If `None`, removal is based on the key.
         """
         if key not in self._REGISTRY:
-            self.logger.warning(f"{self.registry_name}: {key} not registered.") if self.log else None
+            self.logger.warning(f"{self.registry_name}: `{key}` not registered.") if self.log else None
 
             if self.raise_exception:
                 raise MissingKeyError(
-                    f"{self.registry_name}: {key} not registered.",
+                    f"{self.registry_name}: `{key}` not registered.",
                     registry_name=self.registry_name,
                     missing_key=key,
                 )
             return
 
         self._REGISTRY[key] = value
-        self.logger.debug(f"{self.registry_name}: Updated {key} in registry") if self.log else None
+        self.logger.debug(f"{self.registry_name}: Updated `{key}` with value `{value}` in registry") if self.log else None
 
     def reset(self) -> None:
         """

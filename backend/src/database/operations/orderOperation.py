@@ -56,12 +56,12 @@ def create_order(
         session.commit()
 
         logger.info(
-            f"Order for {ticker} created successfully for profile {profile_id}."
+            f"Order {order_type=}; {ticker=}; {quantity=}; {price=}; created successfully for {profile_id=}."
         )
         return convert_to_dto(new_order)
 
     except IntegrityError as e:
-        logger.error(f"Error creating order for {ticker}: {e}", exc_info=True)
+        logger.error(f"Error creating order {order_type=}; {ticker=}; {quantity=}; {price=}; for {profile_id=}: {e}", exc_info=True)
         session.rollback()
 
     finally:
@@ -88,18 +88,21 @@ def get_order(
 
     try:
         if id is not None:
+            logger.info(f"Order with ID {id} retrieved.")
             return convert_to_dto(session.get(OrderModel, id))
         elif profile_id is not None:
-            return [convert_to_dto(order) for order in session.query(OrderModel).filter_by(profile_id=profile_id).all()]
+            order_dtos: list[OrderDTO] = [convert_to_dto(order) for order in session.query(OrderModel).filter_by(profile_id=profile_id).all()]
         elif ticker is not None:
-            return [convert_to_dto(order) for order in session.query(OrderModel).filter_by(ticker=ticker).all()]
+            order_dtos: list[OrderDTO] = [convert_to_dto(order) for order in session.query(OrderModel).filter_by(ticker=ticker).all()]
         elif order_type is not None:
-            return [convert_to_dto(order) for order in session.query(OrderModel).filter_by(type=order_type).all()]
+            order_dtos: list[OrderDTO] = [convert_to_dto(order) for order in session.query(OrderModel).filter_by(type=order_type).all()]
         else:
-            return [convert_to_dto(order) for order in session.query(OrderModel).all()]
+            order_dtos: list[OrderDTO] = [convert_to_dto(order) for order in session.query(OrderModel).all()]
+
+        logger.info(f"{len(order_dtos)} orders where {profile_id=}; {ticker=}; {order_type=}; retrieved.")
 
     except Exception as e:
-        logger.error(f"Error retrieving order: {e}", exc_info=True)
+        logger.error(f"Error retrieving order(s) where {profile_id=}; {ticker=}; {order_type=}: {e}", exc_info=True)
         return None
 
     finally:
