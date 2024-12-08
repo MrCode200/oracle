@@ -1,6 +1,6 @@
 import pytest
 
-from backend.src.exceptions import DataFetchError
+from src.exceptions import DataFetchError
 
 
 def test_data_fetch_error():

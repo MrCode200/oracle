@@ -1,14 +1,14 @@
 from logging import getLogger
 
-from backend.src.services.entities import Profile, Status
-from backend.src.utils import load_config
-from backend.src.utils.registry import profile_registry
+from src.services.entities import Profile, Status
+from src.utils import load_config
+from src.utils.registry import profile_registry
 
 logger = getLogger("oracle.app")
 
 
 def init_service():
-    from backend.src.database import get_profile
+    from src.database import get_profile
 
     profiles = get_profile()
     logger.info("Initializing Service, Loading Profiles...")

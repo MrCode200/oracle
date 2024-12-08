@@ -1,5 +1,5 @@
 # For Kiana Bozghale
-from backend.src.services.plugin.basePlugin import BasePlugin, PluginPriority
+from src.services.plugin.basePlugin import BasePlugin, PluginPriority
 
 
 class LinearMoneyAllocationPlugin(BasePlugin):

@@ -2,7 +2,7 @@ import logging
 from logging import DEBUG, Formatter, StreamHandler, getLogger
 from logging.handlers import TimedRotatingFileHandler
 
-from backend.src.custom_logger.loggingFormatters import (  # type: ignore
+from src.custom_logger.loggingFormatters import (  # type: ignore
     ColoredFormatter, JsonFormatter)
 
 

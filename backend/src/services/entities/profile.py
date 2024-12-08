@@ -4,12 +4,11 @@ from logging import getLogger
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from backend.src.database import ProfileModel, create_plugin, get_indicator, IndicatorDTO, ProfileDTO, PluginDTO, \
-    update_profile
+from src.database import get_indicator, IndicatorDTO, ProfileDTO, PluginDTO, update_profile
 from .strategy import BaseStrategy
-from backend.src.utils.registry import profile_registry
-from backend.src.services.indicators import BaseIndicator
-from backend.src.api import fetch_info_data
+from src.utils.registry import profile_registry
+from src.services.indicators import BaseIndicator
+from src.api import fetch_info_data
 
 logger = getLogger("oracle.app")
 

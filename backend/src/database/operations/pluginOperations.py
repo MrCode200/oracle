@@ -4,7 +4,7 @@ from typing import Type
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
-from backend.src.database import PluginModel, PluginDTO, engine
+from src.database import PluginModel, PluginDTO, engine
 
 logger = getLogger("oracle.app")
 

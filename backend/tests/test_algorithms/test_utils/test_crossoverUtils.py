@@ -1,6 +1,6 @@
 import pytest
 
-from backend.src.algorithms.indicators.utils import check_crossover
+from src.algorithms.indicators.utils import check_crossover
 
 
 @pytest.mark.parametrize(

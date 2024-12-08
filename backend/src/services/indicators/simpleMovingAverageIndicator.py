@@ -4,8 +4,8 @@ import pandas
 from pandas import DataFrame, Series
 from pandas_ta import sma
 
-from backend.src.services.indicators import BaseIndicator
-from backend.src.services.indicators.utils import check_crossover
+from src.services.indicators import BaseIndicator
+from src.services.indicators.utils import check_crossover
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 

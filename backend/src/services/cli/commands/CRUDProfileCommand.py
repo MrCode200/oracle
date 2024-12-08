@@ -1,7 +1,7 @@
-from backend.src.database import delete_profile, get_profile, create_profile, create_indicator, ProfileDTO
-from backend.src.services.indicators import SimpleMovingAverage
-from backend.src.utils.registry import command_registry
-from backend.src.services.entities.profile import Profile
+from src.database import delete_profile, get_profile, create_profile, create_indicator, ProfileDTO
+from src.services.indicators import SimpleMovingAverage
+from src.utils.registry import command_registry
+from src.services.entities.profile import Profile
 
 
 @command_registry.register_function("add profile")

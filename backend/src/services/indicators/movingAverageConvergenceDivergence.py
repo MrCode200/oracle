@@ -3,8 +3,8 @@ from logging import getLogger
 from pandas import DataFrame, Series
 import numpy as np
 
-from backend.src.services.indicators import BaseIndicator
-from backend.src.services.indicators.utils import check_crossover, trend_based_pullback
+from src.services.indicators import BaseIndicator
+from src.services.indicators.utils import check_crossover, trend_based_pullback
 
 logger = getLogger("oracle.app")
 

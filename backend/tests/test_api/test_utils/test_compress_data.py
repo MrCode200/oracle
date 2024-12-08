@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from backend.src.api.utils import compress_data
+from src.api.utils import compress_data
 
 INPUT_1 = {
     "Open": [100, 105, 102, 108, 110, 112, 115, 118],

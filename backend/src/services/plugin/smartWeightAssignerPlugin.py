@@ -4,9 +4,9 @@ logger = logging.getLogger("oracle.app")
 
 
 
-from backend.src.api import fetch_historical_data
-from backend.src.database import update_indicator
-from backend.src.services.plugin import BasePlugin, PluginPriority
+from src.api import fetch_historical_data
+from src.database import update_indicator
+from src.services.plugin import BasePlugin, PluginPriority
 
 
 class SmartWeightAssignerPlugin(BasePlugin):

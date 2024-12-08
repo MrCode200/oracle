@@ -1,13 +1,13 @@
-from backend.src.database import (
+from src.database import (
     PluginModel,
     create_plugin,
     delete_plugin,
     get_indicator,
     get_plugin, create_indicator, delete_indicator, PluginDTO, IndicatorDTO,
 )
-from backend.src.services.indicators import BaseIndicator
-from backend.src.services.plugin import BasePlugin
-from backend.src.utils.registry import indicator_registry, plugin_registry
+from src.services.indicators import BaseIndicator
+from src.services.plugin import BasePlugin
+from src.utils.registry import indicator_registry, plugin_registry
 
 import logging
 

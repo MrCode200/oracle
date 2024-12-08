@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from enum import Enum
 
-from backend.src.utils.registry import plugin_registry
+from src.utils.registry import plugin_registry
 
 
 class PluginPriority(Enum):

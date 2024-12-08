@@ -1,6 +1,6 @@
 import pytest
 
-from backend.src.database import delete_profile, get_profile, create_profile, update_profile, ProfileDTO
+from src.database import delete_profile, get_profile, create_profile, update_profile, ProfileDTO
 
 PROFILE_NAME_1 = "test_profile_beta"
 UPDATED_PROFILE_NAME_1 = "updated_test_profile_beta"

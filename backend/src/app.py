@@ -8,7 +8,7 @@ from custom_logger.loggingManager import setup_logger
 
 
 def init_app():
-    from backend.src.utils import load_config
+    from src.utils import load_config
     log_config = load_config("LOG_CONFIG")
 
     setup_logger(
@@ -20,7 +20,7 @@ def init_app():
         log_config.get("stream_in_color"),
         log_config.get("log_in_json"),
     )
-    from backend.src.services.cli import init_cli
+    from src.services.cli import init_cli
     from services import init_service
 
     logger = logging.getLogger("oracle.app")

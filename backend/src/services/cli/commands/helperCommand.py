@@ -1,6 +1,6 @@
-from backend.src.database import get_profile
-from backend.src.services.entities import Status
-from backend.src.utils.registry import command_registry, indicator_registry
+from src.database import get_profile
+from src.services.entities import Status
+from src.utils.registry import command_registry, indicator_registry
 
 
 @command_registry.register_function("help")

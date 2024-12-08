@@ -1,6 +1,6 @@
 {
   "LOG_CONFIG": {
-    "level": 30,
+    "level": 10,
     "path": "logs/app.jsonl",
     "add_stream_handler": true,
     "add_file_handler": true,

@@ -1,6 +1,6 @@
 import pytest
 
-from backend.src.database import create_order, get_order, OrderDTO, get_profile, delete_profile, ProfileDTO, \
+from src.database import create_order, get_order, OrderDTO, get_profile, delete_profile, ProfileDTO, \
     create_profile
 
 PROFILE_NAME = "test_profile_beta"

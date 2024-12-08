@@ -1,5 +1,5 @@
-from backend.src.services.entities import Profile
-from backend.src.utils.registry import command_registry, profile_registry
+from src.services.entities import Profile
+from src.utils.registry import command_registry, profile_registry
 
 
 @command_registry.register_function(["activate profile", "act profile"])

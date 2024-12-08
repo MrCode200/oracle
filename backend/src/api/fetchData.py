@@ -4,9 +4,9 @@ from typing import Optional
 from pandas import DataFrame
 from yfinance import Ticker  # type: ignore
 
-from backend.src.exceptions import DataFetchError
+from src.exceptions import DataFetchError
 
-from backend.src.api.utils import compress_data, determine_interval  # type: ignore
+from src.api.utils import compress_data, determine_interval  # type: ignore
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 

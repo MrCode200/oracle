@@ -1,6 +1,6 @@
 from logging import getLogger
 
-from backend.src.utils.registry import command_registry
+from src.utils.registry import command_registry
 
 logger = getLogger("oracle.app")
 
@@ -8,7 +8,7 @@ logger = getLogger("oracle.app")
 def init_cli():
     logger.info("Initializing Interface...")
 
-    import backend.src.services.cli.commands
+    import src.services.cli.commands
     num_of_commands: int = len(command_registry.get())
     if num_of_commands == 0:
         raise Exception("No Commands Registered...")

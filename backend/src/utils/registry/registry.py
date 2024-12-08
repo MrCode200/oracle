@@ -2,7 +2,7 @@ from functools import wraps
 from logging import Logger, getLogger
 from typing import Any, Dict, Hashable, Union
 
-from backend.src.exceptions import DuplicateError, MissingKeyError
+from src.exceptions import DuplicateError, MissingKeyError
 
 
 # fmt: off
