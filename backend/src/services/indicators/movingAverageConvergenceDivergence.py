@@ -1,7 +1,7 @@
 from logging import getLogger
 
-from pandas import DataFrame, Series
 import numpy as np
+from pandas import DataFrame, Series
 
 from src.services.indicators import BaseIndicator
 from src.services.indicators.utils import check_crossover, trend_based_pullback

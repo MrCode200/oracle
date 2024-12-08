@@ -1,8 +1,9 @@
+from src.cli.commands import crud_profile_app
 from src.services.entities import Profile
 from src.utils.registry import command_registry, profile_registry
 
 
-@command_registry.register_function(["activate profile", "act profile"])
+@crud_profile_app(name="activate", help="Activates a profile.")
 def activate_profile():
     print("For a lists of all profiles type `list profiles`, to exit type `back`")
 

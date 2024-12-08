@@ -3,7 +3,7 @@ from logging import getLogger
 
 from sqlalchemy import Engine, create_engine, text
 
-from ..utils import load_config
+from src.utils import load_config
 
 logger = getLogger("oracle.app")
 
@@ -25,12 +25,13 @@ with base_engine.connect() as conn:
 engine: Engine = create_engine(DATABASE_URL)
 
 
-from .models import Base, IndicatorModel, OrderModel, PluginModel, ProfileModel
 from .dtos import IndicatorDTO, OrderDTO, PluginDTO, ProfileDTO
-from .operations import (create_indicator, create_order, create_plugin, create_profile,
-                         delete_indicator, delete_plugin, delete_profile,
-                         get_indicator, get_order, get_plugin, get_profile,
-                         update_indicator, update_plugin, update_profile)
+from .models import Base, IndicatorModel, OrderModel, PluginModel, ProfileModel
+from .operations import (create_indicator, create_order, create_plugin,
+                         create_profile, delete_indicator, delete_plugin,
+                         delete_profile, get_indicator, get_order, get_plugin,
+                         get_profile, update_indicator, update_plugin,
+                         update_profile)
 
 Base.metadata.create_all(engine)
 

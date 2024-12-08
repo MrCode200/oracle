@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def determine_interval(interval: str) -> str:
     """
     Determines the valid interval for data processing.

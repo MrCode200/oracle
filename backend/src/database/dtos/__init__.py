@@ -1,1 +1,1 @@
-from .dtos import PluginDTO, IndicatorDTO, ProfileDTO, OrderDTO
+from .dtos import IndicatorDTO, OrderDTO, PluginDTO, ProfileDTO

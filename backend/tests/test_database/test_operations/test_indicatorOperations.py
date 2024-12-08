@@ -1,7 +1,8 @@
 import pytest
 
-from src.database import get_indicator, create_indicator, delete_indicator, IndicatorDTO, ProfileDTO
-from src.database import create_profile, delete_profile, get_profile
+from src.database import (IndicatorDTO, ProfileDTO, create_indicator,
+                          create_profile, delete_indicator, delete_profile,
+                          get_indicator, get_profile)
 
 PROFILE_NAME = "test_profile_beta"
 UPDATED_PROFILE_NAME = "updated_test_profile_beta"

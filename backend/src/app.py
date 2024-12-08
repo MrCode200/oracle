@@ -20,7 +20,6 @@ def init_app():
         log_config.get("stream_in_color"),
         log_config.get("log_in_json"),
     )
-    from src.services.cli import init_cli
     from services import init_service
 
     logger = logging.getLogger("oracle.app")
@@ -29,9 +28,6 @@ def init_app():
     logger.info("All Indicators Registered Successfully...")
 
     init_service()
-
-    init_cli()
-
 
 if __name__ == "__main__":
     init_app()

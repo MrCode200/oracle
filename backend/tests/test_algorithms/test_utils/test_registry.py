@@ -2,7 +2,7 @@ import pytest
 
 from src.exceptions import RegistryError
 from src.utils.registry.indicatorRegistry import (get_indicator,
-                                                          register_indicator)
+                                                  register_indicator)
 
 
 def test_register_indicator():

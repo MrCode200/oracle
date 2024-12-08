@@ -4,11 +4,13 @@ from logging import getLogger
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from src.database import get_indicator, IndicatorDTO, ProfileDTO, PluginDTO, update_profile
-from .strategy import BaseStrategy
-from src.utils.registry import profile_registry
-from src.services.indicators import BaseIndicator
 from src.api import fetch_info_data
+from src.database import (IndicatorDTO, PluginDTO, ProfileDTO, get_indicator,
+                          update_profile)
+from src.services.indicators import BaseIndicator
+from src.utils.registry import profile_registry
+
+from .strategy import BaseStrategy
 
 logger = getLogger("oracle.app")
 
@@ -97,12 +99,14 @@ class Profile:
                 f"Deactivated Profile with ID {self.id} and name: {self.name}",
                 extra={"profile_id": self.id},
             )
+            return True
         else:
             logger.error(
                 f"Failed to deactivate Profile with ID {self.id} and name: {self.name}.\n"
                 f"Due to Risk Reasons Profile will stay locally deactivated. Pls note that on a restart the Profile will be Active.",
                 extra={"profile_id": self.id},
             )
+            return False
             # TODO: add status not sync to Status
 
     def evaluate(self):

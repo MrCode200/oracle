@@ -1,15 +1,11 @@
-from src.database import (
-    PluginModel,
-    create_plugin,
-    delete_plugin,
-    get_indicator,
-    get_plugin, create_indicator, delete_indicator, PluginDTO, IndicatorDTO,
-)
+import logging
+
+from src.database import (IndicatorDTO, PluginDTO, PluginModel,
+                          create_indicator, create_plugin, delete_indicator,
+                          delete_plugin, get_indicator, get_plugin)
 from src.services.indicators import BaseIndicator
 from src.services.plugin import BasePlugin
 from src.utils.registry import indicator_registry, plugin_registry
-
-import logging
 
 logger = logging.getLogger("oracle.app")
 
