@@ -31,4 +31,5 @@ def map_command(command: str) -> None:
     if command is None:
         print("Command not found. Try /help for a list of available commands.")
         return
-    command()
+    elif command != "exit":
+        command()
