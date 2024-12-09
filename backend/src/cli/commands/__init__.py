@@ -1,5 +1,3 @@
 from .helperCommands import command_list_indicators, command_list_profiles
-from .profileCommands import crud_profile_app
-from .profileCommands.crudProfileCommands import delete_profile
-from .profileCommands.profileCommands import (activate_profile,
-                                              deactivate_profile)
+from .profileCommands import activate_profile, deactivate_profile, delete_profile
+from .appCommands import start_app, stop_app

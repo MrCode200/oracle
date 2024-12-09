@@ -1,7 +1,6 @@
 from rich.console import Console
 from rich.table import Table
 
-from src.cli.interface import app
 from src.database import get_profile
 from src.services.entities import Status
 from src.utils.registry import indicator_registry
@@ -10,7 +9,6 @@ from src.utils.registry import indicator_registry
 console = Console()
 
 
-@app.command(name="list-indicators", help="Lists all available indicators.")
 def command_list_indicators():
     console.print("[bold green]Available algorithms:[/bold green]")
 
@@ -27,7 +25,6 @@ def command_list_indicators():
     console.print(table)
 
 
-@app.command(name="list-profiles", help="Lists all available profiles.")
 def command_list_profiles():
     profiles = get_profile()
 

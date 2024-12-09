@@ -5,7 +5,6 @@ from rich.prompt import Confirm
 from rich.text import Text
 from typer import Option
 
-from src.cli.commands import crud_profile_app
 from src.database import delete_profile, get_profile
 from utils.registry import profile_registry
 
@@ -15,8 +14,6 @@ console = Console()
 def get_profile_names() -> list[str]:
     return [profile.name for profile in get_profile()]
 
-
-@crud_profile_app.command(name="del", help="Deletes a profile.")
 def command_delete_profile(
         name: str = Option(None, "--name", "-n", help="The name of the profile to delete.")
 ):

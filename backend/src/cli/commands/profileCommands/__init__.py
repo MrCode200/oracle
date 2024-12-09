@@ -1,3 +1,2 @@
-from typer import Typer
-
-crud_profile_app = Typer()
+from .profileCommands import activate_profile, deactivate_profile
+from .crudProfileCommands import delete_profile
