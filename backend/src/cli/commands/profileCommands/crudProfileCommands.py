@@ -5,7 +5,7 @@ from rich.prompt import Confirm
 from rich.text import Text
 from typer import Option
 
-from src.database import delete_profile, get_profile
+from src.database import delete_profile, get_profile, create_profile
 from utils.registry import profile_registry
 
 console = Console()
@@ -13,6 +13,15 @@ console = Console()
 
 def get_profile_names() -> list[str]:
     return [profile.name for profile in get_profile()]
+
+
+def command_create_profile(name: str,
+                           balance: float,
+                           wallet: dict,
+                           paper_balance: float,
+                           strategy_settings: dict):
+    ...
+
 
 def command_delete_profile(
         name: str = Option(None, "--name", "-n", help="The name of the profile to delete.")
