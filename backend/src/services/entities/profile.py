@@ -56,6 +56,10 @@ class Profile:
 
         self.scheduler = BackgroundScheduler()
         self._setup_schedular()
+
+        if self.status == Status.ACTIVE or self.status == Status.PAPER_TRADING:
+            self.activate(run_on_start=False)
+
         logger.debug(
             f"Initialized Profile with ID {self.id} and name: {self.name}",
             extra={"profile_id": self.id},
@@ -64,7 +68,9 @@ class Profile:
     def activate(self, run_on_start: bool = False):
         if not self._check_status_valid():
             return
-        self.status = Status.ACTIVE
+
+        if self.status == Status.PAPER_TRADING:
+            self.status = Status.ACTIVE
 
         if run_on_start:
             self.evaluate()
