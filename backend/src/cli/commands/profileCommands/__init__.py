@@ -1,2 +1,2 @@
-from .profileCommands import activate_profile, deactivate_profile
-from .crudProfileCommands import delete_profile
+from .profileCommands import command_activate_profile, command_deactivate_profile
+from .crudProfileCommands import command_delete_profile

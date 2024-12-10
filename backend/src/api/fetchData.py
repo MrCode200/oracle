@@ -20,7 +20,7 @@ def fetch_info_data(ticker: str) -> Optional[dict]:  # type: ignore
     try:
         ticker_obj = Ticker(ticker)
         info = ticker_obj.info
-        if not info:
+        if "symbol" not in info:
             logger.warning(
                 f"Failed to fetch info data, probably due to invalid ticker: {ticker}"
             )
@@ -29,14 +29,12 @@ def fetch_info_data(ticker: str) -> Optional[dict]:  # type: ignore
                 ticker=ticker,
             )
 
-        return ticker_obj.info
+        return info
 
     except Exception as e:
         if not isinstance(e, DataFetchError):
             logger.error(f"Error fetching info data: {e}")
-            raise DataFetchError(
-                message=f"Error fetching info data. Exception {e}", ticker=ticker
-            )
+        raise
 
 
 def fetch_historical_data(  # type: ignore
@@ -85,11 +83,10 @@ def fetch_historical_data(  # type: ignore
     except Exception as e:
         if not isinstance(e, DataFetchError):
             logger.error(f"Error fetching history data: {e}")
-            DataFetchError(
-                message=f"Failed to fetch data. Unknown error occurred. {e}",
-                ticker=ticker,
-                period=period,
-                interval=interval,
-                start=start,
-                end=end,
-            )
+            raise
+
+if __name__ == "__main__":
+    info = fetch_info_data("BTC-USD")
+
+
+

@@ -12,7 +12,7 @@ def get_profile_names():
     return [profile.name for profile in profile_registry.get().values()]  # Assuming you get names from profile_registry
 
 
-def activate_profile(
+def command_activate_profile(
         name: str = typer.Option(None, "--name", "-n", help="The name of the profile to delete.")
 ):
     console.print("[bold yellow]To exit type `back`[/bold yellow]")
@@ -43,7 +43,7 @@ def activate_profile(
             console.print(f"[bold red]Error:[/bold] Profile '[bold]{name}[/bold]' not found![/bold red]")
 
 
-def deactivate_profile(
+def command_deactivate_profile(
         name: str = typer.Option(None, "--name", "-n", help="The name of the profile to delete.")
 ):
     console.print("[bold yellow]To exit type `back`[/bold yellow]")

@@ -2,6 +2,7 @@ import logging
 
 import typer
 
+from cli.commands.profileCommands.crudProfileCommands import command_create_profile
 from src.custom_logger.loggingManager import setup_logger
 
 logger = logging.getLogger("oracle.app")
@@ -20,16 +21,17 @@ if not logger.handlers:
         log_config.get("log_in_json"),
     )
 
-from src.cli.commands import delete_profile, activate_profile, deactivate_profile, command_list_indicators, command_list_profiles, start_app, stop_app
+from src.cli.commands import command_delete_profile, command_activate_profile, command_deactivate_profile, command_list_indicators, command_list_profiles, start_app, stop_app
 
 app = typer.Typer()
 app.command(name="list-indicators",help="Lists all available indicators.")(command_list_indicators)
 app.command(name="list-profiles", help="Lists all available profiles.")(command_list_profiles)
 
 crud_profile_app = typer.Typer()
-crud_profile_app.command(name="delete", help="Deletes a profile.")(delete_profile)
-crud_profile_app.command(name="activate", help="Activates a profile.")(activate_profile)
-crud_profile_app.command(name="deactivate", help="Deactivates a profile.")(deactivate_profile)
+crud_profile_app.command(name="delete", help="Deletes a profile.")(command_delete_profile)
+crud_profile_app.command(name="activate", help="Activates a profile.")(command_activate_profile)
+crud_profile_app.command(name="deactivate", help="Deactivates a profile.")(command_deactivate_profile)
+crud_profile_app.command(name="create", help="Creates a new profile.")(command_create_profile)
 
 bot_app = typer.Typer()
 bot_app.command(name="start", help="Runs the app.")(start_app)
