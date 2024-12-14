@@ -7,6 +7,7 @@ from src.utils.registry import plugin_registry
 class PluginPriority(Enum):
     BEFORE_EVALUATION = 1
     AFTER_EVALUATION = 2
+    CREATE_ORDER = 3
 
 
 class BasePlugin(ABC):

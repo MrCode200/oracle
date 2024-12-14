@@ -2,28 +2,8 @@ import json
 import os
 from typing import Optional
 
-# Ensure the path is relative to the current script's directory
-script_dir = os.path.dirname(__file__)  # Directory where the current script is located
+script_dir = os.path.dirname(__file__)
 config_path = os.path.join(script_dir, "..", "..", "config", "config.json")
-
-def init_config() -> None:
-    """
-    Initializes the config file with default values.
-    """
-    with open(config_path, "r") as f:
-        config: dict[str, dict[str, any]] = load_config()
-
-    DB_CONFIG = {
-        "user": os.getenv("MYSQL_USER", "root"),
-        "password": os.getenv("MYSQL_PASSWORD", "root"),
-        "host": os.getenv("MYSQL_HOST", "localhost"),  # Host name from Docker Compose service name
-        "database": os.getenv("MYSQL_DATABASE", "oracle"),
-    }
-
-    config["DB_CONFIG"] = DB_CONFIG
-
-    with open(config_path, "w") as f:
-        json.dump(config, f, indent=4)
 
 def load_config(config_key: Optional[str] = None) -> dict[str, any]:
     """
