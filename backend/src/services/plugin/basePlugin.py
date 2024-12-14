@@ -4,7 +4,7 @@ from enum import Enum
 from src.utils.registry import plugin_registry
 
 
-class PluginPriority(Enum):
+class PluginJob(Enum):
     BEFORE_EVALUATION = 1
     AFTER_EVALUATION = 2
     CREATE_ORDER = 3
@@ -14,9 +14,9 @@ class BasePlugin(ABC):
     def __init_subclass__(cls, **kwargs):
         plugin_registry.register(keys=cls.__name__, value=cls)
 
-    def __init__(self, strategy: "BaseStrategy", priority: PluginPriority):
+    def __init__(self, strategy: "BaseStrategy", job: PluginJob):
         self.strategy: "BaseStrategy" = strategy
-        self.priority: PluginPriority = priority
+        self.job: PluginJob = job
 
     @abstractmethod
     def run(

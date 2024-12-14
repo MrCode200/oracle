@@ -1,1 +1,1 @@
-from .basePlugin import BasePlugin, PluginPriority
+from .basePlugin import BasePlugin, PluginJob

@@ -6,13 +6,13 @@ logger = logging.getLogger("oracle.app")
 
 from src.api import fetch_historical_data
 from src.database import update_indicator
-from src.services.plugin import BasePlugin, PluginPriority
+from src.services.plugin import BasePlugin, PluginJob
 
 
 class SmartWeightAssignerPlugin(BasePlugin):
     def __init__(self, strategy: 'BaseStrategy', period):
         self.period: str = period
-        super().__init__(PluginPriority.BEFORE_EVALUATION, strategy)
+        super().__init__(PluginJob.BEFORE_EVALUATION, strategy)
 
     def run(self, strategy: 'BaseStrategy', indicator_confidences: dict[str, dict[str, float]] = None):
         all_results: dict[str, dict[str, float]] = {}

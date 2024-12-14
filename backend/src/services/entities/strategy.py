@@ -1,5 +1,6 @@
 import logging
 
+from build.lib.services.plugin import PluginPriority
 from src.database import (IndicatorDTO, PluginDTO, PluginModel,
                           create_indicator, create_plugin, delete_indicator,
                           delete_plugin, get_indicator, get_plugin)
@@ -77,16 +78,24 @@ class BaseStrategy:
             settings=plugin.__dict__,
         )
 
-        if new_plugin is not None:
-            self.plugins.append(new_plugin)
+        if new_plugin is None:
+            logger.error(f"Failed to add plugin to profile with ID {self.profile.id}.",
+                         extra={"profile_id": self.profile.id})
+            return False
 
-            logger.info(f"Added plugin with ID {new_plugin.id} to profile with ID {self.profile.id}.",
+        if new_plugin.instance.job == PluginPriority.CREATE_ORDER:
+            for plugin in self.plugins:
+                if plugin.instance.job == PluginPriority.CREATE_ORDER:
+                    logger.info(
+                        f"User tried to add multiple create order plugins to profile with ID {self.profile.id}.",
                         extra={"profile_id": self.profile.id})
-            return True
+                    return False
 
-        logger.error(f"Failed to add plugin to profile with ID {self.profile.id}.",
-                     extra={"profile_id": self.profile.id})
-        return False
+        self.plugins.append(new_plugin)
+
+        logger.info(f"Added plugin with ID {new_plugin.id} to profile with ID {self.profile.id}.",
+                    extra={"profile_id": self.profile.id})
+        return True
 
     def remove_plugin(self, plugin_dto: PluginDTO) -> bool:
         """
