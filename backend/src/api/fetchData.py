@@ -2,10 +2,9 @@ import logging
 from typing import Optional
 
 from pandas import DataFrame
-from yfinance import Ticker  # type: ignore
-
 from src.api.utils import compress_data, determine_interval  # type: ignore
 from src.exceptions import DataFetchError
+from yfinance import Ticker  # type: ignore
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 

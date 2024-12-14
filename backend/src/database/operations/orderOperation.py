@@ -3,7 +3,6 @@ from typing import Type
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
-
 from src.database import OrderDTO, OrderModel, engine
 
 logger = getLogger("oracle.app")

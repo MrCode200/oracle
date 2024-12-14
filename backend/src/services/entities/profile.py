@@ -3,7 +3,6 @@ from logging import getLogger
 
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from apscheduler.schedulers.background import BackgroundScheduler
-
 from src.api import fetch_info_data
 from src.database import (IndicatorDTO, PluginDTO, ProfileDTO, get_indicator,
                           update_profile)

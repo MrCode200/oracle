@@ -3,7 +3,6 @@ from typing import Type
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
-
 from src.database import ProfileDTO, ProfileModel, engine
 
 logger = getLogger("oracle.app")
@@ -111,15 +110,17 @@ def get_profile(
         session.close()
 
 
+from typing import Optional
+
 def update_profile(
         id: int,
-        name: str | None = None,
-        status: str | None = None,
-        balance: float | None = None,
-        wallet: dict | None = None,
-        paper_balance: float | None = None,
-        paper_wallet: dict | None = None,
-        strategy_settings: dict | None = None,
+        name: Optional[str] = None,
+        status: Optional[str] = None,
+        balance: Optional[float] = None,
+        wallet: Optional[dict] = None,
+        paper_balance: Optional[float] = None,
+        paper_wallet: Optional[dict] = None,
+        strategy_settings: Optional[dict] = None,
 ) -> bool:
     """
     Updates a profile in the database.
@@ -145,19 +146,19 @@ def update_profile(
             return False
 
         # Update values if provided
-        if name:
+        if name is not None:
             profile.name = name
         if status is not None:
             profile.status = status
-        if balance:
+        if balance is not None:
             profile.balance = balance
-        if wallet:
+        if wallet is not None:
             profile.wallet = wallet
-        if paper_balance:
+        if paper_balance is not None:
             profile.paper_balance = paper_balance
-        if paper_wallet:
+        if paper_wallet is not None:
             profile.paper_wallet = paper_wallet
-        if strategy_settings:
+        if strategy_settings is not None:
             profile.strategy_settings = strategy_settings
 
         session.commit()

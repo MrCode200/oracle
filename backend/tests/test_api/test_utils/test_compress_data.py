@@ -1,6 +1,5 @@
 import pandas as pd
 import pytest
-
 from src.api.utils import compress_data
 
 INPUT_1 = {

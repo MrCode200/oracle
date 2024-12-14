@@ -1,5 +1,4 @@
 import pytest
-
 from src.algorithms.indicators.utils import check_crossover
 
 

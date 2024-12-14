@@ -3,7 +3,6 @@ import logging
 import pandas
 from pandas import DataFrame, Series
 from pandas_ta import sma
-
 from src.services.indicators import BaseIndicator
 from src.services.indicators.utils import check_crossover
 

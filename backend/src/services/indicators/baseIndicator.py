@@ -4,7 +4,6 @@ from math import ceil
 
 import pandas_ta as ta
 from pandas import DataFrame, isna
-
 from src.utils.registry import indicator_registry
 
 logger = logging.getLogger("oracle.app")

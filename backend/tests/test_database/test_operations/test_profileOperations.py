@@ -1,5 +1,4 @@
 import pytest
-
 from src.database import (ProfileDTO, create_profile, delete_profile,
                           get_profile, update_profile)
 

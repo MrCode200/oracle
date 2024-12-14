@@ -1,5 +1,4 @@
 import pytest
-
 from src.database import (IndicatorDTO, ProfileDTO, create_indicator,
                           create_profile, delete_indicator, delete_profile,
                           get_indicator, get_profile)

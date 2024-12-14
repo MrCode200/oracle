@@ -1,8 +1,6 @@
-import json
 from logging import getLogger
 
 from sqlalchemy import Engine, create_engine, text
-
 from src.utils import load_config
 
 logger = getLogger("oracle.app")
@@ -10,6 +8,7 @@ logger = getLogger("oracle.app")
 logger.info("Initializing Database...")
 
 DB_CONFIG = load_config("DB_CONFIG")
+
 DATABASE_URL = f"mysql+mysqlconnector://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}/{DB_CONFIG['database']}"
 BASE_URL = f"mysql+mysqlconnector://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}"
 
@@ -17,7 +16,7 @@ base_engine: Engine = create_engine(BASE_URL)
 
 with base_engine.connect() as conn:
     result = conn.execute(
-        text(f"CREATE DATABASE IF NOT EXISTS `{DB_CONFIG['database']}`;")
+        text(f"CREATE DATABASE IF NOT EXISTS `oracle`;")
     )
     logger.info("Ensured Database Exists...")
     base_engine.dispose()
