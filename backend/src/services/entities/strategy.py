@@ -1,6 +1,8 @@
 import logging
 
 from build.lib.services.plugin import PluginPriority
+
+from src.api import fetch_historical_data
 from src.database import (IndicatorDTO, PluginDTO, PluginModel,
                           create_indicator, create_plugin, delete_indicator,
                           delete_plugin, get_indicator, get_plugin)
@@ -30,7 +32,26 @@ class BaseStrategy:
         self.sell_limit: float = sell_limit
 
     def evaluate(self):
-        ...
+        for plugin in self.plugins:
+            if plugin.instance.job == PluginPriority.BEFORE_EVALUATION:
+                plugin.instance.evaluate(self)
+
+        confidences: dict[str, dict[int, float]] = {}
+        for indicator in self.indicators:
+            df = fetch_historical_data(ticker=indicator.ticker, period="6mo", interval=indicator.interval)
+            confidence = indicator.instance.evaluate(df=df)
+            confidence[indicator.ticker][indicator.id] = confidence
+
+        for plugin in self.plugins:
+            if plugin.instance.job == PluginPriority.AFTER_EVALUATION:
+                confidences = plugin.instance.evaluate(self, confidences=confidences)
+
+        for plugin in self.plugins:
+            if plugin.instance.job == PluginPriority.CREATE_ORDER:
+                confidences = plugin.instance.evaluate(self, confidences=confidences)
+                break
+
+        return confidences
 
     def backtest(self):
         ...
