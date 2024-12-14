@@ -85,7 +85,8 @@ def fetch_historical_data(  # type: ignore
             raise
 
 if __name__ == "__main__":
-    info = fetch_info_data("BTC-USD")
+    info = fetch_info_data("si")
+    print(info)
 
 
 

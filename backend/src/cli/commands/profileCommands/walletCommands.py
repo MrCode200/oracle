@@ -29,40 +29,59 @@ def get_ticker_price(ticker: str) -> float:
     return current_price
 
 
+def create_wallet_table(wallet: dict[str, float], title: str, transient: bool = True, print_info: bool = True) -> Table:
+    final_wallet: dict[str, float] = wallet.copy()
+    invalid_tickers: list[str] = []
+
+    with Progress(transient=transient) as progress:
+        final_wallet_task = progress.add_task("Fetching wallet...")
+
+        progress.update(final_wallet_task, description="Creating wallet table...", total=len(final_wallet) + 1)
+        progress.update(final_wallet_task, advance=1)
+
+        final_wallet_table = Table(title=title, box=box.ROUNDED, show_header=True, header_style="bold magenta")
+        final_wallet_table.add_column("", style="dim")
+        final_wallet_table.add_column("Ticker", style="bold cyan")
+        final_wallet_table.add_column("Quantity", style="bold cyan")
+        final_wallet_table.add_column("Value", style="bold green")
+        final_wallet_table.add_column("Holding Value", style="bold green")
+
+        i = 1
+        for ticker, quantity in wallet.items():
+            progress.update(final_wallet_task, description=f"Fetching prices of {ticker}... {i}/{len(final_wallet)}",
+                            advance=1)
+
+            current_price: Optional[float] = get_ticker_price(ticker)
+
+            if current_price is None:
+                invalid_tickers.append(ticker)
+            else:
+                holding_value: float = current_price * quantity
+
+                final_wallet_table.add_row(str(i), ticker, str(quantity), str(current_price) + "$",
+                                           str(holding_value) + "$")
+            i += 1
+
+    for ticker in invalid_tickers:
+        console.print(f"[bold yellow] {ticker} has been identified as an invalid ticker. Skipping...[/bold yellow]") if print_info else None
+        wallet.pop(ticker)
+
+    if print_info and invalid_tickers:
+        console.print(f"[bold red]Update wallet to remove invalid tickers![/bold red]")
+
+    return final_wallet_table
+
+
 def command_view_wallet(
         profile_name: Annotated[str, typer.Argument(
-            help ="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None,
-        return_table: Annotated[bool, typer.Option(hidden=True)] = False
+            help="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None
 ):
     profile_name = validate_and_prompt_profile_name(profile_name)
 
-    with Progress(transient=True) as progress:
-        wallet_task = progress.add_task("Fetching wallet...")
+    table = create_wallet_table(get_profile(name=profile_name).wallet, title="Wallet")
 
-        wallet = get_profile(name=profile_name).wallet
-
-        progress.update(wallet_task, description="Creating wallet table...", total=len(wallet) + 1)
-        progress.update(wallet_task, advance=1)
-
-        table = Table(title="Wallet", box=box.ROUNDED, show_header=True, header_style="bold magenta")
-        table.add_column("", style="dim")
-        table.add_column("Ticker", style="bold cyan")
-        table.add_column("Quantity", style="bold cyan")
-        table.add_column("Value", style="bold green")
-        table.add_column("Holding Value", style="bold green")
-
-        i = 1
-        for ticker, _ in wallet.items():
-            progress.update(wallet_task, description=f"Fetching prices of {ticker}... {i}/{len(wallet)}", advance=1)
-
-            current_price = get_ticker_price(ticker)
-
-            table.add_row(str(i), ticker, str(wallet[ticker]), str(current_price) + "$", str(current_price * wallet[ticker]) + "$")
-            i += 1
-
-    if return_table:
-        return table
     console.print(table)
+
 
 def command_update_wallet(
         profile_name: Annotated[
@@ -71,7 +90,7 @@ def command_update_wallet(
             list[str], typer.Option("--add-ticker", "-at", help="List of [bold]tickers[/bold] to update.")] = [],
         removed_tickers: Annotated[
             list[str], typer.Option("--remove-ticker", "-rt", help="List of [bold]tickers[/bold] to update.")] = [],
-        prompt: Annotated[bool, typer.Option("--prompt", "-p", help="Prompt for ticker input.")] = True
+        prompt: Annotated[bool, typer.Option("--no-prompt", "-np", help="Prompt for ticker input.")] = True
 ):
     profile_name: str = validate_and_prompt_profile_name(profile_name)
 
@@ -96,17 +115,24 @@ def command_update_wallet(
         return False
 
     # Handle added tickers
+    total_tickers: int = len(added_tickers) + len(removed_tickers)
+    i = 1
     if added_tickers:
         with Progress() as progress:
-            task = progress.add_task("Updating wallet...", total=len(added_tickers) + len(removed_tickers))
+            task = progress.add_task("Updating wallet...", total=total_tickers)
 
             for ticker in removed_tickers:
-                progress.update(task, advance=1, description=f"Removing ticker {ticker}...")
+                progress.update(task, advance=1, description=f"Removing ticker {ticker}... {i}/{total_tickers}...")
+                i += 1
+
                 if not remove_from_wallet(ticker):
                     invalid_removed_tickers.append(ticker)
 
+
             for ticker in added_tickers:
-                progress.update(task, advance=1, description=f"Adding ticker {ticker}...")
+                progress.update(task, advance=1, description=f"Adding ticker {ticker}... {i}/{total_tickers}...")
+                i += 1
+
                 try:
                     fetch_info_data(ticker)
                     if not add_to_wallet(ticker):
@@ -114,6 +140,7 @@ def command_update_wallet(
                 except DataFetchError as e:
                     invalid_added_tickers.append(ticker)
                     continue
+
 
     # Handle output for invalid tickers
     for invalid_ticker in invalid_added_tickers:
@@ -192,29 +219,11 @@ def command_update_wallet(
     for ticker in removed:
         changes_table.add_row(ticker, "[bold red]Removed[/bold red]")
 
-    with Progress(transient=True) as progress:
-        final_wallet_task = progress.add_task("Fetching wallet...")
+    final_wallet_table = create_wallet_table(final_wallet, "Final Wallet", transient=False, print_info=False)
 
-        progress.update(final_wallet_task, description="Creating wallet table...", total=len(final_wallet) + 1)
-        progress.update(final_wallet_task, advance=1)
-
-        final_wallet_table = Table(title="Final Wallet", box=box.ROUNDED, show_header=True, header_style="bold magenta")
-        final_wallet_table.add_column("", style="dim")
-        final_wallet_table.add_column("Ticker", style="bold cyan")
-        final_wallet_table.add_column("Quantity", style="bold cyan")
-        final_wallet_table.add_column("Value", style="bold green")
-        final_wallet_table.add_column("Holding Value", style="bold green")
-
-        i = 1
-        for ticker, quantity in final_wallet.items():
-            progress.update(final_wallet_task, description=f"Fetching prices of {ticker}... {i}/{len(final_wallet)}", advance=1)
-
-            current_price = get_ticker_price(ticker)
-
-            final_wallet_table.add_row(str(i), ticker, str(quantity), str(current_price) + "$", str(current_price * final_wallet[ticker]) + "$")
-            i += 1
-
-    console.print(Panel(Columns([command_view_wallet(profile_name, True), changes_table, final_wallet_table]), title="Wallet Changes", border_style="bold magenta"))
+    console.print(
+        Panel(Columns([create_wallet_table(started_wallet, title="Wallet", transient=False), changes_table, final_wallet_table]),
+              title="Wallet Changes", border_style="bold magenta"))
 
     # Beautiful validation prompt with changes listed
     validation_prompt = Prompt.ask(f"[bold green]Do you want to update the profile wallet?[/bold green]",
@@ -222,6 +231,7 @@ def command_update_wallet(
 
     if validation_prompt == "n":
         typer.Abort()
+        return
 
     profile_id: int = get_profile(name=profile_name).id
 
@@ -240,8 +250,10 @@ def command_clear_wallet(
 ):
     profile_name = validate_and_prompt_profile_name(profile_name)
 
+    wallet = get_profile(name=profile_name).wallet
+
     i: int = 1
-    for ticker, quantity in get_profile(name=profile_name).wallet.items():
+    for ticker, quantity in wallet.items():
         i += 1
 
         if quantity != 0:
@@ -251,15 +263,16 @@ def command_clear_wallet(
                 style="red")
             typer.Abort()
 
-
-    console.print(command_view_wallet(profile_name, return_table=True))
+    console.print(create_wallet_table(wallet, title="Wallet"))
 
     conformation: str = Prompt.ask("[bold red]Are you sure you want to clear the wallet?[/bold red]",
                                    choices=["y", "n"], default="n")
 
     if conformation == "y":
         if update_profile(id=get_profile(name=profile_name).id, wallet={}):
-            console.print(f"[bold green]Profile '[bold]{profile_name}[/bold]' wallet successfully cleared![/bold green]")
+            console.print(
+                f"[bold green]Profile '[bold]{profile_name}[/bold]' wallet successfully cleared![/bold green]")
         else:
-            console.print(f"[bold]Error:[/bold] Unable to clear profile '[bold]{profile_name}[/bold]'. Check the [underline bold green]'logs'[/underline bold green] for more details.",
-                          style="red")
+            console.print(
+                f"[bold]Error:[/bold] Unable to clear profile '[bold]{profile_name}[/bold]'. Check the [underline bold green]'logs'[/underline bold green] for more details.",
+                style="red")

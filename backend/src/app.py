@@ -20,7 +20,7 @@ def init_app():
             log_config.get("log_in_json"),
         )
 
-    from services import init_service
+    from src.services import init_service
 
     logger.info("Initializing Oracle...")
 

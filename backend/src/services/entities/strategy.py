@@ -1,17 +1,15 @@
 import logging
 
-from build.lib.services.plugin import PluginPriority
+from src.services.plugin import PluginJob
 
 from src.api import fetch_historical_data
-from src.database import (IndicatorDTO, PluginDTO, PluginModel,
+from src.database import (IndicatorDTO, PluginDTO,
                           create_indicator, create_plugin, delete_indicator,
                           delete_plugin, get_indicator, get_plugin)
 from src.services.indicators import BaseIndicator
 from src.services.plugin import BasePlugin
-from src.utils.registry import indicator_registry, plugin_registry
 
 logger = logging.getLogger("oracle.app")
-
 
 class BaseStrategy:
     def __init__(
@@ -33,7 +31,7 @@ class BaseStrategy:
 
     def evaluate(self):
         for plugin in self.plugins:
-            if plugin.instance.job == PluginPriority.BEFORE_EVALUATION:
+            if plugin.instance.job == PluginJob.BEFORE_EVALUATION:
                 plugin.instance.evaluate(self)
 
         confidences: dict[str, dict[int, float]] = {}
@@ -43,11 +41,11 @@ class BaseStrategy:
             confidence[indicator.ticker][indicator.id] = confidence
 
         for plugin in self.plugins:
-            if plugin.instance.job == PluginPriority.AFTER_EVALUATION:
+            if plugin.instance.job == PluginJob.AFTER_EVALUATION:
                 confidences = plugin.instance.evaluate(self, confidences=confidences)
 
         for plugin in self.plugins:
-            if plugin.instance.job == PluginPriority.CREATE_ORDER:
+            if plugin.instance.job == PluginJob.CREATE_ORDER:
                 confidences = plugin.instance.evaluate(self, confidences=confidences)
                 break
 
@@ -104,9 +102,9 @@ class BaseStrategy:
                          extra={"profile_id": self.profile.id})
             return False
 
-        if new_plugin.instance.job == PluginPriority.CREATE_ORDER:
+        if new_plugin.instance.job == PluginJob.CREATE_ORDER:
             for plugin in self.plugins:
-                if plugin.instance.job == PluginPriority.CREATE_ORDER:
+                if plugin.instance.job == PluginJob.CREATE_ORDER:
                     logger.info(
                         f"User tried to add multiple create order plugins to profile with ID {self.profile.id}.",
                         extra={"profile_id": self.profile.id})
