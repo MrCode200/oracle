@@ -2,7 +2,6 @@ from logging import getLogger
 
 from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.engine import URL
-
 from src.utils import load_config
 
 logger = getLogger("oracle.app")

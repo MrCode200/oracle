@@ -1,2 +1,2 @@
-from .interface import app
+from .interface import app, command_list
 from .repl import repl

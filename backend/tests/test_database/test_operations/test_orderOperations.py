@@ -1,7 +1,6 @@
 import pytest
-
-from src.database import create_order, get_order, OrderDTO, get_profile, delete_profile, ProfileDTO, \
-    create_profile
+from src.database import (OrderDTO, ProfileDTO, create_order, create_profile,
+                          delete_profile, get_order, get_profile)
 
 PROFILE_NAME = "test_profile_beta"
 UPDATED_PROFILE_NAME = "updated_test_profile_beta"

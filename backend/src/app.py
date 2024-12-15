@@ -4,6 +4,7 @@ import time
 from src.custom_logger.loggingManager import setup_logger
 from src.utils.registry import profile_registry
 
+
 def init_app(repl: bool = False):
     logger = logging.getLogger("oracle.app")
     if not logger.hasHandlers():

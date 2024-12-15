@@ -6,11 +6,11 @@ from typing import Annotated
 
 import psutil
 import typer
-from src.app import init_app
 from rich.console import Console
 from rich.progress import Progress
 from rich.prompt import Prompt
 from rich.text import Text
+from src.app import init_app
 
 console = Console()
 

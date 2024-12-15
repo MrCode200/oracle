@@ -68,8 +68,35 @@ class Profile:
         if not self._check_status_valid():
             return
 
-        if not self.status == Status.PAPER_TRADING:
-            self.status = Status.ACTIVE
+        self.status = Status.ACTIVE
+
+        if run_on_start:
+            self.evaluate()
+
+        if not self.scheduler.running:
+            self.scheduler.start()
+
+        if update_profile(self.id, status=self.status.value):
+            logger.info(
+                f"Activated Profile with ID {self.id} and name: {self.name}",
+                extra={"profile_id": self.id},
+            )
+
+            return True
+        else:
+            logger.error(
+                f"Failed to activate Profile with ID {self.id} and name: {self.name}. Deactivating Profile",
+                extra={"profile_id": self.id},
+            )
+            self.deactivate()
+
+            return False
+
+    def activate_paper_trading(self, run_on_start: bool = False):
+        if not self._check_status_valid():
+            return
+
+        self.status = Status.PAPER_TRADING
 
         if run_on_start:
             self.evaluate()

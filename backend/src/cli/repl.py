@@ -1,56 +1,69 @@
-from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich.console import Console
-from rich.prompt import Prompt
+import logging
 import time
 
-from src.utils.registry import profile_registry
+from prompt_toolkit.styles import Style
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.prompt import Prompt
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
 
-import logging
+from src.utils.registry import profile_registry
+from src.cli import command_list
 
 logger = logging.getLogger("oracle.app")
 
 from src.app import init_app
 
-def repl():
-    console = Console()
+word_completer_style = Style.from_dict({
+    "prompt": "bold fg:pink",
+    "completion-menu.completion": "fg:gray bg:default",
+    "completion-menu.completion.current": "fg:lightgrey bg:darkcyan bold",
+    "bottom-toolbar": "bg:darkgray fg:lightgrey italic",
+})
 
+def repl():
     init_app(repl=True)
 
     from src.cli import app
 
-    while True:
-        print("")
-        command = Prompt.get_input(console,"[bold ]> ", password=False)
-        if command == "exit":
-            if Prompt.ask("Are you sure you want to exit?", choices=["y", "n"], default="n"):
-                break
+    try:
+        while True:
+            print("")
+            command = prompt("> ", completer=WordCompleter(words=["exit"] + command_list, sentence=True), style=word_completer_style)
 
-        try:
-            app(command.split())
+            if command == "exit":
+                if Prompt.ask("Are you sure you want to exit?", choices=["y", "n"], default="y") == "y":
+                    break
 
-        except SystemExit as e:
-            if e.code != 0:
-                print(f"Command failed with code: {e.code}")
+            try:
+                command_split = command.split()
+                app(command_split)
 
-    with Progress(
-        SpinnerColumn(finished_text=":white_check_mark: "),
-        TextColumn("[progress.description]{task.description} {task.completed}/{task.total}"),
-    ) as progress:
-        profiles = profile_registry.get().values()
+            except SystemExit as e:
+                if e.code != 0:
+                    print(f"Command failed with code: {e.code}")
 
-        deactivate_task = progress.add_task(description="[bold yellow]Deactivating all profiles...", total=len(profiles))
-        sleep_task = progress.add_task(description="[bold yellow]Closing Oracle...", total=5)
+    finally:
+        with Progress(
+            SpinnerColumn(finished_text=":white_check_mark: "),
+            TextColumn("[progress.description]{task.description} {task.completed}/{task.total}"),
+        ) as progress:
+            profiles = profile_registry.get().values()
 
-        for profile in profiles:
-            progress.update(deactivate_task, advance=1)
-            profile.deactivate()
+            deactivate_task = progress.add_task(description="[bold yellow]Deactivating all profiles...", total=len(profiles))
+            sleep_task = progress.add_task(description="[bold yellow]Closing Oracle...", total=5)
 
-        progress.update(deactivate_task, description="[bold green]All Profiles Deactivated Successfully")
+            for profile in profiles:
+                progress.update(deactivate_task, advance=1)
+                profile.deactivate()
 
-        logger.info("All Profiles Deactivated Successfully. Closing Oracle...")
+            progress.update(deactivate_task, description="[bold green]All Profiles Deactivated Successfully")
 
-        for _ in range(5):
-            progress.update(sleep_task, advance=1)
-            time.sleep(1)
+            logger.info("All Profiles Deactivated Successfully. Closing Oracle...")
 
-        progress.update(sleep_task, description="[bold green]Closed")
+            for _ in range(5):
+                progress.update(sleep_task, advance=1)
+                time.sleep(1)
+
+            progress.update(sleep_task, description="[bold green]Closed")

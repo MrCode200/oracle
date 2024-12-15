@@ -1,7 +1,5 @@
 from rich.console import Console
 from rich.table import Table
-from src.database import get_profile
-from src.services.entities import Status
 from src.utils.registry import indicator_registry
 
 # Create a Console instance for rich output

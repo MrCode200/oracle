@@ -1,23 +1,20 @@
+import logging
 from typing import Annotated, Optional
 
-import logging
-
 import typer
-from rich.columns import Columns
-
-from src.services.entities import Profile
-from src.utils.registry import profile_registry
-from src.api import fetch_info_data
 from rich import box
+from rich.columns import Columns
 from rich.console import Console
-from rich.table import Table
+from rich.panel import Panel
 from rich.progress import Progress
 from rich.prompt import Prompt
-from rich.panel import Panel
-
+from rich.table import Table
+from src.api import fetch_info_data
+from src.cli.commands.profileCommands.utils import \
+    validate_and_prompt_profile_name
 from src.exceptions import DataFetchError
-
-from src.cli.commands.profileCommands.utils import validate_and_prompt_profile_name
+from src.services.entities import Profile
+from src.utils.registry import profile_registry
 
 console = Console()
 

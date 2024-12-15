@@ -3,13 +3,12 @@ from typing import Annotated
 from rich.console import Console
 from rich.prompt import Confirm
 from rich.text import Text
-
-from src.database import ProfileDTO
-from src.cli.commands.profileCommands.utils import validate_and_prompt_profile_name
-from src.database import create_profile, delete_profile
-from typer import Option, Argument
+from src.cli.commands.profileCommands.utils import \
+    validate_and_prompt_profile_name
+from src.database import ProfileDTO, create_profile, delete_profile
 from src.services.entities import Profile
 from src.utils.registry import profile_registry
+from typer import Argument, Option
 
 console = Console()
 

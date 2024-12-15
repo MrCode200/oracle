@@ -112,6 +112,7 @@ def get_profile(
 
 from typing import Optional
 
+
 def update_profile(
         id: int,
         name: Optional[str] = None,

@@ -3,20 +3,21 @@ from typing import Annotated, Optional
 import typer
 from rich.console import Console
 from rich.table import Table
-
+from src.cli.commands.profileCommands.utils import (
+    validate_and_prompt_profile_name, validate_and_prompt_status)
 from src.database import get_profile
 from src.services.entities import Profile, Status
 from src.utils.registry import profile_registry
 
-from src.cli.commands.profileCommands.utils import validate_and_prompt_profile_name
-
 console = Console()
+
 
 def command_list_profiles():
     profiles = get_profile()
 
     if len(profiles) == 0:
-        console.print("[bold red]No profiles created. Create a new Profile with the 'profile create' command.[/bold red]")
+        console.print(
+            "[bold red]No profiles created. Create a new Profile with the 'profile create' command.[/bold red]")
         return
 
     console.print("[bold green]Available profiles:[/bold green]")
@@ -34,10 +35,14 @@ def command_list_profiles():
     console.print(table)
 
 
-def command_activate_profile(
-        name: Annotated[Optional[str], typer.Argument(help="The name of the profile to delete.")] = None
+def command_change_status(
+        name: Annotated[Optional[str], typer.Argument(help="The name of the profile to delete.")] = None,
+        status: Annotated[Optional[str], typer.Argument(help="The status to set the profile to. Has Autocompletes Option when not provided.")] = None,
+        run_on_start: Annotated[bool, typer.Option("--run-on-start", "-r", help="Run the strategy on start")] = False
 ):
     name = validate_and_prompt_profile_name(name)
+
+    status = validate_and_prompt_status(status)
 
     profile: Profile = profile_registry.get(name)
     if not profile:
@@ -45,24 +50,18 @@ def command_activate_profile(
                       f"The bot may not be running or the profile may have been deleted.")
         return
 
-    if profile.activate():
-        console.print(f"[bold green]Profile '[white underline bold]{name}[/white underline bold]' activated successfully!")
-    else:
-        console.print(f"[bold red]Error: Profile '[white underline bold]{name}[/white underline bold]' couldn't be activated!")
+    confirmation: bool = False
+    match status:
+        case Status.ACTIVE:
+            confirmation: bool = profile.activate(run_on_start)
+        case Status.INACTIVE:
+            confirmation: bool = profile.deactivate()
+        case Status.PAPER_TRADING:
+            confirmation: bool = profile.activate_paper_trading(run_on_start)
 
-
-def command_deactivate_profile(
-        name: Annotated[Optional[str], typer.Argument(help="The name of the profile to delete.")] = None
-):
-    name = validate_and_prompt_profile_name(name)
-
-    profile: Profile = profile_registry.get(name)
-    if not profile:
-        console.print(f"[bold red]Error: Profile '[white underline bold]{name}[/white underline bold]' not found!\n"
-                      f"The bot may not be running or the profile may have been deleted.")
+    if not confirmation:
+        console.print(
+            f"[bold red]Error: Profile '[white underline bold]{name}[/white underline bold]' couldn't change status to '[white underline bold]{status}[/white underline bold]'!")
         return
 
-    if profile.deactivate():
-        console.print(f"[bold green]Profile '[white underline bold]{name}[/white underline bold]' deactivated successfully!")
-    else:
-        console.print(f"[bold red]Error:Profile '[white underline bold]{name}[/white underline bold]' couldn't be deactivated!")
+    console.print(f"[bold green]Profile '[white underline bold]{name}[/white underline bold]' activated successfully!")
