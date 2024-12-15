@@ -16,8 +16,6 @@ apscheduler = "^3.11.0"
 rich = "^13.9.4"
 typer = {extras = ["all"], version = "^0.15.1"}
 prompt-toolkit = "^3.0.48"
-# TODO: Remove this dependency
-mysql-connector-python = "^9.1.0"
 psutil = "^6.1.0"
 sqlalchemy = {extras = ["postgresql"], version = "^2.0.36"}
 
