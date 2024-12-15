@@ -104,6 +104,10 @@ def command_update_wallet(
         prompt: Annotated[bool, typer.Option("--no-prompt", "-np", help="Prompt for ticker input.")] = True
 ):
     profile_name: str = validate_and_prompt_profile_name(profile_name)
+    if profile_name is None:
+        console.print("[bold red]Profile not found![/bold red]")
+        return
+
     profile: Profile = profile_registry.get(profile_name)
 
     started_wallet: dict[str, float] = profile.wallet

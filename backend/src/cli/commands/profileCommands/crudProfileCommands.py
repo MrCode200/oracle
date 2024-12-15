@@ -28,6 +28,8 @@ def command_create_profile(
 
     _ = Profile(new_profile)
 
+    console.print(f"[bold green]Profile '[white underline bold]{profile_name}[/white underline bold]' created successfully![/bold green]")
+
 
 def command_delete_profile(
         profile_name: Annotated[str, Argument(
