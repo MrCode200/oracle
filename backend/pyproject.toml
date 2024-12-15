@@ -17,7 +17,10 @@ rich = "^13.9.4"
 typer = {extras = ["all"], version = "^0.15.1"}
 prompt-toolkit = "^3.0.48"
 psutil = "^6.1.0"
-sqlalchemy = {extras = ["postgresql"], version = "^2.0.36"}
+sqlalchemy = "^2.0.36"
+psycopg = "^3.2.3"
+psycopg-binary = "^3.2.3"
+
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
