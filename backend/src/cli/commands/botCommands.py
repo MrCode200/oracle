@@ -6,18 +6,16 @@ from typing import Annotated
 
 import psutil
 import typer
-from src.app import init_app  # Assuming this is your app's main logic
+from src.app import init_app
 from rich.console import Console
 from rich.progress import Progress
 from rich.prompt import Prompt
 from rich.text import Text
 
-# Initialize the rich console
 console = Console()
 
 # Define PID file location
 PID_FILE = os.path.join(tempfile.gettempdir(), "monsieur_oracle.pid")
-
 
 def command_start_app(
         no_process: Annotated[bool, typer.Option(

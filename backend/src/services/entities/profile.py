@@ -68,7 +68,7 @@ class Profile:
         if not self._check_status_valid():
             return
 
-        if self.status == Status.PAPER_TRADING:
+        if not self.status == Status.PAPER_TRADING:
             self.status = Status.ACTIVE
 
         if run_on_start:
@@ -82,12 +82,16 @@ class Profile:
                 f"Activated Profile with ID {self.id} and name: {self.name}",
                 extra={"profile_id": self.id},
             )
+
+            return True
         else:
             logger.error(
                 f"Failed to activate Profile with ID {self.id} and name: {self.name}. Deactivating Profile",
                 extra={"profile_id": self.id},
             )
             self.deactivate()
+
+            return False
 
     def deactivate(self):
         if self.scheduler.running:
@@ -105,6 +109,7 @@ class Profile:
                 extra={"profile_id": self.id},
             )
             return True
+
         else:
             logger.error(
                 f"Failed to deactivate Profile with ID {self.id} and name: {self.name}.\n"
@@ -119,12 +124,14 @@ class Profile:
             return
 
         # TODO: get value and call agent
-        self.strategy.evaluate()
+        order: dict[str, float] = self.strategy.evaluate()
 
         logger.info(
             f"Evaluation Finished for Profile with ID {self.id} and name: {self.name}",
             extra={"profile_id": self.id},
         )
+
+        self.trade_agent(order)
 
     def backtest(self) -> dict[str, float] | None:
         if not self._check_status_valid():
@@ -175,6 +182,19 @@ class Profile:
                 f"Failed to update Profile with id: {self.id}; and name: {self.name}",
                 extra={"profile_id": self.id},
             )
+
+    def update_wallet(self, wallet: dict[str, float]):
+        if not update_profile(self.id, wallet=wallet):
+            logger.error(
+                f"Failed to update Profile with id: {self.id}; and name: {self.name}",
+            )
+            return False
+        else:
+            self.wallet = wallet
+            logger.info(
+                f"Updated Walled of Profile with id: {self.id}; and name: {self.name} to wallet: {self.wallet}"
+            )
+            return True
 
     def add_indicator(self, indicator: 'BaseIndicator', weight: float, ticker: str, interval: str):
         self.strategy.add_indicator(

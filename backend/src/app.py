@@ -4,7 +4,7 @@ import time
 from src.custom_logger.loggingManager import setup_logger
 from src.utils.registry import profile_registry
 
-def init_app():
+def init_app(repl: bool = False):
     logger = logging.getLogger("oracle.app")
     if not logger.hasHandlers():
         from src.utils import load_config
@@ -31,11 +31,16 @@ def init_app():
 
     logger.info("All Profiles Registered Successfully...")
 
+    if repl:
+        return
+
+    # Was if I ever wanted to code cli again
     try:
         logger.info("Starting Oracle main loop...")
         while True:
             time.sleep(1)
 
+        # read Fifo file
 
     finally:
         for profile in profile_registry.get().values():
@@ -45,5 +50,10 @@ def init_app():
 
         time.sleep(5)
 
+
+
+
+
 if __name__ == "__main__":
-    init_app()
+    from src.cli import repl
+    repl()

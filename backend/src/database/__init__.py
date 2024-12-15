@@ -33,8 +33,7 @@ with base_engine.connect() as conn:
     result = conn.execute(text("SELECT 1 FROM pg_database WHERE datname = 'oracle'"))
     if result.fetchone() is None:
         conn.execute(text("CREATE DATABASE oracle"))
-    else:
-        print("Database 'oracle' already exists")
+        logger.info("Database Successfully Created!")
 
 engine: Engine = create_engine(DATABASE_URL)
 

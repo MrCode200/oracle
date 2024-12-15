@@ -1,8 +1,12 @@
 from typing import Annotated, Optional
 
+import logging
+
 import typer
 from rich.columns import Columns
 
+from src.services.entities import Profile
+from src.utils.registry import profile_registry
 from src.api import fetch_info_data
 from rich import box
 from rich.console import Console
@@ -11,20 +15,24 @@ from rich.progress import Progress
 from rich.prompt import Prompt
 from rich.panel import Panel
 
-from src.database import update_profile, get_profile
 from src.exceptions import DataFetchError
 
 from src.cli.commands.profileCommands.utils import validate_and_prompt_profile_name
 
 console = Console()
 
+logger = logging.getLogger("oracle.app")
 
-def get_ticker_price(ticker: str) -> float:
+
+def get_ticker_price(ticker: str) -> float | None:
     info = fetch_info_data(ticker)
     current_price = info.get("currentPrice", None)
 
     if current_price is None:
         current_price = info.get("regularMarketPreviousClose", None)
+
+    if current_price is None:
+        logger.warning(f"{ticker} has been identified as an invalid ticker. INFO: {info}")
 
     return current_price
 
@@ -65,6 +73,7 @@ def create_wallet_table(wallet: dict[str, float], title: str, transient: bool = 
         progress.update(final_wallet_task, advance=1, description="Done!")
 
     for ticker in invalid_tickers:
+        logger.warning(f"{ticker} has been identified as an invalid ticker. Skipping...")
         console.print(f"[bold yellow] {ticker} has been identified as an invalid ticker. Skipping...[/bold yellow]") if print_info else None
         wallet.pop(ticker)
 
@@ -80,7 +89,7 @@ def command_view_wallet(
 ):
     profile_name = validate_and_prompt_profile_name(profile_name)
 
-    table = create_wallet_table(get_profile(name=profile_name).wallet, title="Wallet")
+    table = create_wallet_table(profile_registry.get(profile_name).wallet, title="Wallet")
 
     console.print(table)
 
@@ -95,8 +104,9 @@ def command_update_wallet(
         prompt: Annotated[bool, typer.Option("--no-prompt", "-np", help="Prompt for ticker input.")] = True
 ):
     profile_name: str = validate_and_prompt_profile_name(profile_name)
+    profile: Profile = profile_registry.get(profile_name)
 
-    started_wallet: dict[str, float] = get_profile(name=profile_name).wallet
+    started_wallet: dict[str, float] = profile.wallet
     final_wallet: dict[str, float] = started_wallet.copy()
     invalid_added_tickers: list[str] = []
     invalid_removed_tickers: list[str] = []
@@ -239,9 +249,7 @@ def command_update_wallet(
         typer.Abort()
         return
 
-    profile_id: int = get_profile(name=profile_name).id
-
-    if update_profile(id=profile_id, wallet=final_wallet):
+    if profile.update_wallet(wallet=final_wallet):
         console.print(f"[bold green]Profile '[bold]{profile_name}[/bold]' wallet successfully updated![/bold green]")
     else:
         console.print(f"[bold]Error:[/bold] Unable to update profile '[bold]{profile_name}[/bold]'.\n"
@@ -255,8 +263,9 @@ def command_clear_wallet(
             Optional[str], typer.Argument(help="The [bold]name[/bold] of the [bold]profile[/bold] to clear.")] = None
 ):
     profile_name = validate_and_prompt_profile_name(profile_name)
+    profile: Profile = profile_registry.get(profile_name)
 
-    wallet = get_profile(name=profile_name).wallet
+    wallet = profile.wallet
 
     i: int = 1
     for ticker, quantity in wallet.items():
@@ -275,7 +284,7 @@ def command_clear_wallet(
                                    choices=["y", "n"], default="n")
 
     if conformation == "y":
-        if update_profile(id=get_profile(name=profile_name).id, wallet={}):
+        if profile.update_wallet({}):
             console.print(
                 f"[bold green]Profile '[bold]{profile_name}[/bold]' wallet successfully cleared![/bold green]")
         else:

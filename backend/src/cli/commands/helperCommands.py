@@ -22,25 +22,3 @@ def command_list_indicators():
         i += 1
 
     console.print(table)
-
-
-def command_list_profiles():
-    profiles = get_profile()
-
-    if len(profiles) == 0:
-        console.print("[bold red]No profiles created. Create a new Profile with the 'profile create' command.[/bold red]")
-        return
-
-    console.print("[bold green]Available profiles:[/bold green]")
-
-    # Create a table to display profiles
-    table = Table(show_header=True, header_style="bold blue")
-    table.add_column("ID", style="dim")
-    table.add_column("Name")
-    table.add_column("Status")
-
-    for profile in profiles:
-        status = Status(profile.status)
-        table.add_row(str(profile.id), profile.name, str(status))
-
-    console.print(table)
