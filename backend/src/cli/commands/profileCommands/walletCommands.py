@@ -3,7 +3,7 @@ from typing import Annotated, Optional
 import typer
 from rich.columns import Columns
 
-from api import fetch_info_data
+from src.api import fetch_info_data
 from rich import box
 from rich.console import Console
 from rich.table import Table
@@ -11,7 +11,7 @@ from rich.progress import Progress
 from rich.prompt import Prompt
 from rich.panel import Panel
 
-from database import update_profile, get_profile
+from src.database import update_profile, get_profile
 from src.exceptions import DataFetchError
 
 from src.cli.commands.profileCommands.utils import validate_and_prompt_profile_name
@@ -61,6 +61,8 @@ def create_wallet_table(wallet: dict[str, float], title: str, transient: bool = 
                 final_wallet_table.add_row(str(i), ticker, str(quantity), str(current_price) + "$",
                                            str(holding_value) + "$")
             i += 1
+
+        progress.update(final_wallet_task, advance=1, description="Done!")
 
     for ticker in invalid_tickers:
         console.print(f"[bold yellow] {ticker} has been identified as an invalid ticker. Skipping...[/bold yellow]") if print_info else None
@@ -122,7 +124,7 @@ def command_update_wallet(
             task = progress.add_task("Updating wallet...", total=total_tickers)
 
             for ticker in removed_tickers:
-                progress.update(task, advance=1, description=f"Removing ticker {ticker}... {i}/{total_tickers}...")
+                progress.update(task, advance=1, description=f"Removing ticker {ticker}... {i}/{total_tickers}")
                 i += 1
 
                 if not remove_from_wallet(ticker):
@@ -130,7 +132,7 @@ def command_update_wallet(
 
 
             for ticker in added_tickers:
-                progress.update(task, advance=1, description=f"Adding ticker {ticker}... {i}/{total_tickers}...")
+                progress.update(task, advance=1, description=f"Adding ticker {ticker}... {i}/{total_tickers}")
                 i += 1
 
                 try:
@@ -140,6 +142,9 @@ def command_update_wallet(
                 except DataFetchError as e:
                     invalid_added_tickers.append(ticker)
                     continue
+
+
+            progress.update(task, completed=total_tickers, description="[bold green]Wallet updated![/bold green]")
 
 
     # Handle output for invalid tickers
@@ -152,6 +157,10 @@ def command_update_wallet(
     for invalid_ticker in invalid_removed_tickers:
         console.print(
             f"[bold red]Ticker '{invalid_ticker}' doesn't exist in wallet or contains assets, \n in such a case pls sell all assets before removing [/bold red].")
+
+    if prompt:
+        console.print(Panel("[bold yellow]Enter the ticker for each asset you want to [white underline]`track`[/white underline].\n"
+                        "To exit, type [white underline]`q`[/white underline].", expand=False))
 
     # Prompt for adding and removing tickers interactively
     while prompt:
@@ -178,11 +187,8 @@ def command_update_wallet(
             continue
 
     if prompt:
-        console.print("")
-        console.print("[bold red]The following tickers will be removed from the wallet!"
-                      "\nMake sure that you have no assets of that ticker in the wallet before removing them."
-                      "\nOr press q to exit[/bold red]")
-        console.print("")
+        console.print(Panel("[bold yellow]Enter the ticker for each asset you want to [white underline]`remove`[/white underline].\n"
+                            "To exit, type [white underline]`q`[/white underline].", expand=False))
 
     while prompt:
         ticker_prompt = Prompt.ask("[bold red]Enter ticker[/bold red]")
@@ -205,6 +211,8 @@ def command_update_wallet(
             console.print(f"[bold red]Invalid ticker: [bold]{ticker_prompt}[/bold red]. Please try again.")
             continue
 
+    final_wallet_table = create_wallet_table(final_wallet, "Final Wallet", transient=False, print_info=True)
+
     removed: set = set(started_wallet.keys()) - set(final_wallet.keys())
     added: set = set(final_wallet.keys()) - set(started_wallet.keys())
 
@@ -219,17 +227,15 @@ def command_update_wallet(
     for ticker in removed:
         changes_table.add_row(ticker, "[bold red]Removed[/bold red]")
 
-    final_wallet_table = create_wallet_table(final_wallet, "Final Wallet", transient=False, print_info=False)
-
     console.print(
-        Panel(Columns([create_wallet_table(started_wallet, title="Wallet", transient=False), changes_table, final_wallet_table]),
+        Panel(Columns([create_wallet_table(started_wallet, title="Wallet", transient=False, print_info=False), changes_table, final_wallet_table]),
               title="Wallet Changes", border_style="bold magenta"))
 
     # Beautiful validation prompt with changes listed
     validation_prompt = Prompt.ask(f"[bold green]Do you want to update the profile wallet?[/bold green]",
                                    choices=["y", "n"], default="y")
 
-    if validation_prompt == "n":
+    if validation_prompt != "y":
         typer.Abort()
         return
 

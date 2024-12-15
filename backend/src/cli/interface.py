@@ -55,6 +55,15 @@ bot_app.command(name="status", help="Checks the status of the app.")(command_sta
 app.add_typer(crud_profile_app, name="profile")
 app.add_typer(bot_app, name="bot")
 
+#-------------
+@app.command(name="t")
+def test():
+    pass
+#------------
+
 
 def entrypoint():
     app()
+
+if __name__ == '__main__':
+    entrypoint()

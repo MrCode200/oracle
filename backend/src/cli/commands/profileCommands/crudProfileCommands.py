@@ -5,7 +5,7 @@ from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.text import Text
 
-from cli.commands.profileCommands.utils import validate_and_prompt_profile_name
+from src.cli.commands.profileCommands.utils import validate_and_prompt_profile_name
 from src.database import create_profile, delete_profile
 from typer import Option
 from src.utils.registry import profile_registry
@@ -18,13 +18,6 @@ def command_create_profile(
         balance: float = Option(0, "--balance", "-b", help="The balance of the profile.", prompt="Enter balance "),
         paper_balance: float = Option(0, "--paper-balance", "-p", help="The paper balance of the profile.",
                                       prompt="Enter paper balance ")):
-    wallet: dict[str, float] = {}
-
-    # Display an introductory message with rich text
-    # TODO: add teh remove [ticker] command
-    console.print(Panel("[bold yellow]Enter the ticker for each asset you want to track.\n"
-                        "To exit, type [white underline]`finish`[/white underline].", expand=False))
-
     create_profile(
         name=name,
         balance=balance,

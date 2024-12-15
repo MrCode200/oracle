@@ -11,7 +11,6 @@ python = "^3.10"
 pandas = "^2.2.3"
 yfinance = "^0.2.50"
 pandas-ta = "^0.3.14b0"
-sqlalchemy = "^2.0.36"
 python-dotenv = "^1.0.1"
 apscheduler = "^3.11.0"
 rich = "^13.9.4"
@@ -20,7 +19,7 @@ prompt-toolkit = "^3.0.48"
 # TODO: Remove this dependency
 mysql-connector-python = "^9.1.0"
 psutil = "^6.1.0"
-psycopg2-binary = "^2.9.10"
+sqlalchemy = {extras = ["postgresql"], version = "^2.0.36"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"

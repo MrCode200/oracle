@@ -28,7 +28,7 @@ def command_list_profiles():
     profiles = get_profile()
 
     if len(profiles) == 0:
-        console.print("[bold red]No profiles created. Create a new Profile with the 'add profile' command.[/bold red]")
+        console.print("[bold red]No profiles created. Create a new Profile with the 'profile create' command.[/bold red]")
         return
 
     console.print("[bold green]Available profiles:[/bold green]")

@@ -1,6 +1,8 @@
 from logging import getLogger
 
 from sqlalchemy import Engine, create_engine, text
+from sqlalchemy.engine import URL
+
 from src.utils import load_config
 
 logger = getLogger("oracle.app")
@@ -9,17 +11,30 @@ logger.info("Initializing Database...")
 
 DB_CONFIG = load_config("DB_CONFIG")
 
-DATABASE_URL = f"mysql+mysqlconnector://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}/{DB_CONFIG['database']}"
-BASE_URL = f"mysql+mysqlconnector://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}"
+DATABASE_URL = URL.create(
+    drivername="postgresql+psycopg",
+    username=DB_CONFIG["user"],
+    password=DB_CONFIG["password"],
+    host=DB_CONFIG["host"],
+    port=DB_CONFIG["port"],
+    database=DB_CONFIG["database"],
+)
+BASE_URL = URL.create(
+    drivername="postgresql+psycopg",
+    username=DB_CONFIG["user"],
+    password=DB_CONFIG["password"],
+    host=DB_CONFIG["host"],
+    port=DB_CONFIG["port"],
+)
 
 base_engine: Engine = create_engine(BASE_URL)
 
 with base_engine.connect() as conn:
-    result = conn.execute(
-        text(f"CREATE DATABASE IF NOT EXISTS `oracle`;")
-    )
-    logger.info("Ensured Database Exists...")
-    base_engine.dispose()
+    result = conn.execute(text("SELECT 1 FROM pg_database WHERE datname = 'oracle'"))
+    if result.fetchone() is None:
+        conn.execute(text("CREATE DATABASE oracle"))
+    else:
+        print("Database 'oracle' already exists")
 
 engine: Engine = create_engine(DATABASE_URL)
 

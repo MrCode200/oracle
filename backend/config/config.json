@@ -9,10 +9,10 @@
   },
   "DB_CONFIG": {
     "host": "localhost",
-    "user": "root",
+    "user": "postgres",
     "password": "root",
     "database": "oracle",
-    "port": 3307,
+    "port": 5432,
     "auto_rollback": true
   },
   "PROFILE_CONFIG": {

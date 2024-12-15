@@ -2,7 +2,7 @@ from typing import Optional
 
 import typer
 
-from database.operations.profileOperations import get_profile
+from src.database.operations.profileOperations import get_profile
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit import prompt
 from rich.console import Console
