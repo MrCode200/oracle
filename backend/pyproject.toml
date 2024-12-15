@@ -20,6 +20,7 @@ psutil = "^6.1.0"
 sqlalchemy = "^2.0.36"
 psycopg = "^3.2.3"
 psycopg-binary = "^3.2.3"
+python-dateutil = "^2.9.0.post0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -29,7 +30,7 @@ isort = "^5.13.2"
 
 [tool.poetry.scripts]
 oracle = "src.cli.interface:entrypoint"
-bot = "src.app:repl"
+bot = "src.cli:repl"
 
 [build-system]
 requires = ["setuptools>=42", "wheel"]
