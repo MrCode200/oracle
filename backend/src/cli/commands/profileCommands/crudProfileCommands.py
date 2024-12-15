@@ -18,10 +18,6 @@ def command_create_profile(
         balance: float = Option(0, "--balance", "-b", help="The balance of the profile.", prompt="Enter balance "),
         paper_balance: float = Option(0, "--paper-balance", "-p", help="The paper balance of the profile.",
                                       prompt="Enter paper balance ")):
-    profile_name = validate_and_prompt_profile_name(profile_name)
-    if profile_name is None:
-        return
-
     new_profile: ProfileDTO = create_profile(
         name=profile_name,
         balance=balance,
