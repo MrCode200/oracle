@@ -1,7 +1,9 @@
 import logging
 from typing import Optional
-
+import requests
+from datetime import datetime, timedelta
 from pandas import DataFrame
+import pandas as pd
 from src.api.utils import compress_data, determine_interval  # type: ignore
 from src.exceptions import DataFetchError
 from yfinance import Ticker  # type: ignore
@@ -42,6 +44,7 @@ def fetch_historical_data(  # type: ignore
         interval: str = "1d",
         start: str | None = None,
         end: str | None = None,
+        api_name:str| None =None
 ) -> DataFrame:
     """
     Fetch historical market chart data from Yahoo Finance using yfinance.
@@ -54,35 +57,75 @@ def fetch_historical_data(  # type: ignore
     :raises AttributeError: If the ticker is invalid
     :raises DataFetchError: If an error occurs while fetching data
     """
-    try:
-        ticker_obj = Ticker(ticker)
+    if api_name == None :
+        try:
+            ticker_obj = Ticker(ticker)
 
-        df = ticker_obj.history(
-            period=period, interval=determine_interval(interval), start=start, end=end
-        )
+            df = ticker_obj.history(
+                period=period, interval=determine_interval(interval), start=start, end=end
+            )
 
-        if not df.empty:
-            logger.info(f"Fetched Data: {ticker = }; {period = }; {interval = };", extra={"ticker": ticker})
-            df = compress_data(df, interval)
-            return df
+            if not df.empty:
+                logger.info(f"Fetched Data: {ticker = }; {period = }; {interval = };", extra={"ticker": ticker})
+                df = compress_data(df, interval)
+                return df
+            else:
+                logger.error(
+                    f"Failed to fetch data. Data Frame is empty. Parameters: {ticker = }; {period = }; {interval = }; {start = }; {end = };",
+                    exc_info=True,
+                )
+                raise DataFetchError(
+                    message="Failed to fetch data. Data Frame is empty. No data fetched for the given parameters",
+                    ticker=ticker,
+                    period=period,
+                    interval=interval,
+                    start=start,
+                    end=end,
+                )
+
+        except Exception as e:
+            if not isinstance(e, DataFetchError):
+                logger.error(f"Error fetching history data: {e}")
+                raise
+
+    else:
+
+        # calculating time
+        now = datetime.now()
+        start_time = now - timedelta(days=15)
+        start_timestamp = int(start_time.timestamp())
+        end_timestamp = int(now.timestamp())
+
+        # request to api
+        url = "https://api.nobitex.ir/market/udf/history"
+        params = {
+            "symbol": ticker,
+            "resolution": interval,
+            "from": start_timestamp,
+            "to": end_timestamp
+        }
+
+        response = requests.get(url, params=params)
+
+        if response.status_code == 200:
+            data = response.json()
+            if "t" in data and "c" in data:
+                # convert to dataframe
+                df = pd.DataFrame({
+                    "timestamp": data["t"],
+                    "Open" :data["o"],
+                    "High" : data["h"],
+                    "Low":data["l"],
+                    "Close": data["c"]
+                })
+
+                df["timestamp"] = pd.to_datetime(df["timestamp"], unit='s')
+                return df
+            else:
+                raise ValueError("Invalid data format from API.")
         else:
-            logger.error(
-                f"Failed to fetch data. Data Frame is empty. Parameters: {ticker = }; {period = }; {interval = }; {start = }; {end = };",
-                exc_info=True,
-            )
-            raise DataFetchError(
-                message="Failed to fetch data. Data Frame is empty. No data fetched for the given parameters",
-                ticker=ticker,
-                period=period,
-                interval=interval,
-                start=start,
-                end=end,
-            )
+            raise Exception(f"Failed to fetch data. Status code: {response.status_code}")
 
-    except Exception as e:
-        if not isinstance(e, DataFetchError):
-            logger.error(f"Error fetching history data: {e}")
-            raise
 
 if __name__ == "__main__":
     info = fetch_info_data("si")
