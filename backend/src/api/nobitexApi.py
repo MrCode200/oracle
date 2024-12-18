@@ -1,7 +1,7 @@
 import requests
 
 # توکن احراز هویت
-token = "5bb701cf8300f9af4436633e5e00f22ce75e7e30"
+token=""
 
 # هدرهای درخواست
 headers = {
