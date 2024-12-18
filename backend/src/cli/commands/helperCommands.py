@@ -6,7 +6,7 @@ from src.utils.registry import indicator_registry
 console = Console()
 
 
-def command_list_indicators():
+def list_indicators_command():
     console.print("[bold green]Available algorithms:[/bold green]")
 
     # Create a table to display the indicators

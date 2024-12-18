@@ -1,5 +1,5 @@
-from sqlalchemy import (JSON, Column, DateTime, Float, ForeignKey, Integer,
-                        String, func)
+from sqlalchemy import (JSONB, Column, DateTime, Float, ForeignKey, Integer,
+                        String, func, ARRAY)
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
@@ -11,10 +11,10 @@ class ProfileModel(Base):  # type: ignore
     name = Column(String(50), unique=True)
     status = Column(Integer, default=0)
     balance = Column(Float)
-    wallet = Column(JSON)
+    wallet = Column(JSONB)
     paper_balance = Column(Float)
-    paper_wallet = Column(JSON)
-    strategy_settings = Column(JSON)
+    paper_wallet = Column(JSONB)
+    strategy_settings = Column(JSONB)
 
 
 class IndicatorModel(Base):
@@ -24,8 +24,8 @@ class IndicatorModel(Base):
     name = Column(String(100))
     weight = Column(Float)
     ticker = Column(String(16))
-    interval = Column(String(6))
-    settings = Column(JSON)
+    interval = Column(ARRAY(String(16)))
+    settings = Column(JSONB)
 
 
 class PluginModel(Base):
@@ -33,7 +33,7 @@ class PluginModel(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     profile_id = Column(Integer, ForeignKey("profiles.id", ondelete="CASCADE"))
     name = Column(String(100))
-    settings = Column(JSON)
+    settings = Column(JSONB)
 
 
 class OrderModel(Base):

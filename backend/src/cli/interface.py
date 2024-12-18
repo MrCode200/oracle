@@ -6,7 +6,7 @@ import typer
 sys.path.append('D:\\MyFolders\\Code\\Oracle\\backend')
 
 from src.cli.commands.profileCommands.crudProfileCommands import \
-    command_create_profile
+    create_profile_command
 from src.custom_logger.loggingManager import setup_logger
 
 logger = logging.getLogger("oracle.app")
@@ -25,34 +25,40 @@ if False and not logger.handlers:
         log_config.get("log_in_json"),
     )
 
-from src.cli.commands import (command_change_status, command_clear_wallet,
-                              command_delete_profile, command_list_indicators,
-                              command_list_profiles, command_start_app,
-                              command_status_app, command_stop_app,
-                              command_update_wallet, command_view_wallet)
-
+from src.cli.commands import (change_status_command, clear_wallet_command,
+                              delete_profile_command, list_indicators_command,
+                              list_profiles_command, start_app_command,
+                              status_app_command, stop_app_command,
+                              update_wallet_command, view_wallet_command,
+                              add_indicator_command, remove_indicator_command, list_profile_indicators_command)
 
 app = typer.Typer(rich_markup_mode="rich")
-app.command(name="list-indicators", help="Lists all available indicators.")(command_list_indicators)
+app.command(name="list-indicators", help="Lists all available indicators.")(list_indicators_command)
 
 profile_app = typer.Typer(help="Commands to interact with profiles.")
-profile_app.command(name="delete", help="Deletes a profile.")(command_delete_profile)
-profile_app.command(name="change-status", help="Changes the status of a profile.")(command_change_status)
-profile_app.command(name="create", help="Creates a new profile.")(command_create_profile)
+profile_app.command(name="delete", help="Deletes a profile.")(delete_profile_command)
+profile_app.command(name="change-status", help="Changes the status of a profile.")(change_status_command)
+profile_app.command(name="create", help="Creates a new profile.")(create_profile_command)
 
-profile_app.command(name="list", help="Lists all available profiles.")(command_list_profiles)
+profile_app.command(name="list", help="Lists all available profiles.")(list_profiles_command)
 
 wallet_app = typer.Typer(help="Commands to interact with the wallet.")
-wallet_app.command(name="view", help="Shows the wallet of a profile.")(command_view_wallet)
-wallet_app.command(name="update", help="Updates the wallet of a profile.")(command_update_wallet)
-wallet_app.command(name="clear", help="Clears the wallet of a profile.")(command_clear_wallet)
+wallet_app.command(name="view", help="Shows the wallet of a profile.")(view_wallet_command)
+wallet_app.command(name="update", help="Updates the wallet of a profile.")(update_wallet_command)
+wallet_app.command(name="clear", help="Clears the wallet of a profile.")(clear_wallet_command)
+
+indicator_app = typer.Typer(help="Commands to interact with indicators.")
+indicator_app.command(name="add", help="Adds an indicator to a profile.")(add_indicator_command)
+indicator_app.command(name="remove", help="Removes an indicator from a profile.")(remove_indicator_command)
+indicator_app.command(name="list", help="Lists all indicators of a profile.")(list_profile_indicators_command)
 
 bot_app = typer.Typer(help="Commands to interact with the bot.", hidden=True)
-bot_app.command(name="start", help="Runs the app.")(command_start_app)
-bot_app.command(name="stop", help="Stops the app.")(command_stop_app)
-bot_app.command(name="status", help="Checks the status of the app.")(command_status_app)
+bot_app.command(name="start", help="Runs the app.")(start_app_command)
+bot_app.command(name="stop", help="Stops the app.")(stop_app_command)
+bot_app.command(name="status", help="Checks the status of the app.")(status_app_command)
 
 profile_app.add_typer(wallet_app, name="wallet")
+profile_app.add_typer(indicator_app, name="indicator")
 app.add_typer(profile_app, name="profile")
 app.add_typer(bot_app, name="bot")
 
@@ -70,20 +76,27 @@ for command in wallet_app.registered_commands:
     command_list.append("profile wallet " + command.name)
 command_list.append("profile wallet --help")
 
+for command in indicator_app.registered_commands:
+    command_list.append("profile indicator " + command.name)
+command_list.append("profile indicator --help")
+
 for command in bot_app.registered_commands:
     if not command.hidden:
         command_list.append("bot " + command.name)
 command_list.append("bot --help")
 
+
 # TODO: doesn't work currently as ctx is empty in repl
 # @app.callback()
 def log_command(
-    ctx: typer.Context,
+        ctx: typer.Context,
 ):
     logger.debug(f"Running command: {ctx.command.name}() with arguments: {ctx.params}")
 
+
 def entrypoint():
     app()
+
 
 if __name__ == "__main__":
     app()

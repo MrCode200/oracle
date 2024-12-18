@@ -80,7 +80,7 @@ def create_wallet_table(wallet: dict[str, float], title: str, transient: bool = 
     return final_wallet_table
 
 
-def command_view_wallet(
+def view_wallet_command(
         profile_name: Annotated[str, typer.Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None
 ):
@@ -91,7 +91,7 @@ def command_view_wallet(
     console.print(table)
 
 
-def command_update_wallet(
+def update_wallet_command(
         profile_name: Annotated[
             str, typer.Argument(help="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None,
         added_tickers: Annotated[
@@ -259,7 +259,7 @@ def command_update_wallet(
                       style="red")
 
 
-def command_clear_wallet(
+def clear_wallet_command(
         profile_name: Annotated[
             Optional[str], typer.Argument(help="The [bold]name[/bold] of the [bold]profile[/bold] to clear.")] = None
 ):
