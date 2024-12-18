@@ -7,12 +7,11 @@ from src.cli.commands.profileCommands.utils import \
     validate_and_prompt_profile_name
 from src.database import ProfileDTO, create_profile, delete_profile
 from src.services.entities import Profile
-from src.utils.registry import profile_registry
 from typer import Argument, Option
 
 console = Console()
 
-def command_create_profile(
+def create_profile_command(
         profile_name: str = Option(None, "--name", "-n", help="The name of the profile to create.", prompt=True),
         balance: float = Option(0, "--balance", "-b", help="The balance of the profile.", prompt="Enter balance "),
         paper_balance: float = Option(0, "--paper-balance", "-p", help="The paper balance of the profile.",
@@ -30,7 +29,7 @@ def command_create_profile(
     console.print(f"[bold green]Profile '[white underline bold]{profile_name}[/white underline bold]' created successfully![/bold green]")
 
 
-def command_delete_profile(
+def delete_profile_command(
         profile_name: Annotated[str, Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to delete.")] = None,
 

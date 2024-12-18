@@ -17,7 +17,7 @@ console = Console()
 # Define PID file location
 PID_FILE = os.path.join(tempfile.gettempdir(), "monsieur_oracle.pid")
 
-def command_start_app(
+def start_app_command(
         no_process: Annotated[bool, typer.Option(
             "--no-process", "-np",
             help="Runs the app in the current process instead of a separate one."
@@ -65,7 +65,7 @@ def command_start_app(
         init_app()
 
 
-def command_stop_app() -> None:
+def stop_app_command() -> None:
     """Stop the running application."""
     if not os.path.exists(PID_FILE):
         console.print("[bold red]No PID file found.[/bold red]")
@@ -111,7 +111,7 @@ def command_stop_app() -> None:
     except Exception as e:
         console.print(f"[bold red]An error occurred while terminating process: {str(e)}[/bold red]")
 
-def command_status_app() -> None:
+def status_app_command() -> None:
     """Check the status of the application."""
     if not os.path.exists(PID_FILE):
         console.print("[bold red]No PID file found.[/bold red]")

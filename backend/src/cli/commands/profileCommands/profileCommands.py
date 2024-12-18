@@ -12,7 +12,7 @@ from src.utils.registry import profile_registry
 console = Console()
 
 
-def command_list_profiles():
+def list_profiles_command():
     profiles = get_profile()
 
     if len(profiles) == 0:
@@ -35,7 +35,7 @@ def command_list_profiles():
     console.print(table)
 
 
-def command_change_status(
+def change_status_command(
         name: Annotated[Optional[str], typer.Argument(help="The name of the profile to delete.")] = None,
         status: Annotated[Optional[str], typer.Argument(help="The status to set the profile to. Has Autocompletes Option when not provided.")] = None,
         run_on_start: Annotated[bool, typer.Option("--run-on-start", "-r", help="Run the strategy on start")] = False

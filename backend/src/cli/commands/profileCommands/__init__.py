@@ -1,5 +1,6 @@
-from .crudProfileCommands import command_delete_profile
-from .profileCommands import (command_change_status,
-                              command_list_profiles)
-from .walletCommands import (command_clear_wallet, command_update_wallet,
-                             command_view_wallet)
+from .crudProfileCommands import delete_profile_command
+from .profileCommands import (change_status_command,
+                              list_profiles_command)
+from .walletCommands import (clear_wallet_command, update_wallet_command,
+                             view_wallet_command)
+from .indicatorCommands import (add_indicator_command, list_profile_indicators_command, remove_indicator_command)

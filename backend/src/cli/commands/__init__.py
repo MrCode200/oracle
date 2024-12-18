@@ -1,6 +1,7 @@
-from .botCommands import (command_start_app, command_status_app,
-                          command_stop_app)
-from .helperCommands import command_list_indicators
-from .profileCommands import (command_change_status, command_clear_wallet,
-                              command_delete_profile, command_list_profiles,
-                              command_update_wallet, command_view_wallet)
+from .botCommands import (start_app_command, status_app_command,
+                          stop_app_command)
+from .helperCommands import list_indicators_command
+from .profileCommands import (change_status_command, clear_wallet_command,
+                              delete_profile_command, list_profiles_command,
+                              update_wallet_command, view_wallet_command,
+                              add_indicator_command, remove_indicator_command, list_profile_indicators_command)

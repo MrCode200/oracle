@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from math import ceil
 
 import pandas_ta as ta
-from pandas import DataFrame, isna
+from pandas import DataFrame
 from src.utils.registry import indicator_registry
 
 logger = logging.getLogger("oracle.app")

@@ -1,5 +1,6 @@
 from enum import Enum
 from logging import getLogger
+from threading import Lock
 
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -50,6 +51,8 @@ class Profile:
         self.strategy: BaseStrategy = BaseStrategy(
             profile=self, **profile.strategy_settings
         )
+
+        self._lock = Lock()
 
         profile_registry.register([self.id, self.name], self)
 
@@ -150,13 +153,13 @@ class Profile:
         if not self._check_status_valid():
             return
 
-        # TODO: get value and call agent
-        order: dict[str, float] = self.strategy.evaluate()
+        with self._lock:
+            order: dict[str, float] = self.strategy.evaluate()
 
-        logger.info(
-            f"Evaluation Finished for Profile with ID {self.id} and name: {self.name}",
-            extra={"profile_id": self.id},
-        )
+            logger.info(
+                f"Evaluation Finished for Profile with ID {self.id} and name: {self.name}",
+                extra={"profile_id": self.id},
+            )
 
         self.trade_agent(order)
 
@@ -164,11 +167,13 @@ class Profile:
         if not self._check_status_valid():
             return
 
-        backtest_result = self.strategy.backtest()
+        with self._lock:
+            backtest_result = self.strategy.backtest()
 
-        logger.info(
-            f"Backtesting for Profile with ID {self.id} and name: {self.name}",
-            extra={"profile_id": self.id}, )
+            logger.info(
+                f"Backtesting for Profile with ID {self.id} and name: {self.name}",
+                extra={"profile_id": self.id}, )
+
         return backtest_result
 
     def trade_agent(self, orders: dict[str, float]):
@@ -211,36 +216,41 @@ class Profile:
             )
 
     def update_wallet(self, wallet: dict[str, float]):
-        if not update_profile(self.id, wallet=wallet):
-            logger.error(
-                f"Failed to update Profile with id: {self.id}; and name: {self.name}",
-            )
-            return False
-        else:
-            self.wallet = wallet
-            logger.info(
-                f"Updated Walled of Profile with id: {self.id}; and name: {self.name} to wallet: {self.wallet}"
-            )
-            return True
+        with self._lock:
+            if not update_profile(self.id, wallet=wallet):
+                logger.error(
+                    f"Failed to update Profile with id: {self.id}; and name: {self.name}",
+                )
+                return False
+            else:
+                self.wallet = wallet
+                logger.info(
+                    f"Updated Walled of Profile with id: {self.id}; and name: {self.name} to wallet: {self.wallet}"
+                )
+                return True
 
     def add_indicator(self, indicator: 'BaseIndicator', weight: float, ticker: str, interval: str):
-        self.strategy.add_indicator(
-            indicator=indicator,
-            weight=weight,
-            ticker=ticker,
-            interval=interval
-        )
+        with self._lock:
+            self.strategy.add_indicator(
+                indicator=indicator,
+                weight=weight,
+                ticker=ticker,
+                interval=interval
+            )
 
-        self._update_scheduler()
+            self._update_scheduler()
 
     def remove_indicator(self, indicator_dto: IndicatorDTO):
-        self.strategy.remove_indicator(indicator_dto)
+        with self._lock:
+            self.strategy.remove_indicator(indicator_dto)
 
     def add_plugin(self, plugin: 'BasePlugin'):
-        self.strategy.add_plugin(plugin)
+        with self._lock:
+            self.strategy.add_plugin(plugin)
 
     def remove_plugin(self, plugin_dto: PluginDTO):
-        self.strategy.remove_plugin(plugin_dto)
+        with self._lock:
+            self.strategy.remove_plugin(plugin_dto)
 
     def _setup_schedular(self):
         self.scheduler.add_listener(

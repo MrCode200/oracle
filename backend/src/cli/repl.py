@@ -2,7 +2,6 @@ import logging
 import time
 
 from prompt_toolkit.styles import Style
-from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.prompt import Prompt
 from prompt_toolkit import prompt
