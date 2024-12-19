@@ -33,8 +33,6 @@ def add_indicator_command(
         indi_tickers: Annotated[Optional[list[str]], Option("-t", "--tickers",
                                                             help="List of [bold]tickers[/bold] to add indicator to.",
                                                             callback=validate_ticker_in_wallet)] = None,
-        interval: Annotated[Optional[str], Option("-i", "--interval",
-                                                  help="The [bold]interval[/bold] of the [bold]indicator[/bold] to add.")] = None,
         weight: Annotated[Optional[float], Option("-w", "--weight",
                                                   help="The [bold]weight[/bold] of the [bold]indicator[/bold] to add.",
                                                   prompt=True, min=0, max=1)] = None
@@ -137,11 +135,8 @@ def add_indicator_command(
                 console.print(f"[bold red] Ticker is not in Wallet! [/bold red]")
                 continue
 
-    # TODO: Prompt and Validate weight/interval
     # Prompt and Validate interval
-    if interval is None:
-        while validate_and_prompt_interval(interval) is None:
-            interval = ...
+    interval: str = validate_and_prompt_interval()
 
     # Confirm changes
     console.print(Panel(create_param_table(class_kwargs), style="bold green"))
