@@ -351,7 +351,7 @@ class Profile:
         self._update_scheduler()
 
     def _update_scheduler(self):
-        indicators: list[IndicatorDTO] | IndicatorDTO | None = get_indicator(profile_id=self.id)
+        indicators: list[IndicatorDTO] | None = self.indicators
         if not indicators:
             logger.info(f"No indicators found for Profile with id: {self.id}", extra={"profile_id": self.id})
             return

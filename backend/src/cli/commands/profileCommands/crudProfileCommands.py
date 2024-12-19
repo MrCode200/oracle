@@ -13,15 +13,14 @@ console = Console()
 
 def create_profile_command(
         profile_name: Annotated[str, Argument(help="The name of the profile to create.")],
-        balance: Annotated[float, Option(0, "--balance", "-b", help="The balance of the profile.",
-                          prompt="Enter balance ", min=0)],
-        paper_balance: Annotated[float, Option(0, "--paper-balance", "-p", help="The paper balance of the profile.",
-                                               prompt="Enter paper balance ", min=0)],
-        buy_limit: Annotated[
-            float, Option(0.8, "--buy-limit", "-bl", help="The buy limit of the profile.",
-                          prompt="Enter buy limit ", min=0, max=1)],
-        sell_limit: Annotated[float, Option(-0.8, "--sell-limit", "-sl", help="The sell limit of the profile.",
-                                            prompt="Enter sell limit ", min=-1, max=0)],
+        balance: Annotated[float, Option("--balance", "-b", help="The balance of the profile.",
+                                        prompt="Enter balance", min=0.0)] = 0.0,
+        paper_balance: Annotated[float, Option("--paper-balance", "-p", help="The paper balance of the profile.",
+                                               prompt="Enter paper balance", min=0.0)] = 0.0,
+        buy_limit: Annotated[float, Option("--buy-limit", "-bl", help="The buy limit of the profile.",
+                                           prompt="Enter buy limit", min=0.0, max=1.0)] = 0.8,
+        sell_limit: Annotated[float, Option("--sell-limit", "-sl", help="The sell limit of the profile.",
+                                            prompt="Enter sell limit", min=-1.0, max=0.0)] = -0.8,
 ):
     new_profile: ProfileDTO = create_profile(
         name=profile_name,
@@ -36,6 +35,7 @@ def create_profile_command(
 
     console.print(
         f"[bold green]Profile '[white underline bold]{profile_name}[/white underline bold]' created successfully![/bold green]")
+
 
 
 # TODO: Update profile command
@@ -67,7 +67,6 @@ def update_profile_command(
 def delete_profile_command(
         profile_name: Annotated[str, Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to delete.")] = None,
-
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
 

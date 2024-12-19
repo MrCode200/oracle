@@ -1,10 +1,11 @@
 from inspect import signature
 
 from prompt_toolkit import prompt
+from rich.columns import Columns
 from rich.panel import Panel
 from prompt_toolkit.completion import WordCompleter
 from rich.status import Status
-from rich.table import Table, box
+from rich.table import box, Table
 from typer import Argument, Option
 from rich.console import Console
 from rich.prompt import Prompt
@@ -30,16 +31,14 @@ def add_indicator_command(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to add indicator to.")] = None,
         indicator_name: Annotated[Optional[str], Option("-i", "--indicator",
                                                         help="The [bold]name[/bold] of the [bold]indicator[/bold] to add.")] = None,
-        indi_tickers: Annotated[Optional[list[str]], Option("-t", "--tickers",
-                                                            help="List of [bold]tickers[/bold] to add indicator to.",
-                                                            callback=validate_ticker_in_wallet)] = None,
-        weight: Annotated[Optional[float], Option("-w", "--weight",
-                                                  help="The [bold]weight[/bold] of the [bold]indicator[/bold] to add.",
-                                                  prompt=True, min=0, max=1)] = None
+        indicator_ticker: Annotated[Optional[str], Option("-t", "--tickers",
+                                                          help="List of [bold]tickers[/bold] to add indicator to.")] = ""
 ):
     # Validations
     profile_id: int = validate_and_prompt_profile_name(profile_name)
     profile: ProfileDTO = get_profile(id=profile_id)
+
+    validate_ticker_in_wallet(wallet=profile.wallet, tickers=indicator_ticker) if indicator_ticker is not indicator_ticker else None
 
     if indicator_name is None:
         indicator_name = prompt("Enter indicator name: ",
@@ -110,27 +109,16 @@ def add_indicator_command(
     console.print(Panel(
         f"[bold yellow]Type the name of the [bold underline grey]ticker[/bold underline grey] you want to add this indicator to\n."
         f"Type it again to [bold underline grey]remove[/bold underline grey] it!\n"
-        f"To view all tickers, type `VIEW`\n"
         f"Press [bold underline green]enter[/bold underline green] to finish[/bold yellow]", title="INFO",
         style="bold cyan", box=box.ROUNDED))
 
-    while True:
-        ticker_prompt = Prompt.ask("Ticker:", completer=WordCompleter(profile.wallet.keys()))
-        if ticker_prompt == "VIEW":
-            console.print(create_wallet_table(
-                wallet={ticker: amount for ticker, amount in profile.wallet if ticker in indi_tickers},
-                title="Indicators"))
-            continue
-        elif ticker_prompt == "":
-            break
-
-        elif ticker_prompt in indi_tickers:
-            indi_tickers.remove(ticker_prompt)
-            console.print(f"[bold green] Ticker removed! [/bold green]")
-        else:
-            if validate_ticker_in_wallet(ticker_prompt, profile_id=profile.id):
-                indi_tickers.append(ticker_prompt)
+    if indicator_ticker == "":
+        while True:
+            ticker_prompt = prompt("Ticker: ", completer=WordCompleter(profile.wallet.keys(), ignore_case=True))
+            if validate_ticker_in_wallet(ticker_prompt, profile.wallet):
+                indicator_ticker = ticker_prompt
                 console.print(f"[bold green] Ticker added! [/bold green]")
+                break
             else:
                 console.print(f"[bold red] Ticker is not in Wallet! [/bold red]")
                 continue
@@ -138,8 +126,28 @@ def add_indicator_command(
     # Prompt and Validate interval
     interval: str = validate_and_prompt_interval()
 
+    while True:
+        weight: str = Prompt.ask("Weight", default="1")
+        try:
+            weight: int = int(weight)
+            if weight < 0:
+                console.print("[bold red]Error:[/bold red] Weight must be greater than 0.", style="red")
+            else:
+                break
+        except ValueError:
+            console.print("[bold red]Error:[/bold red] Weight must be an integer.", style="red")
+            continue
+
+    extra_table = Table(header_style="bold cyan", border_style="bold", box=box.ROUNDED, style="bold")
+    extra_table.add_column("Extra Parameters", style="bold green")
+    extra_table.add_column("Value", style="bold yellow")
+
+    extra_table.add_row("Tickers", indicator_ticker)
+    extra_table.add_row("Interval", interval)
+    extra_table.add_row("Weight", str(weight))
+
     # Confirm changes
-    console.print(Panel(create_param_table(class_kwargs), style="bold green"))
+    console.print(Panel(Columns([create_param_table(class_kwargs), extra_table])))
 
     conformation = Prompt.ask("[bold yellow]Are you sure you want to add this indicator?[/bold yellow]",
                               choices=["y", "n"], default="y")
@@ -157,7 +165,7 @@ def add_indicator_command(
             return
 
         # Success or failure message with proper styling
-        if profile_registry.get(profile_name).add_indicator(indicator, weight=weight, ticker=indi_tickers,
+        if profile_registry.get(profile_id).add_indicator(indicator, weight=weight, ticker=indicator_ticker,
                                                             interval=interval):
             status.update(
                 f"[bold green]Indicator '[bold]{indicator_name}[/bold]' successfully added to profile '[bold]{profile_name}[/bold]'.")
@@ -194,3 +202,5 @@ def remove_indicator_command(
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
     indicator_id: int = validate_and_prompt_indicator_id(profile_id=profile_id, indicator_id=indicator_id)
+
+    ...

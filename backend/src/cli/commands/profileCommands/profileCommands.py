@@ -34,6 +34,11 @@ def list_profiles_command():
     console.print(table)
 
 
+# TODO: finish this command
+def detail_profile_command(profile_name: Annotated[Optional[str], typer.Argument(help="The name of the profile to view.")] = None):
+    ...
+
+
 def change_status_command(
         profile_name: Annotated[Optional[str], typer.Argument(help="The name of the profile to delete.")] = None,
         status: Annotated[Optional[str], typer.Argument(help="The status to set the profile to. Has Autocompletes Option when not provided.")] = None,
@@ -63,4 +68,4 @@ def change_status_command(
             f"[bold red]Error: Profile '[white underline bold]{profile_name}; ID {profile_id}[/white underline bold]' couldn't change status to '[white underline bold]{status}[/white underline bold]'!")
         return
 
-    console.print(f"[bold green]Profile '[white underline bold]{profile_name}; ID {profile_id}[/white underline bold]' activated successfully!")
+    console.print(f"[bold green]Profile '[white underline bold]{profile_name}; ID {profile_id}[/white underline bold]' changed status to '[white underline bold]{status}[/white underline bold]' successfully!")

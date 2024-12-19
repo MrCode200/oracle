@@ -1,13 +1,11 @@
 from rich.console import Console
 
-from src.database.operations.profileOperations import get_profile
+from src.database import get_profile
 
 console = Console()
 
 
-def validate_ticker_in_wallet(tickers: list[str] | str, profile_id: int) -> bool:
-    wallet = get_profile(id=profile_id).wallet
-
+def validate_ticker_in_wallet(tickers: list[str] | str, wallet: dict[str, float]) -> bool:
     if isinstance(tickers, str):
         tickers = [tickers]
 

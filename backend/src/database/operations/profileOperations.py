@@ -10,7 +10,7 @@ logger = getLogger("oracle.app")
 Session = sessionmaker(bind=engine)
 
 
-def convert_to_dto(profile: ProfileModel) -> ProfileDTO | None:
+def convert_to_dto(profile: Type[ProfileModel] | ProfileModel | None) -> ProfileDTO | None:
     """
     Helper function to convert an IndicatorModel to an IndicatorDTO.
     Or return None if the profile is not found.
@@ -21,11 +21,14 @@ def convert_to_dto(profile: ProfileModel) -> ProfileDTO | None:
         id=profile.id,
         name=profile.name,
         status=profile.status,
+
         balance=profile.balance,
         wallet=profile.wallet,
         paper_balance=profile.paper_balance,
         paper_wallet=profile.paper_wallet,
-        strategy_settings=profile.strategy_settings
+
+        buy_limit=profile.buy_limit,
+        sell_limit=profile.sell_limit
     )
 
 
@@ -67,7 +70,7 @@ def create_profile(
 
     except IntegrityError as e:
         logger.error(
-            f"Error creating profile {new_profile.id=}; {name=}; {balance=}; {wallet=}; {paper_balance=}; {buy_limit=}; {sell_limit=}: {e}",
+            f"Error creating profile {name=}; {balance=}; {wallet=}; {paper_balance=}; {buy_limit=}; {sell_limit=}: {e}",
             exc_info=True)
         session.rollback()
         return None
@@ -76,9 +79,7 @@ def create_profile(
         session.close()
 
 
-def get_profile(
-        id: int = None, name: str = None
-) -> ProfileDTO | list[ProfileDTO] | None:
+def get_profile(id: int = None, name: str = None) -> ProfileDTO | list[ProfileDTO] | None:
     """
     Retrieves a profile from the database based on profile ID or profile name.
     Returns the first matching profile or all profiles if no arguments are passed.
@@ -170,11 +171,11 @@ def update_profile(
 
         session.commit()
         logger.info(
-            f"Profile with ID {id} updated {name=}; {status=}; {balance=}; {wallet=}; {paper_balance=}; {paper_wallet=}; {strategy_settings=}; successfully.")
+            f"Profile with ID {id} updated {name=}; {status=}; {balance=}; {wallet=}; {paper_balance=}; {paper_wallet=}; {buy_limit=}; {sell_limit=}; successfully.")
         return True
 
     except Exception as e:
-        logger.error(f"Error updating {name=}; {status=}; {balance=}; {wallet=}; {paper_balance=}; {paper_wallet=}; {strategy_settings=}; for profile with ID {id}: {e}", exc_info=True)
+        logger.error(f"Error updating {name=}; {status=}; {balance=}; {wallet=}; {paper_balance=}; {paper_wallet=}; {buy_limit=}; {sell_limit=}; for profile with ID {id}: {e}", exc_info=True)
         session.rollback()
         return False
 

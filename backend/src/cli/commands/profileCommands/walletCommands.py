@@ -27,7 +27,8 @@ def view_wallet_command(
         profile_name: Annotated[str, typer.Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None
 ):
-    profile: ProfileDTO = validate_and_prompt_profile_name(profile_name)
+    profile: int = validate_and_prompt_profile_name(profile_name)
+    profile: Profile = profile_registry.get(profile)
 
     table = create_wallet_table(profile.wallet, title="Wallet")
 
@@ -77,6 +78,10 @@ def update_wallet_command(
                 progress.update(task, advance=1, description=f"Removing ticker {ticker}... {i}/{total_tickers}")
                 i += 1
 
+                if ticker != ticker.upper():
+                    console.print(f"[bold red]Ticker must be in uppercase![/bold red]")
+                    continue
+
                 if not remove_from_wallet(ticker):
                     invalid_removed_tickers.append(ticker)
 
@@ -120,8 +125,11 @@ def update_wallet_command(
         if ticker_prompt.lower() == "q":
             break
 
-        if ticker_prompt == "":
+        elif ticker_prompt == "":
             console.print("[bold red]Ticker cannot be empty.[/bold red]")
+            continue
+        elif ticker_prompt != ticker_prompt.upper():
+            console.print("[bold red]Ticker must be in uppercase![/bold red]")
             continue
 
         try:

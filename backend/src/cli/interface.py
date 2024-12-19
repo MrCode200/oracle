@@ -88,9 +88,7 @@ command_list.append("bot --help")
 
 # TODO: doesn't work currently as ctx is empty in repl
 # @app.callback()
-def log_command(
-        ctx: typer.Context,
-):
+def log_command(ctx: typer.Context):
     logger.debug(f"Running command: {ctx.command.name}() with arguments: {ctx.params}")
 
 

@@ -18,7 +18,7 @@ DATABASE_URL = URL.create(
     port=DB_CONFIG["port"],
     database=DB_CONFIG["database"],
 )
-BASE_URL = URL.create(
+"""BASE_URL = URL.create(
     drivername="postgresql+psycopg",
     username=DB_CONFIG["user"],
     password=DB_CONFIG["password"],
@@ -32,7 +32,7 @@ with base_engine.connect() as conn:
     result = conn.execute(text("SELECT 1 FROM pg_database WHERE datname = 'oracle'"))
     if result.fetchone() is None:
         conn.execute(text("CREATE DATABASE oracle"))
-        logger.info("Database Successfully Created!")
+        logger.info("Database Successfully Created!")"""
 
 engine: Engine = create_engine(DATABASE_URL)
 

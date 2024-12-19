@@ -6,6 +6,7 @@ from prompt_toolkit.completion import WordCompleter
 from rich.console import Console
 from rich.panel import Panel
 from rich.box import ROUNDED
+from rich.prompt import Prompt
 
 from src.database import get_indicator
 
@@ -28,18 +29,19 @@ def validate_and_prompt_interval() -> str:
             interval = None
 
     interval_period: Optional[str] = None
+
     while interval_period is None:
-        interval_period: str = prompt("Enter interval period: ")
+        interval_period: str = Prompt.ask("Enter interval period: ", default="1")
         try:
             int_interval_period: int = int(interval_period)
             if int_interval_period <= 0:
-                console.print(f"[bold red]Error: Interval period '[white underline bold]{interval_period}[/white underline bold]' not valid!")
+                console.print(f"[bold red]Error: Interval period '[white underline bold]{interval_period}[/white underline bold]' must be greater than 0!")
                 interval_period = None
         except ValueError:
-            console.print(f"[bold red]Error: Interval period '[white underline bold]{interval_period}[/white underline bold]' not valid!")
+            console.print(f"[bold red]Error: Interval period '[white underline bold]{interval_period}[/white underline bold]' not int!")
             interval_period = None
 
-    return interval + interval_period
+    return str(interval_period + interval)
 
 
 def validate_and_prompt_indicator_id(profile_id: int, indicator_id: Optional[int] = None) -> Optional[int]:
