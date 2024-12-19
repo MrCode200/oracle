@@ -30,7 +30,7 @@ def convert_to_dto(profile: ProfileModel) -> ProfileDTO | None:
 
 
 def create_profile(
-        name: str, balance: float, wallet: dict, paper_balance: float, strategy_settings: dict
+        name: str, balance: float, wallet: dict, paper_balance: float, buy_limit: float, sell_limit: float
 ) -> ProfileDTO | None:
     """
     Creates a new profile in the database.
@@ -39,7 +39,8 @@ def create_profile(
     :param balance: The balance of the profile.
     :param wallet: The wallet information for the profile.
     :param paper_balance: The paper balance of the profile.
-    :param strategy_settings: The strategy settings for the profile.
+    :param buy_limit: The new buy limit of the profile (optional).
+    :param sell_limit: The new sell limit of the profile (optional).
 
     :return: The newly created profile object.
     """
@@ -53,19 +54,20 @@ def create_profile(
             wallet=wallet,
             paper_balance=paper_balance,
             paper_wallet=wallet,
-            strategy_settings=strategy_settings,
+            buy_limit=buy_limit,
+            sell_limit=sell_limit
         )
 
         session.add(new_profile)
         session.commit()
 
         logger.info(
-            f"Profile {new_profile.id=}; {name=}; {balance=}; {wallet=}; {paper_balance=}; {strategy_settings=}; created successfully.")
+            f"Profile {new_profile.id=}; {name=}; {balance=}; {wallet=}; {paper_balance=}; {buy_limit=}; {sell_limit=}; created successfully.")
         return convert_to_dto(new_profile)
 
     except IntegrityError as e:
         logger.error(
-            f"Error creating profile {new_profile.id=}; {name=}; {balance=}; {wallet=}; {paper_balance=}; {strategy_settings=}: {e}",
+            f"Error creating profile {new_profile.id=}; {name=}; {balance=}; {wallet=}; {paper_balance=}; {buy_limit=}; {sell_limit=}: {e}",
             exc_info=True)
         session.rollback()
         return None
@@ -121,7 +123,8 @@ def update_profile(
         wallet: Optional[dict] = None,
         paper_balance: Optional[float] = None,
         paper_wallet: Optional[dict] = None,
-        strategy_settings: Optional[dict] = None,
+        buy_limit: Optional[float] = None,
+        sell_limit: Optional[float] = None,
 ) -> bool:
     """
     Updates a profile in the database.
@@ -133,7 +136,8 @@ def update_profile(
     :param wallet: The new wallet information for the profile (optional).
     :param paper_balance: The new paper balance of the profile (optional).
     :param paper_wallet: The new paper wallet information for the profile (optional).
-    :param strategy_settings: The new strategy settings for the profile (optional).
+    :param buy_limit: The new buy limit of the profile (optional).
+    :param sell_limit: The new sell limit of the profile (optional).
 
     :return: True if the profile was updated successfully, False otherwise.
     """
@@ -159,8 +163,10 @@ def update_profile(
             profile.paper_balance = paper_balance
         if paper_wallet is not None:
             profile.paper_wallet = paper_wallet
-        if strategy_settings is not None:
-            profile.strategy_settings = strategy_settings
+        if buy_limit is not None:
+            profile.buy_limit = buy_limit
+        if sell_limit is not None:
+            profile.sell_limit = sell_limit
 
         session.commit()
         logger.info(

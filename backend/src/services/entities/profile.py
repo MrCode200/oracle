@@ -4,13 +4,21 @@ from threading import Lock
 
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from apscheduler.schedulers.background import BackgroundScheduler
+
+from src.database import get_plugin
+
+from src.api import fetch_historical_data
+from src.database import create_plugin, delete_indicator, create_indicator
 from src.api import fetch_info_data
 from src.database import (IndicatorDTO, PluginDTO, ProfileDTO, get_indicator,
-                          update_profile)
+                          update_profile, delete_plugin)
 from src.services.indicators import BaseIndicator
 from src.utils.registry import profile_registry
 
-from .strategy import BaseStrategy
+from src.services.plugin import PluginJob
+
+#getenv
+BROKER_API: str = ""
 
 logger = getLogger("oracle.app")
 
@@ -48,13 +56,15 @@ class Profile:
         self.wallet: dict[str, float] = profile.wallet
         self.paper_balance: float = profile.paper_balance
         self.paper_wallet: dict[str, float] = profile.paper_wallet
-        self.strategy: BaseStrategy = BaseStrategy(
-            profile=self, **profile.strategy_settings
-        )
+
+        self.indicators: list[IndicatorDTO] = get_indicator(profile_id=profile.id)
+        self.plugins: list[PluginDTO] = get_plugin(profile_id=profile.id)
+        self.buy_limit: float = profile.buy_limit
+        self.sell_limit: float = profile.sell_limit
+
+        profile_registry.register([self.id], self)
 
         self._lock = Lock()
-
-        profile_registry.register([self.id, self.name], self)
 
         self.scheduler = BackgroundScheduler()
         self._setup_schedular()
@@ -154,7 +164,26 @@ class Profile:
             return
 
         with self._lock:
-            order: dict[str, float] = self.strategy.evaluate()
+            for plugin in self.plugins:
+                if plugin.instance.job == PluginJob.BEFORE_EVALUATION:
+                    plugin.instance.evaluate(self)
+
+            confidences: dict[str, dict[int, float]] = {}
+            for indicator in self.indicators:
+                if not BROKER_API:
+                    df = fetch_historical_data(ticker=indicator.ticker, period="6mo", interval=indicator.interval)
+
+                confidence = indicator.instance.evaluate(df=df)
+                confidence[indicator.ticker][indicator.id] = confidence
+
+            for plugin in self.plugins:
+                if plugin.instance.job == PluginJob.AFTER_EVALUATION:
+                    confidences = plugin.instance.evaluate(self, confidences=confidences)
+
+            for plugin in self.plugins:
+                if plugin.instance.job == PluginJob.CREATE_ORDER:
+                    order: dict[str, float] = plugin.instance.evaluate(self, confidences=confidences)
+                    break
 
             logger.info(
                 f"Evaluation Finished for Profile with ID {self.id} and name: {self.name}",
@@ -168,13 +197,13 @@ class Profile:
             return
 
         with self._lock:
-            backtest_result = self.strategy.backtest()
+            ...
 
             logger.info(
                 f"Backtesting for Profile with ID {self.id} and name: {self.name}",
                 extra={"profile_id": self.id}, )
 
-        return backtest_result
+        return ...
 
     def trade_agent(self, orders: dict[str, float]):
         if not self._check_status_valid():
@@ -182,6 +211,9 @@ class Profile:
 
         if self.status == Status.PAPER_TRADING:
             self._paper_trade_agent(orders)
+        elif self.status == Status.ACTIVE:
+            # self._live_trade_agent(orders)
+            ...
 
     def _paper_trade_agent(self, orders: dict[str, float]):
         for ticker, money_allocation in orders.items():
@@ -231,26 +263,80 @@ class Profile:
 
     def add_indicator(self, indicator: 'BaseIndicator', weight: float, ticker: str, interval: str):
         with self._lock:
-            self.strategy.add_indicator(
-                indicator=indicator,
+            new_indicator: IndicatorDTO = create_indicator(
+                profile_id=self.id,
+                name=indicator.__class__.__name__,
                 weight=weight,
                 ticker=ticker,
-                interval=interval
+                interval=interval,
+                settings=indicator.__dict__,
             )
+            if new_indicator is not None:
+                self.indicators.append(new_indicator)
+                logger.info(f"Added indicator with ID {new_indicator.id} to profile with ID {self.id}.",
+                            extra={"profile_id": self.id})
+                self._update_scheduler()
 
-            self._update_scheduler()
+                return True
+
+        logger.error(f"Failed to add indicator to profile with ID {self.id}.",
+                     extra={"profile_id": self.id})
+        return False
+
 
     def remove_indicator(self, indicator_dto: IndicatorDTO):
         with self._lock:
-            self.strategy.remove_indicator(indicator_dto)
+            if delete_indicator(id=indicator_dto.id):
+                self.indicators.remove(indicator_dto)
+
+                logger.info(f"Removed indicator with ID {indicator_dto.id} from profile with ID {self.id}.",
+                            extra={"profile_id": self.id})
+                return True
+
+        logger.error(
+            f"Failed to remove indicator with ID {indicator_dto.id} from profile with ID {self.id}.",
+            extra={"profile_id": self.id})
+        return False
 
     def add_plugin(self, plugin: 'BasePlugin'):
         with self._lock:
-            self.strategy.add_plugin(plugin)
+            new_plugin: PluginDTO = create_plugin(
+                profile_id=self.id,
+                name=plugin.__name__,
+                settings=plugin.__dict__,
+            )
+
+            if new_plugin is None:
+                logger.error(f"Failed to add plugin to profile with ID {self.id}.",
+                             extra={"profile_id": self.id})
+                return False
+
+            if new_plugin.instance.job == PluginJob.CREATE_ORDER:
+                for plugin in self.plugins:
+                    if plugin.instance.job == PluginJob.CREATE_ORDER:
+                        logger.info(
+                            f"User tried to add multiple create order plugins to profile with ID {self.id}.",
+                            extra={"profile_id": self.id})
+                        return False
+
+            self.plugins.append(new_plugin)
+
+            logger.info(f"Added plugin with ID {new_plugin.id} to profile with ID {self.id}.",
+                        extra={"profile_id": self.id})
+            return True
 
     def remove_plugin(self, plugin_dto: PluginDTO):
         with self._lock:
-            self.strategy.remove_plugin(plugin_dto)
+            if delete_plugin(id=plugin_dto.id):
+                self.plugins.remove(plugin_dto)
+
+                logger.info(f"Removed plugin with ID {plugin_dto.id} from profile with ID {self.id}.",
+                            extra={"profile_id": self.id})
+                return True
+
+        logger.error(f"Failed to remove plugin with ID {plugin_dto.id} from profile with ID {self.id}.",
+                     extra={"profile_id": self.id})
+        return False
 
     def _setup_schedular(self):
         self.scheduler.add_listener(

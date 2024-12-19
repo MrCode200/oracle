@@ -6,6 +6,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.prompt import Prompt
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.history import InMemoryHistory
 
 from src.utils.registry import profile_registry
 from src.cli import command_list
@@ -21,6 +22,9 @@ word_completer_style = Style.from_dict({
     "bottom-toolbar": "bg:darkgray fg:lightgrey italic",
 })
 
+history = InMemoryHistory()
+
+
 def repl():
     init_app(repl=True)
 
@@ -29,7 +33,10 @@ def repl():
     try:
         while True:
             print("")
-            command = prompt("> ", completer=WordCompleter(words=["exit"] + command_list, sentence=True), style=word_completer_style)
+            command = prompt("> ",
+                             completer=WordCompleter(words=["exit"] + command_list, sentence=True),
+                             style=word_completer_style,
+                             history=history)
 
             if command == "exit":
                 if Prompt.ask("Are you sure you want to exit?", choices=["y", "n"], default="y") == "y":
@@ -45,12 +52,13 @@ def repl():
 
     finally:
         with Progress(
-            SpinnerColumn(finished_text=":white_check_mark: "),
-            TextColumn("[progress.description]{task.description} {task.completed}/{task.total}"),
+                SpinnerColumn(finished_text=":white_check_mark: "),
+                TextColumn("[progress.description]{task.description} {task.completed}/{task.total}"),
         ) as progress:
             profiles = profile_registry.get().values()
 
-            deactivate_task = progress.add_task(description="[bold yellow]Deactivating all profiles...", total=len(profiles))
+            deactivate_task = progress.add_task(description="[bold yellow]Deactivating all profiles...",
+                                                total=len(profiles))
             sleep_task = progress.add_task(description="[bold yellow]Closing Oracle...", total=5)
 
             for profile in profiles:

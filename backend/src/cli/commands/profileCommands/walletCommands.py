@@ -10,83 +10,26 @@ from rich.progress import Progress
 from rich.prompt import Prompt
 from rich.table import Table
 from src.api import fetch_info_data
-from src.cli.commands.profileCommands.utils import \
-    validate_and_prompt_profile_name
+from src.cli.commands.utils import validate_and_prompt_profile_name
 from src.exceptions import DataFetchError
 from src.services.entities import Profile
 from src.utils.registry import profile_registry
+from src.database import ProfileDTO
+
+from src.cli.commands.utils import create_wallet_table
 
 console = Console()
 
 logger = logging.getLogger("oracle.app")
 
 
-def get_ticker_price(ticker: str) -> float | None:
-    info = fetch_info_data(ticker)
-    current_price = info.get("currentPrice", None)
-
-    if current_price is None:
-        current_price = info.get("regularMarketPreviousClose", None)
-
-    if current_price is None:
-        logger.warning(f"{ticker} has been identified as an invalid ticker. INFO: {info}")
-
-    return current_price
-
-
-def create_wallet_table(wallet: dict[str, float], title: str, transient: bool = True, print_info: bool = True) -> Table:
-    final_wallet: dict[str, float] = wallet.copy()
-    invalid_tickers: list[str] = []
-
-    with Progress(transient=transient) as progress:
-        final_wallet_task = progress.add_task("Fetching wallet...")
-
-        progress.update(final_wallet_task, description="Creating wallet table...", total=len(final_wallet) + 1)
-        progress.update(final_wallet_task, advance=1)
-
-        final_wallet_table = Table(title=title, box=box.ROUNDED, show_header=True, header_style="bold magenta")
-        final_wallet_table.add_column("", style="dim")
-        final_wallet_table.add_column("Ticker", style="bold cyan")
-        final_wallet_table.add_column("Quantity", style="bold cyan")
-        final_wallet_table.add_column("Value", style="bold green")
-        final_wallet_table.add_column("Holding Value", style="bold green")
-
-        i = 1
-        for ticker, quantity in wallet.items():
-            progress.update(final_wallet_task, description=f"Fetching prices of {ticker}... {i}/{len(final_wallet)}",
-                            advance=1)
-
-            current_price: Optional[float] = get_ticker_price(ticker)
-
-            if current_price is None:
-                invalid_tickers.append(ticker)
-            else:
-                holding_value: float = current_price * quantity
-
-                final_wallet_table.add_row(str(i), ticker, str(quantity), str(current_price) + "$",
-                                           str(holding_value) + "$")
-            i += 1
-
-        progress.update(final_wallet_task, advance=1, description="Done!")
-
-    for ticker in invalid_tickers:
-        logger.warning(f"{ticker} has been identified as an invalid ticker. Skipping...")
-        console.print(f"[bold yellow] {ticker} has been identified as an invalid ticker. Skipping...[/bold yellow]") if print_info else None
-        wallet.pop(ticker)
-
-    if print_info and invalid_tickers:
-        console.print(f"[bold red]Update wallet to remove invalid tickers![/bold red]")
-
-    return final_wallet_table
-
-
 def view_wallet_command(
         profile_name: Annotated[str, typer.Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None
 ):
-    profile_name = validate_and_prompt_profile_name(profile_name)
+    profile: ProfileDTO = validate_and_prompt_profile_name(profile_name)
 
-    table = create_wallet_table(profile_registry.get(profile_name).wallet, title="Wallet")
+    table = create_wallet_table(profile.wallet, title="Wallet")
 
     console.print(table)
 
@@ -100,12 +43,8 @@ def update_wallet_command(
             list[str], typer.Option("--remove-ticker", "-rt", help="List of [bold]tickers[/bold] to update.")] = [],
         prompt: Annotated[bool, typer.Option("--no-prompt", "-np", help="Prompt for ticker input.")] = True
 ):
-    profile_name: str = validate_and_prompt_profile_name(profile_name)
-    if profile_name is None:
-        console.print("[bold red]Profile not found![/bold red]")
-        return
-
-    profile: Profile = profile_registry.get(profile_name)
+    profile_id: int = validate_and_prompt_profile_name(profile_name)
+    profile: Profile = profile_registry.get(profile_id)
 
     started_wallet: dict[str, float] = profile.wallet
     final_wallet: dict[str, float] = started_wallet.copy()
@@ -251,9 +190,9 @@ def update_wallet_command(
         return
 
     if profile.update_wallet(wallet=final_wallet):
-        console.print(f"[bold green]Profile '[bold]{profile_name}[/bold]' wallet successfully updated![/bold green]")
+        console.print(f"[bold green]Profile '[bold]{profile_name}; ID: {profile.id}[/bold]' wallet successfully updated![/bold green]")
     else:
-        console.print(f"[bold]Error:[/bold] Unable to update profile '[bold]{profile_name}[/bold]'.\n"
+        console.print(f"[bold]Error:[/bold] Unable to update profile '[bold]{profile_name}; ID: {profile.id}[/bold]'.\n"
                       f"Use the [underline bold green]'list-profiles'[/underline bold green] command to view available profiles.\n",
                       f"Check the [underline bold green]'logs'[/underline bold green] for more details.",
                       style="red")
@@ -263,8 +202,8 @@ def clear_wallet_command(
         profile_name: Annotated[
             Optional[str], typer.Argument(help="The [bold]name[/bold] of the [bold]profile[/bold] to clear.")] = None
 ):
-    profile_name = validate_and_prompt_profile_name(profile_name)
-    profile: Profile = profile_registry.get(profile_name)
+    profile_id: int = validate_and_prompt_profile_name(profile_name)
+    profile: Profile = profile_registry.get(profile_id)
 
     wallet = profile.wallet
 

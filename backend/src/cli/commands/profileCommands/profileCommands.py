@@ -3,8 +3,7 @@ from typing import Annotated, Optional
 import typer
 from rich.console import Console
 from rich.table import Table
-from src.cli.commands.profileCommands.utils import (
-    validate_and_prompt_profile_name, validate_and_prompt_status)
+from src.cli.commands.utils import validate_and_prompt_profile_name, validate_and_prompt_status
 from src.database import get_profile
 from src.services.entities import Profile, Status
 from src.utils.registry import profile_registry
@@ -36,17 +35,17 @@ def list_profiles_command():
 
 
 def change_status_command(
-        name: Annotated[Optional[str], typer.Argument(help="The name of the profile to delete.")] = None,
+        profile_name: Annotated[Optional[str], typer.Argument(help="The name of the profile to delete.")] = None,
         status: Annotated[Optional[str], typer.Argument(help="The status to set the profile to. Has Autocompletes Option when not provided.")] = None,
         run_on_start: Annotated[bool, typer.Option("--run-on-start", "-r", help="Run the strategy on start")] = False
 ):
-    name = validate_and_prompt_profile_name(name)
+    profile_id: int = validate_and_prompt_profile_name(profile_name)
 
     status = validate_and_prompt_status(status)
 
-    profile: Profile = profile_registry.get(name)
+    profile: Profile = profile_registry.get(profile_id)
     if not profile:
-        console.print(f"[bold red]Error: Profile '[white underline bold]{name}[/white underline bold]' not found!\n"
+        console.print(f"[bold red]Error: Profile '[white underline bold]{profile_name}; ID {profile_id}[/white underline bold]' not found!\n"
                       f"The bot may not be running or the profile may have been deleted.")
         return
 
@@ -61,7 +60,7 @@ def change_status_command(
 
     if not confirmation:
         console.print(
-            f"[bold red]Error: Profile '[white underline bold]{name}[/white underline bold]' couldn't change status to '[white underline bold]{status}[/white underline bold]'!")
+            f"[bold red]Error: Profile '[white underline bold]{profile_name}; ID {profile_id}[/white underline bold]' couldn't change status to '[white underline bold]{status}[/white underline bold]'!")
         return
 
-    console.print(f"[bold green]Profile '[white underline bold]{name}[/white underline bold]' activated successfully!")
+    console.print(f"[bold green]Profile '[white underline bold]{profile_name}; ID {profile_id}[/white underline bold]' activated successfully!")

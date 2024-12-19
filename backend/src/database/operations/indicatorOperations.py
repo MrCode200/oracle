@@ -1,5 +1,4 @@
 from logging import getLogger
-from typing import Type
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
@@ -7,7 +6,6 @@ from src.database import IndicatorDTO, IndicatorModel, engine
 
 logger = getLogger("oracle.app")
 Session = sessionmaker(bind=engine)
-
 
 def convert_to_dto(indicator: IndicatorModel) -> IndicatorDTO | None:
     """

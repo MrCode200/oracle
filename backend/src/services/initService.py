@@ -13,6 +13,9 @@ def init_service():
     profiles = get_profile()
     logger.info("Initializing Service, Loading Profiles...")
 
+    if profiles is None:
+        return
+
     for profile in profiles:
         Profile(profile)
 
@@ -21,5 +24,8 @@ def init_service():
         for profile in profile_registry.get():
             if profile.status in [Status.ACTIVE, Status.PAPER_TRADING]:
                 profile.activate(run_on_start = False)
+    else:
+        for profile in profile_registry.get():
+            profile.deactivate()
 
     logger.info("Initialized Service Successfully, all profiles loaded!")
