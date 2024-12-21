@@ -17,7 +17,7 @@ def validate_and_prompt_interval() -> str:
     console.print(Panel(
         "[bold]Valid intervals: [green]m[/green]=[magenta]minute[/magenta], [green]h[/green]=[magenta]hour[/magenta], "
         "[green]d[/green]=[magenta]day[/magenta], [green]wk[/green]=[magenta]week[/magenta], [green]mo[/green]=[magenta]month[/magenta]",
-        title="Valid intervals:", style="bold", box=ROUNDED))
+        title="Valid intervals:", style="bold", box=ROUNDED, expand=False))
 
     valid_interval: list[str] = ["m", "h", "d", "wk", "mo"]
     interval: Optional[str] = None

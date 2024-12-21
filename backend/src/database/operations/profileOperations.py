@@ -156,14 +156,17 @@ def update_profile(
             profile.name = name
         if status is not None:
             profile.status = status
+
         if balance is not None:
             profile.balance = balance
         if wallet is not None:
             profile.wallet = wallet
+
         if paper_balance is not None:
             profile.paper_balance = paper_balance
         if paper_wallet is not None:
             profile.paper_wallet = paper_wallet
+
         if buy_limit is not None:
             profile.buy_limit = buy_limit
         if sell_limit is not None:

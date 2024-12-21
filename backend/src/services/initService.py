@@ -8,9 +8,9 @@ logger = getLogger("oracle.app")
 
 
 def init_service():
-    from src.database import get_profile
+    from src.database import get_profile, ProfileDTO
 
-    profiles = get_profile()
+    profiles: list[ProfileDTO] = get_profile()
     logger.info("Initializing Service, Loading Profiles...")
 
     if profiles is None:
@@ -23,9 +23,9 @@ def init_service():
     if PROFILE_CONFIG["continue_status"]:
         for profile in profile_registry.get().values():
             if profile.status in [Status.ACTIVE, Status.PAPER_TRADING]:
-                profile.activate(run_on_start = False)
+                profile.change_status(profile.status)
     else:
         for profile in profile_registry.get().values():
-            profile.deactivate()
+            profile.change_status(Status.INACTIVE)
 
     logger.info("Initialized Service Successfully, all profiles loaded!")

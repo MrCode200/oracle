@@ -3,10 +3,10 @@ from typing import Annotated, Optional
 from rich.console import Console
 from rich.prompt import Confirm
 from rich.text import Text
-from src.cli.commands.utils import validate_and_prompt_profile_name
+from src.cli.commands.validation import validate_and_prompt_profile_name
 from src.database import ProfileDTO, create_profile, delete_profile, update_profile
 from src.services.entities import Profile
-from typer import Argument, Option
+from typer import Argument, Option, Abort
 
 from src.utils.registry import profile_registry
 
@@ -17,7 +17,7 @@ def create_profile_command(
         profile_name: Annotated[str, Argument(help="The name of the profile to create.")],
         balance: Annotated[float, Option("--balance", "-b", help="The balance of the profile.",
                                          prompt="Enter balance", min=0.0)] = 0.0,
-        paper_balance: Annotated[float, Option("--paper-balance", "-p", help="The paper balance of the profile.",
+        paper_balance: Annotated[float, Option("--paper-balance", "-pb", help="The paper balance of the profile.",
                                                prompt="Enter paper balance", min=0.0)] = 0.0,
         buy_limit: Annotated[float, Option("--buy-limit", "-bl", help="The buy limit of the profile.",
                                            prompt="Enter buy limit", min=0.0, max=1.0)] = 0.8,
@@ -54,7 +54,9 @@ def update_profile_command(
 
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
-
+    if profile_id is None:
+        Abort()
+        return
     if profile_registry.get(profile_id).update_profile(id=profile_id, name=new_profile_name, balance=balance,
                                                        paper_balance=paper_balance, buy_limit=buy_limit,
                                                        sell_limit=sell_limit):
@@ -73,7 +75,9 @@ def delete_profile_command(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to delete.")] = None,
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
-
+    if profile_id is None:
+        Abort()
+        return
     confirmation_prompt = Text(
         f"[yellow]Are you sure you want to delete the profile [bold]'{profile_name}'[/bold]? This action is irreversible.[/yellow]",
     )

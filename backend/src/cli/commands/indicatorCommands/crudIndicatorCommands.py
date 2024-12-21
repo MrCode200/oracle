@@ -1,12 +1,13 @@
 from inspect import signature
 
+from PIL.ImageOps import expand
 from prompt_toolkit import prompt
 from rich.columns import Columns
 from rich.panel import Panel
 from prompt_toolkit.completion import WordCompleter
 from rich.status import Status
 from rich.table import box, Table
-from typer import Argument, Option
+from typer import Argument, Option, Abort
 from rich.console import Console
 from rich.prompt import Prompt
 
@@ -14,13 +15,15 @@ from typing import Annotated, Optional
 
 from logging import getLogger
 
-from src.cli.commands.utils import create_wallet_table
+from src.cli.commands.walletCommands.walletUtils import create_wallet_table
+from src.services.indicators import BaseIndicator
 
 logger = getLogger("oracle.app")
 
-from src.cli.commands.utils import validate_and_prompt_profile_name, validate_and_prompt_indicator_id, \
-    validate_ticker_in_wallet, validate_and_prompt_interval, create_param_table
-from src.database import get_profile, ProfileDTO
+from src.cli.commands.validation import validate_and_prompt_profile_name, validate_and_prompt_indicator_id, \
+    validate_ticker_in_wallet, validate_and_prompt_interval
+from src.cli.commands.indicatorCommands.indicatorUtils import create_param_table
+from src.database import get_profile, ProfileDTO, IndicatorDTO
 from src.utils.registry import indicator_registry, profile_registry
 
 console = Console()
@@ -36,9 +39,17 @@ def add_indicator_command(
 ):
     # Validations
     profile_id: int = validate_and_prompt_profile_name(profile_name)
+    if profile_id is None:
+        Abort()
+        return
     profile: ProfileDTO = get_profile(id=profile_id)
 
-    validate_ticker_in_wallet(wallet=profile.wallet, tickers=indicator_ticker) if indicator_ticker is not indicator_ticker else None
+    if profile.wallet == {}:
+        console.print("[bold red]Error: Wallet is empty![/bold red]")
+        return
+
+    validate_ticker_in_wallet(wallet=profile.wallet,
+                              tickers=indicator_ticker) if indicator_ticker is not indicator_ticker else None
 
     if indicator_name is None:
         indicator_name = prompt("Enter indicator name: ",
@@ -64,12 +75,13 @@ def add_indicator_command(
         "When you're done, press `enter`\n"
         "To view all parameters, type `VIEW`[/bold yellow]\n"
         "For bools, 1 is True and 0 is False",
-        title="INFO", box=box.ROUNDED, style="bold cyan"
+        title="INFO", box=box.ROUNDED, style="bold cyan", expand=False
     ))
 
     # Loop and prompt for changing parameters
     while True:
-        param_name = prompt("Parameter: ", completer=WordCompleter(list(class_kwargs.keys()) + ["VIEW"], ignore_case=True))
+        param_name = prompt("Parameter: ",
+                            completer=WordCompleter(list(class_kwargs.keys()) + ["VIEW"], ignore_case=True))
         if param_name == "VIEW":
             console.print(create_param_table(class_kwargs))
         elif param_name == "":
@@ -103,14 +115,12 @@ def add_indicator_command(
                     f"[bold red] Parameter '[underline grey]{param_name}[/underline grey]' is not a valid parameter.[/bold red]"
                 )
 
-
     # Loop and prompt for adding tickers to indicator
     console.print(create_wallet_table(wallet=profile.wallet, title="Wallet"))
     console.print(Panel(
         f"[bold yellow]Type the name of the [bold underline grey]ticker[/bold underline grey] you want to add this indicator to\n."
         f"Type it again to [bold underline grey]remove[/bold underline grey] it!\n"
-        f"Press [bold underline green]enter[/bold underline green] to finish[/bold yellow]", title="INFO",
-        style="bold cyan", box=box.ROUNDED))
+        f"Press [bold underline green]enter[/bold underline green] to finish[/bold yellow]", title="INFO", style="bold cyan", box=box.ROUNDED, expand=False))
 
     if indicator_ticker == "":
         while True:
@@ -147,7 +157,7 @@ def add_indicator_command(
     extra_table.add_row("Weight", str(weight))
 
     # Confirm changes
-    console.print(Panel(Columns([create_param_table(class_kwargs), extra_table])))
+    console.print(Panel(Columns([create_param_table(class_kwargs), extra_table]), expand=False))
 
     conformation = Prompt.ask("[bold yellow]Are you sure you want to add this indicator?[/bold yellow]",
                               choices=["y", "n"], default="y")
@@ -166,7 +176,7 @@ def add_indicator_command(
 
         # Success or failure message with proper styling
         if profile_registry.get(profile_id).add_indicator(indicator, weight=weight, ticker=indicator_ticker,
-                                                            interval=interval):
+                                                          interval=interval):
             status.update(
                 f"[bold green]Indicator '[bold]{indicator_name}[/bold]' successfully added to profile '[bold]{profile_name}[/bold]'.")
         else:
@@ -177,7 +187,7 @@ def add_indicator_command(
             )
 
 
-#TODO: add update indicator command
+# TODO: add update indicator command
 def update_indicator_command(
         profile_name: Annotated[Optional[str], Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to add indicator to.")] = None,
@@ -189,9 +199,51 @@ def update_indicator_command(
 
 def list_profile_indicators_command(
         profile_name: Annotated[Optional[str], Argument(
-            help="The [bold]name[/bold] of the [bold]profile[/bold] to add indicator to.")] = None
+            help="The [bold]name[/bold] of the [bold]profile[/bold] to add indicator to.")] = None,
+        indicator_id: Annotated[
+            Optional[int], Option("--indicator-id", "-id", help="The [bold]id[/bold] of the [bold]indicator[/bold] to add.")] = None
 ):
-    ...
+    profile_id = validate_and_prompt_profile_name(profile_name)
+    if profile_id is None:
+        Abort()
+        return
+
+    profile = profile_registry.get(profile_id)
+    indicators = profile.indicators
+
+    if indicator_id is None:
+        indicator_table: Table = Table(title="Indicators", header_style="bold cyan", box=box.ROUNDED, style="bold")
+        indicator_table.add_column("ID", style="dim white")
+        indicator_table.add_column("Name", style="bold magenta")
+        indicator_table.add_column("Ticker", style="bold bright_yellow")
+        indicator_table.add_column("Interval", style="bold blue")
+        indicator_table.add_column("Weight", style="bold bright_cyan")
+
+        for indicator in indicators:
+            indicator_table.add_row(str(indicator.id), indicator.name, indicator.ticker, indicator.interval,
+                                    str(indicator.weight))
+
+        console.print(indicator_table)
+
+    else:
+        indicator: IndicatorDTO = [dto for dto in indicators if dto.id == indicator_id][0]
+        indicator_table: Table = Table(header_style="bold cyan", box=box.ROUNDED, style="bold")
+        indicator_table.add_column("", style="dim white")
+        indicator_table.add_column("Extra", style="bold cyan")
+        indicator_table.add_column("Value", style="bold magenta")
+
+        indicator_table.add_row("0", "ID", str(indicator.id))
+        indicator_table.add_row("1", "Ticker", indicator.ticker)
+        indicator_table.add_row("2", "Interval", indicator.interval)
+        indicator_table.add_row("3", "Weight", str(indicator.weight))
+
+        console.print(Panel(
+            Columns([indicator_table, create_param_table(indicator.settings)]),
+            title=indicator.name,
+            border_style="bold magenta",
+            box=box.ROUNDED,
+            expand=False
+        ))
 
 
 def remove_indicator_command(
@@ -201,6 +253,19 @@ def remove_indicator_command(
             Optional[int], Option(help="The [bold]id[/bold] of the [bold]indicator[/bold] to add.")] = None
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
+    if profile_id is None:
+        Abort()
+        return
+    profile = profile_registry.get(profile_id)
+
     indicator_id: int = validate_and_prompt_indicator_id(profile_id=profile_id, indicator_id=indicator_id)
 
-    ...
+    if profile.remove_indicator(indicator_id):
+        console.print(
+            f"[bold green]Indicator '[bold]{indicator_id}[/bold]' successfully removed from profile '[bold]{profile_name}[/bold]'.")
+    else:
+        console.print(
+            f"[bold red]Error:[/bold red] Unable to remove indicator '[bold]{indicator_id}[/bold]' from profile '[bold]{profile_name}[/bold]'.\n"
+            f"Check the [underline bold green]'logs'[/underline bold green] for more details.",
+            style="bold red",
+        )

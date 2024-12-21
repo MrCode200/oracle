@@ -3,7 +3,7 @@ from typing import Annotated, Optional
 import typer
 from rich.console import Console
 from rich.table import Table
-from src.cli.commands.utils import validate_and_prompt_profile_name, validate_and_prompt_status
+from src.cli.commands.validation import validate_and_prompt_profile_name, validate_and_prompt_status
 from src.database import get_profile
 from src.services.entities import Profile, Status
 from src.utils.registry import profile_registry
@@ -16,20 +16,40 @@ def list_profiles_command():
 
     if len(profiles) == 0:
         console.print(
-            "[bold red]No profiles created. Create a new Profile with the 'profile create' command.[/bold red]")
+            "[bold red]No profiles created. Create a new profile with the 'profile create' command.[/bold red]"
+        )
         return
 
-    console.print("[bold green]Available profiles:[/bold green]")
+    console.print("[bold green]Available profiles:[/bold green]", style="bold underline")
 
-    # Create a table to display profiles
-    table = Table(show_header=True, header_style="bold blue")
+    table = Table(show_header=True, header_style="bold cyan")
     table.add_column("ID", style="dim")
-    table.add_column("Name")
+    table.add_column("Name", style="bold magenta")
     table.add_column("Status")
+    table.add_column("Balance", style="bold green")
+    table.add_column("Paper Balance", style="bold green")
+    table.add_column("Buy Limit", style="bold cyan")
+    table.add_column("Sell Limit", style="bold red")
 
     for profile in profiles:
         status = Status(profile.status)
-        table.add_row(str(profile.id), profile.name, str(status))
+        status_color = {
+            Status.INACTIVE: "dim white",
+            Status.ACTIVE: "bold green",
+            Status.PAPER_TRADING: "bold bright_yellow",
+            Status.GRADIANT_EXIT: "bold bright_blue",
+            Status.UNKNOWN_ERROR: "bold red blink"
+        }.get(status, "bold white")
+
+        table.add_row(
+            str(profile.id),
+            profile.name,
+            f"[{status_color}]{str(status)}",  # Use the colored status text
+            f"{profile.balance}",
+            f"{profile.paper_balance}",
+            f"{profile.buy_limit}",
+            f"{profile.sell_limit}",
+        )
 
     console.print(table)
 
@@ -40,8 +60,13 @@ def change_status_command(
         run_on_start: Annotated[bool, typer.Option("--run-on-start", "-r", help="Run the strategy on start")] = False
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
-
+    if profile_id is None:
+        typer.Abort()
+        return
     status = validate_and_prompt_status(status)
+    if status is None:
+        typer.Abort()
+        return
 
     profile: Profile = profile_registry.get(profile_id)
     if not profile:
@@ -49,16 +74,7 @@ def change_status_command(
                       f"The bot may not be running or the profile may have been deleted.")
         return
 
-    confirmation: bool = False
-    match status:
-        case Status.ACTIVE:
-            confirmation: bool = profile.activate(run_on_start)
-        case Status.INACTIVE:
-            confirmation: bool = profile.deactivate()
-        case Status.PAPER_TRADING:
-            confirmation: bool = profile.activate_paper_trading(run_on_start)
-
-    if not confirmation:
+    if not profile_registry.get(profile_id).change_status(status=status, run_on_start=run_on_start):
         console.print(
             f"[bold red]Error: Profile '[white underline bold]{profile_name}; ID {profile_id}[/white underline bold]' couldn't change status to '[white underline bold]{status}[/white underline bold]'!")
         return

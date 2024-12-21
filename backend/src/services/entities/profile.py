@@ -44,95 +44,46 @@ class Profile:
         self.scheduler = BackgroundScheduler()
         self._setup_schedular()
 
-        if self.status == Status.ACTIVE or self.status == Status.PAPER_TRADING:
-            self.activate(run_on_start=False)
-
         logger.debug(
             f"Initialized Profile with ID {self.id} and name: {self.name}",
             extra={"profile_id": self.id},
         )
 
-    def activate(self, run_on_start: bool = False):
-        if not self._check_status_valid():
-            return
+    def change_status(self, status: Status, run_on_start: bool = False):
+        if status == Status.INACTIVE or status.value >= Status.UNKNOWN_ERROR.value:
+            if self.scheduler.running:
+                self.scheduler.shutdown(wait=True)
 
-        self.status = Status.ACTIVE
+        else:
+            if not self._check_status_valid():
+                return
 
-        if run_on_start:
-            self.evaluate()
+            if run_on_start:
+                self.evaluate()
 
-        if not self.scheduler.running:
-            self.scheduler.start()
+            if not self.scheduler.running:
+                self.scheduler.start()
+
+        self.status = status
 
         if update_profile(self.id, status=self.status.value):
             logger.info(
-                f"Activated Profile with ID {self.id} and name: {self.name}",
+                f"Changed Status for Profile with ID {self.id} and name: {self.name} to {self.status}",
                 extra={"profile_id": self.id},
             )
 
             return True
         else:
             logger.error(
-                f"Failed to activate Profile with ID {self.id} and name: {self.name}. Deactivating Profile",
+                f"Failed to change Status for Profile with ID {self.id} and name: {self.name} to {self.status}, deactivating profile",
                 extra={"profile_id": self.id},
             )
-            self.deactivate()
+
+            # Deactivate profile only if scheduler is running so that it doesn't get stuck in a loop
+            if self.scheduler.running:
+                self.change_status(Status.INACTIVE)
 
             return False
-
-    def activate_paper_trading(self, run_on_start: bool = False):
-        if not self._check_status_valid():
-            return
-
-        self.status = Status.PAPER_TRADING
-
-        if run_on_start:
-            self.evaluate()
-
-        if not self.scheduler.running:
-            self.scheduler.start()
-
-        if update_profile(self.id, status=self.status.value):
-            logger.info(
-                f"Activated Paper Trading for Profile with ID {self.id} and name: {self.name}",
-                extra={"profile_id": self.id},
-            )
-
-            return True
-        else:
-            logger.error(
-                f"Failed to activate Paper Trading for Profile with ID {self.id} and name: {self.name}. Deactivating Profile",
-                extra={"profile_id": self.id},
-            )
-            self.deactivate()
-
-            return False
-
-    def deactivate(self):
-        if self.scheduler.running:
-            self.scheduler.shutdown(wait=True)
-
-        self.status = Status.INACTIVE
-        logger.info(
-            f"Deactivated Profile with ID {self.id} and name: {self.name}",
-            extra={"profile_id": self.id},
-        )
-
-        if update_profile(self.id, status=self.status.value):
-            logger.info(
-                f"Deactivated Profile with ID {self.id} and name: {self.name}",
-                extra={"profile_id": self.id},
-            )
-            return True
-
-        else:
-            logger.error(
-                f"Failed to deactivate Profile with ID {self.id} and name: {self.name}.\n"
-                f"Due to Risk Reasons Profile will stay locally deactivated. Pls note that on a restart the Profile will be Active.",
-                extra={"profile_id": self.id},
-            )
-            return False
-            # TODO: add status not sync to Status
 
     def evaluate(self):
         if not self._check_status_valid():
@@ -197,6 +148,9 @@ class Profile:
             ...
 
     def _paper_trade_agent(self, orders: dict[str, float]):
+        fallback_wallet: dict[str, float] = self.paper_wallet.copy()
+        fallback_balance: float = self.paper_balance
+
         for ticker, money_allocation in orders.items():
             ticker_current_price = fetch_info_data(ticker)["currentPrice"]
 
@@ -209,11 +163,8 @@ class Profile:
                 logger.info(f"Profile with id {self.id} Sold {num_of_assets} of {ticker} at {ticker_current_price}",
                             extra={"profile_id": self.id, "ticker": ticker})
 
-        for ticker, money_allocation in orders.items():
-            ticker_current_price = fetch_info_data(ticker)["currentPrice"]
-
-            if money_allocation > 0:
-                num_of_shares: float = (self.paper_balance * money_allocation) / ticker_current_price
+            elif money_allocation > 0:
+                num_of_shares: float = (self.paper_balance * abs(money_allocation)) / ticker_current_price
 
                 self.paper_wallet[ticker] += num_of_shares
                 self.paper_balance -= (self.paper_balance * money_allocation)
@@ -223,27 +174,33 @@ class Profile:
                     extra={"profile_id": self.id, "ticker": ticker})
 
         if not update_profile(self.id, paper_balance=self.paper_balance, paper_wallet=self.paper_wallet):
+            self.paper_wallet = fallback_wallet
+            self.paper_balance = fallback_balance
             logger.error(
-                f"Failed to update Profile with id: {self.id}; and name: {self.name}",
+                f"Failed to update Profile with id: {self.id}; and name: {self.name}; Used Fallback!",
                 extra={"profile_id": self.id},
             )
 
-    def update_wallet(self, wallet: dict[str, float], use_paper_wallet: bool = False):
+    def update_wallet(self, wallet: dict[str, float], is_paper_wallet: bool = False):
         with self._lock:
-            if use_paper_wallet:
-                execution_status = update_profile(self.id, paper_wallet=use_paper_wallet)
+            if is_paper_wallet:
+                execution_status = update_profile(self.id, paper_wallet=wallet)
             else:
                 execution_status = update_profile(self.id, wallet=wallet)
 
             if execution_status:
-                self.wallet = wallet
+                if is_paper_wallet:
+                    self.paper_wallet = wallet
+                else:
+                    self.wallet = wallet
+
                 logger.info(
-                    f"Updated {"Wallet" if not use_paper_wallet else "Paper Wallet"} for Profile with id: {self.id}; and name: {self.name} to wallet: {self.wallet}"
+                    f"Updated {"Wallet" if not is_paper_wallet else "Paper Wallet"} for Profile with id: {self.id}; and name: {self.name} to wallet: {self.wallet}"
                 )
                 return True
             else:
                 logger.error(
-                    f"Failed to update {"Wallet" if not use_paper_wallet else "Paper Wallet"} for Profile with id: {self.id}; and name: {self.name} to wallet: {self.wallet}",
+                    f"Failed to update {"Wallet" if not is_paper_wallet else "Paper Wallet"} for Profile with id: {self.id}; and name: {self.name} to wallet: {self.wallet}",
                 )
                 return False
 
@@ -271,17 +228,17 @@ class Profile:
         return False
 
 
-    def remove_indicator(self, indicator_dto: IndicatorDTO):
+    def remove_indicator(self, indicator_id: int):
         with self._lock:
-            if delete_indicator(id=indicator_dto.id):
-                self.indicators.remove(indicator_dto)
+            if delete_indicator(id=indicator_id):
+                self.indicators = [indicator for indicator in self.indicators if indicator.id != indicator_id]
 
-                logger.info(f"Removed indicator with ID {indicator_dto.id} from profile with ID {self.id}.",
+                logger.info(f"Removed indicator with ID {indicator_id} from profile with ID {self.id}.",
                             extra={"profile_id": self.id})
                 return True
 
         logger.error(
-            f"Failed to remove indicator with ID {indicator_dto.id} from profile with ID {self.id}.",
+            f"Failed to remove indicator with ID {indicator_id} from profile with ID {self.id}.",
             extra={"profile_id": self.id})
         return False
 
@@ -312,16 +269,16 @@ class Profile:
                         extra={"profile_id": self.id})
             return True
 
-    def remove_plugin(self, plugin_dto: PluginDTO):
+    def remove_plugin(self, plugin_id: int):
         with self._lock:
-            if delete_plugin(id=plugin_dto.id):
-                self.plugins.remove(plugin_dto)
+            if delete_plugin(id=plugin_id):
+                self.plugins = [plugin for plugin in self.plugins if plugin.id != plugin_id]
 
-                logger.info(f"Removed plugin with ID {plugin_dto.id} from profile with ID {self.id}.",
+                logger.info(f"Removed plugin with ID {plugin_id} from profile with ID {self.id}.",
                             extra={"profile_id": self.id})
                 return True
 
-        logger.error(f"Failed to remove plugin with ID {plugin_dto.id} from profile with ID {self.id}.",
+        logger.error(f"Failed to remove plugin with ID {plugin_id} from profile with ID {self.id}.",
                      extra={"profile_id": self.id})
         return False
 
@@ -371,6 +328,8 @@ class Profile:
 
         if hasattr(self, 'job') and self.job:
             self.job.remove()
+
+        # TODO: Intervall need start time (example: for 60min/1h round to one hour when starting interval or not?)
 
         self.job = self.scheduler.add_job(self.evaluate, "interval", minutes=smallest_interval)
 

@@ -3,6 +3,8 @@ import sys
 
 import typer
 
+from src.cli.commands.indicatorCommands import update_indicator_command
+
 sys.path.append('D:\\MyFolders\\Code\\Oracle\\backend')
 
 from src.custom_logger.loggingManager import setup_logger
@@ -51,6 +53,7 @@ indicator_app = typer.Typer(help="Commands to interact with indicators.")
 indicator_app.command(name="add", help="Adds an indicator to a profile.")(add_indicator_command)
 indicator_app.command(name="remove", help="Removes an indicator from a profile.")(remove_indicator_command)
 indicator_app.command(name="list", help="Lists all indicators of a profile.")(list_profile_indicators_command)
+indicator_app.command(name="update", help="Updates an indicator of a profile.")(update_indicator_command)
 
 bot_app = typer.Typer(help="Commands to interact with the bot.", hidden=True)
 bot_app.command(name="start", help="Runs the app.")(start_app_command)

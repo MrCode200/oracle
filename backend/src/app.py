@@ -3,6 +3,7 @@ import time
 import atexit
 
 from src.custom_logger.loggingManager import setup_logger
+from src.services.constants import Status
 from src.utils.registry import profile_registry
 
 
@@ -51,7 +52,7 @@ def stop_app():
 
 
     for profile in profile_registry.get().values():
-        profile.deactivate()
+        profile.change_status(Status.INACTIVE)
 
     logger.info("All Profiles Deactivated Successfully...")
 

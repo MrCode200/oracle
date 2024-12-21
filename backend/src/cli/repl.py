@@ -8,6 +8,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.history import InMemoryHistory
 
+from src.services.constants import Status
 from src.utils.registry import profile_registry
 from src.cli import command_list
 
@@ -65,7 +66,7 @@ def repl():
 
             for profile in profiles:
                 progress.update(deactivate_task, advance=1)
-                profile.deactivate()
+                profile.change_status(Status.INACTIVE)
 
             progress.update(deactivate_task, description="[bold green]All Profiles Deactivated Successfully")
 

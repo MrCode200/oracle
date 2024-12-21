@@ -10,12 +10,12 @@ from rich.progress import Progress
 from rich.prompt import Prompt
 from rich.table import Table
 from src.api import fetch_info_data
-from src.cli.commands.utils import validate_and_prompt_profile_name
+from src.cli.commands.validation import validate_and_prompt_profile_name
 from src.exceptions import DataFetchError
 from src.services.entities import Profile
 from src.utils.registry import profile_registry
 
-from src.cli.commands.utils import create_wallet_table
+from src.cli.commands.walletCommands.walletUtils import create_wallet_table
 
 console = Console()
 
@@ -25,15 +25,16 @@ logger = logging.getLogger("oracle.app")
 def view_wallet_command(
         profile_name: Annotated[str, typer.Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None,
-        use_paper_wallet: Annotated[bool, typer.Option("--paper-wallet", "-pw", help="View the paper wallet?")] = False
 ):
     profile: int = validate_and_prompt_profile_name(profile_name)
     profile: Profile = profile_registry.get(profile)
 
-    wallet = profile.paper_wallet if use_paper_wallet else profile.wallet
-    table = create_wallet_table(wallet, title="Wallet")
+    wallet: dict[str, float] = profile.wallet
+    paper_wallet: dict[str, float] = profile.paper_wallet
+    wallet_table: Table = create_wallet_table(wallet=wallet, title="Wallet")
+    paper_wallet_table: Table = create_wallet_table(wallet=paper_wallet, title="Paper Wallet")
 
-    console.print(table)
+    console.print(Columns([wallet_table, paper_wallet_table]))
 
 
 def update_wallet_command(
@@ -48,6 +49,9 @@ def update_wallet_command(
         prompt: Annotated[bool, typer.Option("--no-prompt", "-np", help="Prompt for ticker input.")] = True
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
+    if profile_id is None:
+        typer.Abort()
+        return
     profile: Profile = profile_registry.get(profile_id)
 
     started_wallet: dict[str, float] = profile.wallet if not use_paper_wallet else profile.paper_wallet
@@ -116,16 +120,19 @@ def update_wallet_command(
         console.print(
             f"[bold red]Ticker '{invalid_ticker}' doesn't exist in wallet or contains assets, \n in such a case pls sell all assets before removing [/bold red].")
 
+
     if prompt:
+        console.print(create_wallet_table(wallet=final_wallet, title="Wallet"))
+
         console.print(Panel("[bold yellow]Enter the ticker for each asset you want to [white underline]`track`[/white underline].\n"
-                        "To exit, type [white underline]`q`[/white underline].", expand=False))
+                        "To exit, press [white underline]`enter`[/white underline].", expand=False))
 
     # Prompt for adding and removing tickers interactively
     while prompt:
         # Use rich prompt for better user interaction
         ticker_prompt = Prompt.ask("[bold green]Enter ticker[/bold green]")
 
-        if ticker_prompt.lower() == "q":
+        if ticker_prompt.lower() == "":
             break
 
         elif ticker_prompt == "":
@@ -149,12 +156,12 @@ def update_wallet_command(
 
     if prompt:
         console.print(Panel("[bold yellow]Enter the ticker for each asset you want to [white underline]`remove`[/white underline].\n"
-                            "To exit, type [white underline]`q`[/white underline].", expand=False))
+                            "To exit, type [white underline]`enter`[/white underline].", expand=False))
 
     while prompt:
         ticker_prompt = Prompt.ask("[bold red]Enter ticker[/bold red]")
 
-        if ticker_prompt.lower() == "q":
+        if ticker_prompt.lower() == "":
             break
 
         if ticker_prompt == "":
@@ -190,7 +197,7 @@ def update_wallet_command(
 
     console.print(
         Panel(Columns([create_wallet_table(started_wallet, title="Wallet", transient=False, print_info=False), changes_table, final_wallet_table]),
-              title="Wallet Changes", border_style="bold magenta"))
+              title="Wallet Changes", border_style="bold magenta", expand=False))
 
     # Beautiful validation prompt with changes listed
     validation_prompt = Prompt.ask(f"[bold green]Do you want to update the profile {"Paper Wallet" if use_paper_wallet else "Wallet"}?[/bold green]",
@@ -200,7 +207,7 @@ def update_wallet_command(
         typer.Abort()
         return
 
-    if profile.update_wallet(wallet=final_wallet, use_paper_wallet=use_paper_wallet):
+    if profile.update_wallet(wallet=final_wallet, is_paper_wallet=use_paper_wallet):
         console.print(f"[bold green]Profile '[bold]{profile_name}; ID: {profile.id}[/bold]' wallet successfully updated![/bold green]")
     else:
         console.print(f"[bold]Error:[/bold] Unable to update profile '[bold]{profile_name}; ID: {profile.id}[/bold]'.\n"
@@ -215,6 +222,9 @@ def clear_wallet_command(
         use_paper_wallet: Annotated[bool, typer.Option("--paper-wallet", "-pw", help="Clear the paper wallet?")] = False
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
+    if profile_id is None:
+        typer.Abort()
+        return
     profile: Profile = profile_registry.get(profile_id)
 
     if use_paper_wallet:
@@ -222,16 +232,16 @@ def clear_wallet_command(
     else:
         wallet = profile.wallet
 
-    i: int = 1
-    for ticker, quantity in wallet.items():
-        i += 1
+        i: int = 1
+        for ticker, quantity in wallet.items():
+            i += 1
 
-        if quantity != 0:
-            console.print(
-                f"[bold red]Error:[/bold] Unable to clear wallet for profile '[bold]{profile_name}[/bold]'.\n"
-                f"Wallet contains of {ticker} '[bold]{quantity}[/bold]. Please sell all assets before clearing the wallet.[/bold red]",
-                style="red")
-            typer.Abort()
+            if quantity != 0:
+                console.print(
+                    f"[bold red]Error:[/bold] Unable to clear wallet for profile '[bold]{profile_name}[/bold]'.\n"
+                    f"Wallet contains of {ticker} '[bold]{quantity}[/bold]. Please sell all assets before clearing the wallet.[/bold red]",
+                    style="red")
+                typer.Abort()
 
     console.print(create_wallet_table(wallet, title="Wallet"))
 
@@ -239,7 +249,7 @@ def clear_wallet_command(
                                    choices=["y", "n"], default="n")
 
     if conformation == "y":
-        if profile.update_wallet({}, use_paper_wallet=use_paper_wallet):
+        if profile.update_wallet({}, is_paper_wallet=use_paper_wallet):
             console.print(
                 f"[bold green]Profile '[bold]{profile_name}[/bold]' wallet successfully cleared![/bold green]")
         else:

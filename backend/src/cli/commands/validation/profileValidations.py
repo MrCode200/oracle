@@ -25,13 +25,14 @@ def validate_and_prompt_profile_name(profile_name: Optional[str] = None) -> Opti
         typer.Abort()
         return
 
+    # TO-DO: remake change this to return the DTO
     return get_profile(name=profile_name).id
 
 
 def validate_and_prompt_status(status: Optional[str] = None) -> Optional[Type[Status]]:
     status_names: list[str] = [status.name for status in Status]
     if status is None:
-        status = prompt("Enter status: ", completer=WordCompleter(words=[status.name for status in Status], ignore_case=True))
+        status = prompt("Enter status: ", completer=WordCompleter(words=[status.name for status in Status if status != Status.UNKNOWN_ERROR], ignore_case=True))
 
     if status not in status_names:
         console.print(f"[bold red]Error: Status '[white underline bold]{status}[/white underline bold]' not found!")
