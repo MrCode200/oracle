@@ -34,11 +34,6 @@ def list_profiles_command():
     console.print(table)
 
 
-# TODO: finish this command
-def detail_profile_command(profile_name: Annotated[Optional[str], typer.Argument(help="The name of the profile to view.")] = None):
-    ...
-
-
 def change_status_command(
         profile_name: Annotated[Optional[str], typer.Argument(help="The name of the profile to delete.")] = None,
         status: Annotated[Optional[str], typer.Argument(help="The status to set the profile to. Has Autocompletes Option when not provided.")] = None,

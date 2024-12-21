@@ -59,6 +59,8 @@ def repl():
 
             deactivate_task = progress.add_task(description="[bold yellow]Deactivating all profiles...",
                                                 total=len(profiles))
+            close_db_engine_task = progress.add_task(description="[bold yellow]Closing database engine...",
+                                                     total=1)
             sleep_task = progress.add_task(description="[bold yellow]Closing Oracle...", total=5)
 
             for profile in profiles:
@@ -66,6 +68,11 @@ def repl():
                 profile.deactivate()
 
             progress.update(deactivate_task, description="[bold green]All Profiles Deactivated Successfully")
+
+            from src.database import engine
+
+            engine.dispose()
+            progress.update(close_db_engine_task, advance=1, description="[bold green]Database engine closed")
 
             logger.info("All Profiles Deactivated Successfully. Closing Oracle...")
 

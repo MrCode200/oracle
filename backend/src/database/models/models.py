@@ -30,7 +30,7 @@ class IndicatorModel(Base):
     name = Column(String(100))
     weight = Column(Float)
     ticker = Column(String(16))
-    interval = Column(ARRAY(String(16)))
+    interval = Column(String(16))
     settings = Column(JSONB)
 
 

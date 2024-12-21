@@ -1,4 +1,3 @@
-from enum import Enum
 from logging import getLogger
 from threading import Lock
 
@@ -14,6 +13,7 @@ from src.database import (IndicatorDTO, PluginDTO, ProfileDTO, get_indicator,
                           update_profile, delete_plugin)
 from src.services.indicators import BaseIndicator
 from src.utils.registry import profile_registry
+from src.services.constants import Status
 
 from src.services.plugin import PluginJob
 
@@ -21,31 +21,6 @@ from src.services.plugin import PluginJob
 BROKER_API: str = ""
 
 logger = getLogger("oracle.app")
-
-interval_to_minutes = {
-    "1m": 1,
-    "2m": 2,
-    "5m": 5,
-    "15m": 15,
-    "30m": 30,
-    "60m": 60,
-    "90m": 90,
-    "1h": 60,
-    "1d": 1440,
-    "5d": 7200,
-    "1wk": 10080,
-    "1mo": 43200,
-    "3mo": 129600,
-}
-
-
-class Status(Enum):
-    INACTIVE: int = 0
-    ACTIVE: int = 1
-    PAPER_TRADING: int = 2
-    GRADIANT_EXIT: int = 3
-    UNKNOWN_ERROR = 100
-
 
 class Profile:
     def __init__(self, profile: ProfileDTO):
@@ -119,14 +94,14 @@ class Profile:
 
         if update_profile(self.id, status=self.status.value):
             logger.info(
-                f"Activated Profile with ID {self.id} and name: {self.name}",
+                f"Activated Paper Trading for Profile with ID {self.id} and name: {self.name}",
                 extra={"profile_id": self.id},
             )
 
             return True
         else:
             logger.error(
-                f"Failed to activate Profile with ID {self.id} and name: {self.name}. Deactivating Profile",
+                f"Failed to activate Paper Trading for Profile with ID {self.id} and name: {self.name}. Deactivating Profile",
                 extra={"profile_id": self.id},
             )
             self.deactivate()
@@ -163,18 +138,24 @@ class Profile:
         if not self._check_status_valid():
             return
 
+        if not self._check_has_create_order_plugin():
+            return
+
+        confidences: dict[str, dict[int, float]] = {}
+        for ticker in self.wallet.keys():
+            confidences[ticker] = {}
+
         with self._lock:
             for plugin in self.plugins:
                 if plugin.instance.job == PluginJob.BEFORE_EVALUATION:
                     plugin.instance.evaluate(self)
 
-            confidences: dict[str, dict[int, float]] = {}
             for indicator in self.indicators:
                 if not BROKER_API:
-                    df = fetch_historical_data(ticker=indicator.ticker, period="6mo", interval=indicator.interval)
+                    df = fetch_historical_data(ticker=indicator.ticker, period="5d", interval=indicator.interval)
 
                 confidence = indicator.instance.evaluate(df=df)
-                confidence[indicator.ticker][indicator.id] = confidence
+                confidences[indicator.ticker][indicator.id] = confidence
 
             for plugin in self.plugins:
                 if plugin.instance.job == PluginJob.AFTER_EVALUATION:
@@ -247,19 +228,25 @@ class Profile:
                 extra={"profile_id": self.id},
             )
 
-    def update_wallet(self, wallet: dict[str, float]):
+    def update_wallet(self, wallet: dict[str, float], use_paper_wallet: bool = False):
         with self._lock:
-            if not update_profile(self.id, wallet=wallet):
-                logger.error(
-                    f"Failed to update Profile with id: {self.id}; and name: {self.name}",
-                )
-                return False
+            if use_paper_wallet:
+                execution_status = update_profile(self.id, paper_wallet=use_paper_wallet)
             else:
+                execution_status = update_profile(self.id, wallet=wallet)
+
+            if execution_status:
                 self.wallet = wallet
                 logger.info(
-                    f"Updated Walled of Profile with id: {self.id}; and name: {self.name} to wallet: {self.wallet}"
+                    f"Updated {"Wallet" if not use_paper_wallet else "Paper Wallet"} for Profile with id: {self.id}; and name: {self.name} to wallet: {self.wallet}"
                 )
                 return True
+            else:
+                logger.error(
+                    f"Failed to update {"Wallet" if not use_paper_wallet else "Paper Wallet"} for Profile with id: {self.id}; and name: {self.name} to wallet: {self.wallet}",
+                )
+                return False
+
 
     def add_indicator(self, indicator: 'BaseIndicator', weight: float, ticker: str, interval: str):
         with self._lock:
@@ -356,8 +343,27 @@ class Profile:
             logger.info(f"No indicators found for Profile with id: {self.id}", extra={"profile_id": self.id})
             return
 
+        def interval_to_minutes(interval: str) -> int:
+            step: int = 1
+            match interval[-1]:
+                case "m":
+                    step = 1
+                case "h":
+                    step = 60
+                case "d":
+                    step = 1440
+                case "k":
+                    step = 10080
+                case "o":
+                    step = 43200
+                case "y":
+                    step = 525600
+
+            return int(interval[:-1]) * step
+
+
         all_intervals: list[int] = [
-            interval_to_minutes[indicator.interval]
+            interval_to_minutes(indicator.interval)
             for indicator in indicators
         ]
 
@@ -369,9 +375,20 @@ class Profile:
         self.job = self.scheduler.add_job(self.evaluate, "interval", minutes=smallest_interval)
 
         logger.info(
-            f"Updated Scheduler minutes for Profile with ID {self.id} and name: {self.name}",
+            f"Updated Scheduler to run every {smallest_interval} minutes for Profile with ID {self.id} and name: {self.name}",
             extra={"profile_id": self.id},
         )
+
+    def _check_has_create_order_plugin(self):
+        for plugin in self.plugins:
+            if plugin.instance.job == PluginJob.CREATE_ORDER:
+                return True
+
+        logger.error(
+            f"Profile with id {self.id} does not have a create order plugin. Deactivating Profile",
+            extra={"profile_id": self.id},)
+
+        return False
 
     def _check_status_valid(self):
         if self.status.value >= Status.UNKNOWN_ERROR.value:

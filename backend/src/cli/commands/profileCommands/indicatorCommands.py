@@ -69,7 +69,7 @@ def add_indicator_command(
 
     # Loop and prompt for changing parameters
     while True:
-        param_name = prompt("Parameter: ", completer=WordCompleter(list(class_kwargs.keys()) + ["VIEW"]))
+        param_name = prompt("Parameter: ", completer=WordCompleter(list(class_kwargs.keys()) + ["VIEW"], ignore_case=True))
         if param_name == "VIEW":
             console.print(create_param_table(class_kwargs))
         elif param_name == "":

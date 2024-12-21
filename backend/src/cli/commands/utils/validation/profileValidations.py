@@ -31,7 +31,7 @@ def validate_and_prompt_profile_name(profile_name: Optional[str] = None) -> Opti
 def validate_and_prompt_status(status: Optional[str] = None) -> Optional[Type[Status]]:
     status_names: list[str] = [status.name for status in Status]
     if status is None:
-        status = prompt("Enter status: ", completer=WordCompleter(words=[status.name for status in Status]))
+        status = prompt("Enter status: ", completer=WordCompleter(words=[status.name for status in Status], ignore_case=True))
 
     if status not in status_names:
         console.print(f"[bold red]Error: Status '[white underline bold]{status}[/white underline bold]' not found!")

@@ -1,6 +1,7 @@
 from logging import getLogger
+import atexit
 
-from sqlalchemy import Engine, create_engine, text
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.engine import URL
 from src.utils import load_config
 

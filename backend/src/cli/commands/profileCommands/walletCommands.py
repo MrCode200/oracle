@@ -14,7 +14,6 @@ from src.cli.commands.utils import validate_and_prompt_profile_name
 from src.exceptions import DataFetchError
 from src.services.entities import Profile
 from src.utils.registry import profile_registry
-from src.database import ProfileDTO
 
 from src.cli.commands.utils import create_wallet_table
 
@@ -25,12 +24,14 @@ logger = logging.getLogger("oracle.app")
 
 def view_wallet_command(
         profile_name: Annotated[str, typer.Argument(
-            help="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None
+            help="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None,
+        use_paper_wallet: Annotated[bool, typer.Option("--paper-wallet", "-pw", help="View the paper wallet?")] = False
 ):
     profile: int = validate_and_prompt_profile_name(profile_name)
     profile: Profile = profile_registry.get(profile)
 
-    table = create_wallet_table(profile.wallet, title="Wallet")
+    wallet = profile.paper_wallet if use_paper_wallet else profile.wallet
+    table = create_wallet_table(wallet, title="Wallet")
 
     console.print(table)
 
@@ -39,15 +40,17 @@ def update_wallet_command(
         profile_name: Annotated[
             str, typer.Argument(help="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None,
         added_tickers: Annotated[
-            list[str], typer.Option("--add-ticker", "-at", help="List of [bold]tickers[/bold] to update.")] = [],
+            list[str], typer.Option("--add-ticker", "-at", help="List of [bold]tickers[/bold] to be added. Must be UPPERCASE")] = [],
         removed_tickers: Annotated[
-            list[str], typer.Option("--remove-ticker", "-rt", help="List of [bold]tickers[/bold] to update.")] = [],
+            list[str], typer.Option("--remove-ticker", "-rt", help="List of [bold]tickers[/bold] to be removed.")] = [],
+        use_paper_wallet: Annotated[
+            bool, typer.Option("--paper-wallet", "-pw", help="Update the paper wallet?")] = False,
         prompt: Annotated[bool, typer.Option("--no-prompt", "-np", help="Prompt for ticker input.")] = True
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
     profile: Profile = profile_registry.get(profile_id)
 
-    started_wallet: dict[str, float] = profile.wallet
+    started_wallet: dict[str, float] = profile.wallet if not use_paper_wallet else profile.paper_wallet
     final_wallet: dict[str, float] = started_wallet.copy()
     invalid_added_tickers: list[str] = []
     invalid_removed_tickers: list[str] = []
@@ -190,14 +193,14 @@ def update_wallet_command(
               title="Wallet Changes", border_style="bold magenta"))
 
     # Beautiful validation prompt with changes listed
-    validation_prompt = Prompt.ask(f"[bold green]Do you want to update the profile wallet?[/bold green]",
+    validation_prompt = Prompt.ask(f"[bold green]Do you want to update the profile {"Paper Wallet" if use_paper_wallet else "Wallet"}?[/bold green]",
                                    choices=["y", "n"], default="y")
 
     if validation_prompt != "y":
         typer.Abort()
         return
 
-    if profile.update_wallet(wallet=final_wallet):
+    if profile.update_wallet(wallet=final_wallet, use_paper_wallet=use_paper_wallet):
         console.print(f"[bold green]Profile '[bold]{profile_name}; ID: {profile.id}[/bold]' wallet successfully updated![/bold green]")
     else:
         console.print(f"[bold]Error:[/bold] Unable to update profile '[bold]{profile_name}; ID: {profile.id}[/bold]'.\n"
@@ -208,12 +211,16 @@ def update_wallet_command(
 
 def clear_wallet_command(
         profile_name: Annotated[
-            Optional[str], typer.Argument(help="The [bold]name[/bold] of the [bold]profile[/bold] to clear.")] = None
+            Optional[str], typer.Argument(help="The [bold]name[/bold] of the [bold]profile[/bold] to clear.")] = None,
+        use_paper_wallet: Annotated[bool, typer.Option("--paper-wallet", "-pw", help="Clear the paper wallet?")] = False
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
     profile: Profile = profile_registry.get(profile_id)
 
-    wallet = profile.wallet
+    if use_paper_wallet:
+        wallet = profile.paper_wallet
+    else:
+        wallet = profile.wallet
 
     i: int = 1
     for ticker, quantity in wallet.items():
@@ -232,7 +239,7 @@ def clear_wallet_command(
                                    choices=["y", "n"], default="n")
 
     if conformation == "y":
-        if profile.update_wallet({}):
+        if profile.update_wallet({}, use_paper_wallet=use_paper_wallet):
             console.print(
                 f"[bold green]Profile '[bold]{profile_name}[/bold]' wallet successfully cleared![/bold green]")
         else:

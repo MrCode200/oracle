@@ -8,13 +8,15 @@ from src.database import ProfileDTO, create_profile, delete_profile, update_prof
 from src.services.entities import Profile
 from typer import Argument, Option
 
+from src.utils.registry import profile_registry
+
 console = Console()
 
 
 def create_profile_command(
         profile_name: Annotated[str, Argument(help="The name of the profile to create.")],
         balance: Annotated[float, Option("--balance", "-b", help="The balance of the profile.",
-                                        prompt="Enter balance", min=0.0)] = 0.0,
+                                         prompt="Enter balance", min=0.0)] = 0.0,
         paper_balance: Annotated[float, Option("--paper-balance", "-p", help="The paper balance of the profile.",
                                                prompt="Enter paper balance", min=0.0)] = 0.0,
         buy_limit: Annotated[float, Option("--buy-limit", "-bl", help="The buy limit of the profile.",
@@ -37,23 +39,25 @@ def create_profile_command(
         f"[bold green]Profile '[white underline bold]{profile_name}[/white underline bold]' created successfully![/bold green]")
 
 
-
-# TODO: Update profile command
 def update_profile_command(
-        new_profile_name: Annotated[Optional[str], Option("--new-name", "-n", help="The new name of the profile.")],
-        balance: Annotated[Optional[float], Option(None, "--balance", "-b", help="The balance of the profile.", min=0)],
-        paper_balance: Annotated[Optional[float], Option(None, "--paper-balance", "-p", help="The paper balance of the profile.", min=0)],
-        buy_limit: Annotated[
-            Optional[float], Option(None, "--buy-limit", "-bl", help="The buy limit of the profile.", min=0, max=1)],
-        sell_limit: Annotated[Optional[float], Option(None, "--sell-limit", "-sl", help="The sell limit of the profile.",
-                                            prompt="Enter sell limit ", min=-1, max=0)],
-
         profile_name: Annotated[Optional[str], Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to update.")] = None,
+        new_profile_name: Annotated[str, Option("--name", "-n", help="The name of the profile to create.")] = None,
+        balance: Annotated[float, Option("--balance", "-b", help="The balance of the profile.",
+                                         prompt="Enter balance", min=0.0)] = 0.0,
+        paper_balance: Annotated[float, Option("--paper-balance", "-p", help="The paper balance of the profile.",
+                                               prompt="Enter paper balance", min=0.0)] = 0.0,
+        buy_limit: Annotated[float, Option("--buy-limit", "-bl", help="The buy limit of the profile.",
+                                           prompt="Enter buy limit", min=0.0, max=1.0)] = 0.8,
+        sell_limit: Annotated[float, Option("--sell-limit", "-sl", help="The sell limit of the profile.",
+                                            prompt="Enter sell limit", min=-1.0, max=0.0)] = -0.8,
+
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
 
-    if update_profile(id=profile_id, name=new_profile_name, balance=balance, paper_balance=paper_balance, buy_limit=buy_limit, sell_limit=sell_limit):
+    if profile_registry.get(profile_id).update_profile(id=profile_id, name=new_profile_name, balance=balance,
+                                                       paper_balance=paper_balance, buy_limit=buy_limit,
+                                                       sell_limit=sell_limit):
         console.print(f"[bold green]Profile '[bold]{profile_name}[/bold]' successfully updated![/bold green]")
     else:
         console.print(

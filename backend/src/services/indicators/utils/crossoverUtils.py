@@ -3,7 +3,7 @@ from math import atan
 
 logger = getLogger("oracle.app")
 
-# TODO: if current_lines should be passed or the dataFrame and index
+# To-do? if current_lines should be passed or the dataFrame and index
 def check_crossover(
     current_line1: float,
     current_line2: float,

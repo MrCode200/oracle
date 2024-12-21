@@ -5,8 +5,6 @@ import typer
 
 sys.path.append('D:\\MyFolders\\Code\\Oracle\\backend')
 
-from src.cli.commands.profileCommands.crudProfileCommands import \
-    create_profile_command
 from src.custom_logger.loggingManager import setup_logger
 
 logger = logging.getLogger("oracle.app")
@@ -30,7 +28,8 @@ from src.cli.commands import (change_status_command, clear_wallet_command,
                               list_profiles_command, start_app_command,
                               status_app_command, stop_app_command,
                               update_wallet_command, view_wallet_command,
-                              add_indicator_command, remove_indicator_command, list_profile_indicators_command)
+                              add_indicator_command, remove_indicator_command, list_profile_indicators_command,
+                              create_profile_command, update_profile_command)
 
 app = typer.Typer(rich_markup_mode="rich")
 app.command(name="list-indicators", help="Lists all available indicators.")(list_indicators_command)
@@ -39,6 +38,7 @@ profile_app = typer.Typer(help="Commands to interact with profiles.")
 profile_app.command(name="delete", help="Deletes a profile.")(delete_profile_command)
 profile_app.command(name="change-status", help="Changes the status of a profile.")(change_status_command)
 profile_app.command(name="create", help="Creates a new profile.")(create_profile_command)
+profile_app.command(name="update", help="Updates a profile.")(update_profile_command)
 
 profile_app.command(name="list", help="Lists all available profiles.")(list_profiles_command)
 

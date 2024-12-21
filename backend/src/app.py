@@ -1,5 +1,6 @@
 import logging
 import time
+import atexit
 
 from src.custom_logger.loggingManager import setup_logger
 from src.utils.registry import profile_registry
@@ -36,23 +37,32 @@ def init_app(repl: bool = False):
         return
 
     # Was if I ever wanted to code cli again
-    try:
-        logger.info("Starting Oracle main loop...")
-        while True:
-            time.sleep(1)
+    logger.info("Starting Oracle main loop...")
+    atexit.register(stop_app)
 
-        # read Fifo file
-
-    finally:
-        for profile in profile_registry.get().values():
-            profile.deactivate()
-
-        logger.info("All Profiles Deactivated Successfully. Closing Oracle...")
-
-        time.sleep(5)
+    while True:
+        time.sleep(1)
 
 
+def stop_app():
+    from src.database import engine
 
+    logger = logging.getLogger("oracle.app")
+
+
+    for profile in profile_registry.get().values():
+        profile.deactivate()
+
+    logger.info("All Profiles Deactivated Successfully...")
+
+
+    engine.dispose()
+    logger.info("Database Disposed Successfully...")
+
+    logger.info("Oracle Waiting for tasks to finish...")
+    time.sleep(5)
+
+    logger.info("Oracle Stopped Successfully!")
 
 
 if __name__ == "__main__":
