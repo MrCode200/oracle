@@ -347,6 +347,8 @@ class Profile:
             f"Profile with id {self.id} does not have a create order plugin. Deactivating Profile",
             extra={"profile_id": self.id},)
 
+        self.change_status(Status.INACTIVE)
+
         return False
 
     def _check_status_valid(self):
