@@ -1,5 +1,5 @@
 from rich.table import Table, box
-
+# TODO: change name to create paramm indicator table
 def create_param_table(class_kwargs: dict[str, any]) -> Table:
     param_table = Table(header_style="bold cyan", box=box.ROUNDED, style="bold")
     param_table.add_column("", style="dim")
@@ -13,3 +13,8 @@ def create_param_table(class_kwargs: dict[str, any]) -> Table:
         i += 1
 
     return param_table
+
+
+# TODO: add this to the crud indicator Commands
+def create_extra_indicator_table():
+    ...

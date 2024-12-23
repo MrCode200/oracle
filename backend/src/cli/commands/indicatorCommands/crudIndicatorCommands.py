@@ -1,6 +1,5 @@
 from inspect import signature
 
-from PIL.ImageOps import expand
 from prompt_toolkit import prompt
 from rich.columns import Columns
 from rich.panel import Panel
@@ -16,7 +15,6 @@ from typing import Annotated, Optional
 from logging import getLogger
 
 from src.cli.commands.walletCommands.walletUtils import create_wallet_table
-from src.services.indicators import BaseIndicator
 
 logger = getLogger("oracle.app")
 
@@ -194,7 +192,36 @@ def update_indicator_command(
         indicator_id: Annotated[
             Optional[int], Option(help="The [bold]id[/bold] of the [bold]indicator[/bold] to update.")] = None
 ):
-    ...
+    profile_id: int = validate_and_prompt_profile_name(profile_name)
+    indicator_id: int = validate_and_prompt_indicator_id(indicator_id)
+
+    while True:
+        console.print(Panel(
+            f"To edit indicator press\n"
+            f"[0] To save and exit\n"
+            f"[1] To edit parameters\n"
+            f"[2] To edit ticker\n"
+            f"[3] To edit Interval\n"
+            f"[4] To edit Weight\n", expand=False))
+
+        option: int = input()
+        if option not in [0, 1, 2, 3, 4]:
+            continue
+
+        match option:
+            case 0:
+                break
+            case 1:
+                ...
+            case 2:
+                ...
+            case 3:
+                ...
+            case 4:
+                ...
+
+
+
 
 
 def list_profile_indicators_command(
@@ -204,6 +231,7 @@ def list_profile_indicators_command(
             Optional[int], Option("--indicator-id", "-id", help="The [bold]id[/bold] of the [bold]indicator[/bold] to add.")] = None
 ):
     profile_id = validate_and_prompt_profile_name(profile_name)
+    # TODO: check for valid indicator id
     if profile_id is None:
         Abort()
         return
