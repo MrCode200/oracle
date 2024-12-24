@@ -60,13 +60,7 @@ def change_status_command(
         run_on_start: Annotated[bool, typer.Option("--run-on-start", "-r", help="Run the strategy on start")] = False
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
-    if profile_id is None:
-        typer.Abort()
-        return
-    status = validate_and_prompt_status(status)
-    if status is None:
-        typer.Abort()
-        return
+    status: Status = validate_and_prompt_status(status)
 
     profile: Profile = profile_registry.get(profile_id)
     if not profile:

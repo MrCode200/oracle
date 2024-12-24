@@ -49,9 +49,6 @@ def update_wallet_command(
         prompt: Annotated[bool, typer.Option("--no-prompt", "-np", help="Prompt for ticker input.")] = True
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
-    if profile_id is None:
-        typer.Abort()
-        return
     profile: Profile = profile_registry.get(profile_id)
 
     started_wallet: dict[str, float] = profile.wallet if not use_paper_wallet else profile.paper_wallet
@@ -222,9 +219,6 @@ def clear_wallet_command(
         use_paper_wallet: Annotated[bool, typer.Option("--paper-wallet", "-pw", help="Clear the paper wallet?")] = False
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
-    if profile_id is None:
-        typer.Abort()
-        return
     profile: Profile = profile_registry.get(profile_id)
 
     if use_paper_wallet:

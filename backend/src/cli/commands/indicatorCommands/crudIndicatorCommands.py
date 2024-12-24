@@ -1,12 +1,10 @@
-from inspect import signature
-
-from prompt_toolkit import prompt
 from rich.columns import Columns
 from rich.panel import Panel
+from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from rich.status import Status
 from rich.table import box, Table
-from typer import Argument, Option, Abort
+from typer import Argument, Option
 from rich.console import Console
 from rich.prompt import Prompt
 
@@ -14,14 +12,15 @@ from typing import Annotated, Optional
 
 from logging import getLogger
 
-from src.cli.commands.walletCommands.walletUtils import create_wallet_table
-
 logger = getLogger("oracle.app")
 
 from src.cli.commands.validation import validate_and_prompt_profile_name, validate_and_prompt_indicator_id, \
-    validate_ticker_in_wallet, validate_and_prompt_interval
-from src.cli.commands.indicatorCommands.indicatorUtils import create_param_table
-from src.database import get_profile, ProfileDTO, IndicatorDTO
+    validate_and_prompt_ticker_in_wallet, validate_and_prompt_interval, validate_and_prompt_weight
+from src.cli.commands.indicatorCommands.indicatorUtils import (create_indicator_param_table,
+                                                               create_indicator_extra_table,
+                                                               create_edit_indicator_settings)
+from src.database import IndicatorDTO
+from src.services.entities import Profile
 from src.utils.registry import indicator_registry, profile_registry
 
 console = Console()
@@ -32,22 +31,20 @@ def add_indicator_command(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to add indicator to.")] = None,
         indicator_name: Annotated[Optional[str], Option("-i", "--indicator",
                                                         help="The [bold]name[/bold] of the [bold]indicator[/bold] to add.")] = None,
-        indicator_ticker: Annotated[Optional[str], Option("-t", "--tickers",
-                                                          help="List of [bold]tickers[/bold] to add indicator to.")] = ""
+        ticker: Annotated[Optional[str], Option("-t", "--tickers",
+                                                help="List of [bold]tickers[/bold] to add indicator to.")] = "",
+        interval: Annotated[Optional[str], Option("-i", "--interval",
+                                                  help="The [bold]interval[/bold] of the [bold]indicator[/bold] to add.")] = None,
+        weight: Annotated[Optional[int], Option("-w", "--weight",
+                                                help="The [bold]weight[/bold] of the [bold]indicator[/bold] to add.")] = None
 ):
     # Validations
     profile_id: int = validate_and_prompt_profile_name(profile_name)
-    if profile_id is None:
-        Abort()
-        return
-    profile: ProfileDTO = get_profile(id=profile_id)
+    profile: Profile = profile_registry.get(profile_id)
 
     if profile.wallet == {}:
         console.print("[bold red]Error: Wallet is empty![/bold red]")
         return
-
-    validate_ticker_in_wallet(wallet=profile.wallet,
-                              tickers=indicator_ticker) if indicator_ticker is not indicator_ticker else None
 
     if indicator_name is None:
         indicator_name = prompt("Enter indicator name: ",
@@ -59,103 +56,17 @@ def add_indicator_command(
             f"[bold red]Error: Indicator '[white underline bold]{indicator_name}[/white underline bold]' not found!")
 
     # Get all indicator parameters
-    class_kwargs: dict[str, any] = {}
-    indi_args = signature(indicator_registry.get(indicator_name).__init__).parameters
+    indicator_settings: dict[str, any] = create_edit_indicator_settings(indicator_name)
 
-    for param_name, param in indi_args.items():
-        if param_name != "self":
-            class_kwargs[param_name] = param.default
-
-    console.print(create_param_table(class_kwargs))
-
-    console.print(Panel(
-        "[bold yellow]Type the name of the `Parameter` you want to change:\n"
-        "When you're done, press `enter`\n"
-        "To view all parameters, type `VIEW`[/bold yellow]\n"
-        "For bools, 1 is True and 0 is False",
-        title="INFO", box=box.ROUNDED, style="bold cyan", expand=False
-    ))
-
-    # Loop and prompt for changing parameters
-    while True:
-        param_name = prompt("Parameter: ",
-                            completer=WordCompleter(list(class_kwargs.keys()) + ["VIEW"], ignore_case=True))
-        if param_name == "VIEW":
-            console.print(create_param_table(class_kwargs))
-        elif param_name == "":
-            break
-
-        else:
-            if param_name in class_kwargs:
-                param_value = Prompt.ask(f"New value for [bold green]{param_name}[/bold green]:",
-                                         default=str(class_kwargs[param_name]))
-
-                if indi_args[param_name].annotation == bool:
-                    if param_value not in ["1", "0"]:
-                        console.print(
-                            f"[bold red]Error:[/bold red] Parameter '[underline grey]{param_name}[/underline grey]' must be 1 or 0.",
-                            style="red")
-                        continue
-                    param_value = True if param_value == "1" else False
-
-                elif indi_args[param_name].annotation == int:
-                    try:
-                        param_value = int(param_value)
-                    except ValueError:
-                        console.print(
-                            f"[bold red]Error:[/bold red] Parameter '[underline grey]{param_name}[/underline grey]' must be an integer.",
-                            style="red")
-                        continue
-
-                class_kwargs[param_name] = param_value
-            else:
-                console.print(
-                    f"[bold red] Parameter '[underline grey]{param_name}[/underline grey]' is not a valid parameter.[/bold red]"
-                )
-
-    # Loop and prompt for adding tickers to indicator
-    console.print(create_wallet_table(wallet=profile.wallet, title="Wallet"))
-    console.print(Panel(
-        f"[bold yellow]Type the name of the [bold underline grey]ticker[/bold underline grey] you want to add this indicator to\n."
-        f"Type it again to [bold underline grey]remove[/bold underline grey] it!\n"
-        f"Press [bold underline green]enter[/bold underline green] to finish[/bold yellow]", title="INFO", style="bold cyan", box=box.ROUNDED, expand=False))
-
-    if indicator_ticker == "":
-        while True:
-            ticker_prompt = prompt("Ticker: ", completer=WordCompleter(profile.wallet.keys(), ignore_case=True))
-            if validate_ticker_in_wallet(ticker_prompt, profile.wallet):
-                indicator_ticker = ticker_prompt
-                console.print(f"[bold green] Ticker added! [/bold green]")
-                break
-            else:
-                console.print(f"[bold red] Ticker is not in Wallet! [/bold red]")
-                continue
-
-    # Prompt and Validate interval
-    interval: str = validate_and_prompt_interval()
-
-    while True:
-        weight: str = Prompt.ask("Weight", default="1")
-        try:
-            weight: int = int(weight)
-            if weight < 0:
-                console.print("[bold red]Error:[/bold red] Weight must be greater than 0.", style="red")
-            else:
-                break
-        except ValueError:
-            console.print("[bold red]Error:[/bold red] Weight must be an integer.", style="red")
-            continue
-
-    extra_table = Table(header_style="bold cyan", border_style="bold", box=box.ROUNDED, style="bold")
-    extra_table.add_column("Extra Parameters", style="bold green")
-    extra_table.add_column("Value", style="bold yellow")
-
-    extra_table.add_row("Tickers", indicator_ticker)
-    extra_table.add_row("Interval", interval)
-    extra_table.add_row("Weight", str(weight))
+    # Prompt and Validations
+    ticker: str = validate_and_prompt_ticker_in_wallet(ticker)
+    interval: str = validate_and_prompt_interval(interval)
+    weight: float = validate_and_prompt_weight(weight)
 
     # Confirm changes
-    console.print(Panel(Columns([create_param_table(class_kwargs), extra_table]), expand=False))
+    console.print(Panel(Columns(
+        [create_indicator_param_table(indicator_settings), create_indicator_extra_table(ticker, interval, weight)]),
+        expand=False))
 
     conformation = Prompt.ask("[bold yellow]Are you sure you want to add this indicator?[/bold yellow]",
                               choices=["y", "n"], default="y")
@@ -166,15 +77,15 @@ def add_indicator_command(
     # Update Indicator
     with Status("Adding Indicator...", spinner="dots") as status:
         try:
-            indicator = indicator_registry.get(indicator_name)(**class_kwargs)
+            indicator = indicator_registry.get(indicator_name)(**indicator_settings)
         except Exception as e:
             console.print(f"[bold red]Error:[/bold red] {e}", style="red")
             logger.warning(f"Error Creating Instance of indicator {indicator_name} (cli): {e}")
             return
 
         # Success or failure message with proper styling
-        if profile_registry.get(profile_id).add_indicator(indicator, weight=weight, ticker=indicator_ticker,
-                                                          interval=interval):
+        if profile.add_indicator(indicator, weight=weight, ticker=ticker,
+                                 interval=interval):
             status.update(
                 f"[bold green]Indicator '[bold]{indicator_name}[/bold]' successfully added to profile '[bold]{profile_name}[/bold]'.")
         else:
@@ -185,16 +96,25 @@ def add_indicator_command(
             )
 
 
-# TODO: add update indicator command
 def update_indicator_command(
         profile_name: Annotated[Optional[str], Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to add indicator to.")] = None,
         indicator_id: Annotated[
-            Optional[int], Option(help="The [bold]id[/bold] of the [bold]indicator[/bold] to update.")] = None
+            Optional[int], Option(help="The [bold]id[/bold] of the [bold]indicator[/bold] to update.")] = None,
+        ticker: Annotated[Optional[str], Option("-t", "--ticker",
+                                                help="The [bold]ticker[/bold] of the [bold]indicator[/bold] to update.")] = None,
+        interval: Annotated[Optional[str], Option("-i", "--interval",
+                                                  help="The [bold]interval[/bold] of the [bold]indicator[/bold] to update.")] = None,
+        weight: Annotated[Optional[int], Option("-w", "--weight",
+                                                help="The [bold]weight[/bold] of the [bold]indicator[/bold] to update.")] = None
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
-    indicator_id: int = validate_and_prompt_indicator_id(indicator_id)
+    profile = profile_registry.get(profile_id)
 
+    indicator_id: int = validate_and_prompt_indicator_id(indicator_id)
+    indicator: IndicatorDTO = [dto for dto in profile.indicators if dto.id == indicator_id][0]
+
+    new_indicator_settings: dict[str, any] = indicator.settings
     while True:
         console.print(Panel(
             f"To edit indicator press\n"
@@ -212,29 +132,92 @@ def update_indicator_command(
             case 0:
                 break
             case 1:
-                ...
+                new_indicator_settings = create_edit_indicator_settings(indicator_name=indicator.name,
+                                                                    indicator_settings=new_indicator_settings)
             case 2:
-                ...
+                ticker: str = validate_and_prompt_ticker_in_wallet(wallet=profile.wallet, ticker=ticker)
             case 3:
-                ...
+                interval: str = validate_and_prompt_interval(interval)
             case 4:
-                ...
+                weight: int = validate_and_prompt_weight(weight)
 
+    # Create Table for Extra Changes
+    changes_extra_table: Table = Table(box=box.ROUNDED, style="bold", title="Extra Changes", header_style="bold cyan",
+                                       show_header=True)
+    changes_extra_table.add_column("", style="dim white")
+    changes_extra_table.add_column("Parameter", style="bold cyan")
+    changes_extra_table.add_column("Old Value", style="bold yellow")
+    changes_extra_table.add_column("New Value", style="bold magenta")
 
+    if ticker != indicator.ticker:
+        changes_extra_table.add_row("0", "Ticker", indicator.ticker, ticker)
+    if interval != indicator.interval:
+        changes_extra_table.add_row("1", "Interval", indicator.interval, interval)
+    if weight != indicator.weight:
+        changes_extra_table.add_row("2", "Weight", indicator.weight, weight)
 
+    # Create Table for Settings Changes
+    changes_setting_table: Table = Table(box=box.ROUNDED, style="bold", title="Settings Changes",
+                                         header_style="bold cyan", show_header=True)
+    changes_setting_table.add_column("", style="dim white")
+    changes_setting_table.add_column("Parameter", style="bold cyan")
+    changes_setting_table.add_column("Old Value", style="bold yellow")
+    changes_setting_table.add_column("New Value", style="bold magenta")
+
+    i = 1
+    for key, value in new_indicator_settings.items():
+        if value != indicator.settings[key]:
+            changes_setting_table.add_row(str(i), key, str(indicator.settings[key]), str(value))
+            i += 1
+
+    console.print(
+        Panel(
+            Columns(
+                [changes_extra_table,
+                 changes_setting_table],
+            expand=False,
+            title="Changes"
+            )
+        )
+    )
+
+    console.print(
+        Panel(
+            Columns(
+                [create_indicator_param_table(new_indicator_settings),
+                 create_indicator_extra_table(ticker, interval, weight)]),
+            expand=False,
+            title="Final Result"
+        )
+    )
+
+    conformation = Prompt.ask("[bold yellow]Are you sure you want to add this indicator?[/bold yellow]",
+                              choices=["y", "n"], default="y")
+
+    if conformation.lower() == "n":
+        return
+
+    if profile.update_indicator(
+            id=indicator.id,
+            name=indicator.name,
+            ticker=ticker,
+            interval=interval,
+            weight=weight,
+            settings=new_indicator_settings):
+        console.print("[bold]Indicator updated successfully![/bold]")
+    else:
+        console.print("[bold red]Error: Indicator not updated![/bold red]")
 
 
 def list_profile_indicators_command(
         profile_name: Annotated[Optional[str], Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to add indicator to.")] = None,
         indicator_id: Annotated[
-            Optional[int], Option("--indicator-id", "-id", help="The [bold]id[/bold] of the [bold]indicator[/bold] to add.")] = None
+            Optional[int], Option("--indicator-id", "-id",
+                                  help="The [bold]id[/bold] of the [bold]indicator[/bold] to add.")] = None
 ):
-    profile_id = validate_and_prompt_profile_name(profile_name)
-    # TODO: check for valid indicator id
-    if profile_id is None:
-        Abort()
-        return
+    profile_id: int = validate_and_prompt_profile_name(profile_name)
+    indicator_id: Optional[int] = validate_and_prompt_indicator_id(profile_id=profile_id, indicator_id=indicator_id)
 
     profile = profile_registry.get(profile_id)
     indicators = profile.indicators
@@ -255,18 +238,11 @@ def list_profile_indicators_command(
 
     else:
         indicator: IndicatorDTO = [dto for dto in indicators if dto.id == indicator_id][0]
-        indicator_table: Table = Table(header_style="bold cyan", box=box.ROUNDED, style="bold")
-        indicator_table.add_column("", style="dim white")
-        indicator_table.add_column("Extra", style="bold cyan")
-        indicator_table.add_column("Value", style="bold magenta")
-
-        indicator_table.add_row("0", "ID", str(indicator.id))
-        indicator_table.add_row("1", "Ticker", indicator.ticker)
-        indicator_table.add_row("2", "Interval", indicator.interval)
-        indicator_table.add_row("3", "Weight", str(indicator.weight))
 
         console.print(Panel(
-            Columns([indicator_table, create_param_table(indicator.settings)]),
+            Columns([create_indicator_extra_table(
+                indicator.ticker, indicator.interval, indicator.weight, id=indicator.id
+            ), create_indicator_param_table(indicator.settings)]),
             title=indicator.name,
             border_style="bold magenta",
             box=box.ROUNDED,
@@ -281,9 +257,6 @@ def remove_indicator_command(
             Optional[int], Option(help="The [bold]id[/bold] of the [bold]indicator[/bold] to add.")] = None
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
-    if profile_id is None:
-        Abort()
-        return
     profile = profile_registry.get(profile_id)
 
     indicator_id: int = validate_and_prompt_indicator_id(profile_id=profile_id, indicator_id=indicator_id)

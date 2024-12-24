@@ -54,9 +54,7 @@ def update_profile_command(
 
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
-    if profile_id is None:
-        Abort()
-        return
+
     if profile_registry.get(profile_id).update_profile(id=profile_id, name=new_profile_name, balance=balance,
                                                        paper_balance=paper_balance, buy_limit=buy_limit,
                                                        sell_limit=sell_limit):

@@ -10,7 +10,7 @@ from src.api import fetch_historical_data
 from src.database import create_plugin, delete_indicator, create_indicator
 from src.api import fetch_info_data
 from src.database import (IndicatorDTO, PluginDTO, ProfileDTO, get_indicator,
-                          update_profile, delete_plugin)
+                          update_profile, delete_plugin, update_indicator)
 from src.services.indicators import BaseIndicator
 from src.utils.registry import profile_registry
 from src.services.constants import Status
@@ -32,6 +32,7 @@ class Profile:
         self.paper_balance: float = profile.paper_balance
         self.paper_wallet: dict[str, float] = profile.paper_wallet
 
+        # REMAKE: dict[id, indicatorDTO] and also for plugin
         self.indicators: list[IndicatorDTO] = get_indicator(profile_id=profile.id)
         self.plugins: list[PluginDTO] = get_plugin(profile_id=profile.id)
         self.buy_limit: float = profile.buy_limit
@@ -227,6 +228,28 @@ class Profile:
                      extra={"profile_id": self.id})
         return False
 
+    def update_indicator(self, id: int, name: str, weight: float, ticker: str, interval: str, settings: dict[str, any]):
+        with self._lock:
+            if update_indicator(id=id, weight=weight, ticker=ticker, interval=interval, settings=settings):
+                self.indicators = [indicator for indicator in self.indicators if indicator.id != id]
+                self.indicators.append(
+                    IndicatorDTO(
+                        id=id,
+                        profile_id = self.id,
+                        name=name,
+                        weight=weight,
+                        ticker=ticker,
+                        interval=interval,
+                        settings=settings
+                    )
+                )
+                logger.info(f"Updated indicator with ID {id} in profile with ID {self.id}.",
+                            extra={"profile_id": self.id})
+                return True
+
+        logger.error(f"Failed to update indicator with ID {id} in profile with ID {self.id}.",
+                     extra={"profile_id": self.id})
+        return False
 
     def remove_indicator(self, indicator_id: int):
         with self._lock:
