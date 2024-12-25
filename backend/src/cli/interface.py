@@ -25,7 +25,7 @@ if False and not logger.handlers:
         log_config.get("log_in_json"),
     )
 
-from backend.src.cli.commands import (change_status_command, clear_wallet_command,
+from src.cli.commands import (change_status_command, clear_wallet_command,
                               delete_profile_command, list_indicators_command,
                               list_profiles_command, start_app_command,
                               status_app_command, stop_app_command,
