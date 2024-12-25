@@ -9,6 +9,7 @@ from src.utils.registry import indicator_registry
 logger = logging.getLogger("oracle.app")
 
 
+# noinspection PyPep8Naming
 class BaseIndicator(ABC):
     """
     Defines an abstract base class for indicators.
@@ -158,7 +159,3 @@ class BaseIndicator(ABC):
                 extra={"strategy": indicator_name})
 
         return base_balance, balance, shares
-
-
-if __name__ == '__main__':
-    print(help(ta.Strategy))

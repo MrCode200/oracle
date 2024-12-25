@@ -27,10 +27,10 @@ def check_crossover(
     :param current_line2: The latest value of the second line.
     :param previous_line1: The previous value of the first line.
     :param previous_line2: The previous value of the second line.
-    :key return_strength: If True, also returns the strength of the crossover.
-    :key max_gradient_degree: The maximum degree of the gradient which gets used to calculate the strength of the crossover.
-    :key gradient_signal_weight: The weight used for the strength calculated based on the gradient.
-    :key weight_impact: How strong the impact of the weights are on the crossover output. Example: 1 - (1- weight) * weight_impact
+    :param return_strength: If True, also returns the strength of the crossover.
+    :param max_gradient_degree: The maximum degree of the gradient which gets used to calculate the strength of the crossover.
+    :param gradient_signal_weight: The weight used for the strength calculated based on the gradient.
+    :param weight_impact: How strong the impact of the weights are on the crossover output. Example: 1 - (1- weight) * weight_impact
 
     :returns:
         - An integer representing the type of crossover:

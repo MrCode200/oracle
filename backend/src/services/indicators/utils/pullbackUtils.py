@@ -5,6 +5,7 @@ from pandas import Series
 logger = getLogger("oracle.app")
 
 
+# noinspection PyArgumentList
 def trend_based_pullback(
     indicator_series: Series,
     base_line: float,

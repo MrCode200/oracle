@@ -83,14 +83,14 @@ def create_indicator(
 
 
 def get_indicator(
-        profile_id: int = None, id: int = None, ticker: str = None
+        profile_id: int = None, indicator_id: int = None, ticker: str = None
 ) -> list[IndicatorDTO] | IndicatorDTO | None:
     """
     Retrieves indicators based on profile_id, id, or ticker.
     Returns a single IndicatorDTO or a list of IndicatorDTOs.
 
     :param profile_id: ID of the profile.
-    :param id: ID of the indicator.
+    :param indicator_id: ID of the indicator.
     :param ticker: The ticker of the indicator.
     :return: IndicatorDTO or a list of IndicatorDTOs, or None if no result found.
     """
@@ -105,13 +105,13 @@ def get_indicator(
                 ).all()
             ]
 
-        if id:
-            indicator: IndicatorModel = session.get(IndicatorModel, id)
+        if indicator_id:
+            indicator: IndicatorModel = session.get(IndicatorModel, indicator_id)
             if indicator:
-                logger.info(f"Indicator with ID {id} retrieved.")
+                logger.info(f"Indicator with ID {indicator_id} retrieved.")
                 return convert_to_dto(indicator)
             else:
-                logger.error(f"Indicator with ID {id} not found.")
+                logger.error(f"Indicator with ID {indicator_id} not found.")
                 return None
 
         if profile_id:
@@ -134,7 +134,7 @@ def get_indicator(
 
 
 def update_indicator(
-        id: int,
+        indicator_id: int,
         weight: float = None,
         ticker: str = None,
         interval: str = None,
@@ -143,7 +143,7 @@ def update_indicator(
     """
     Updates an existing indicator in the database.
 
-    :param id: The ID of the indicator to update.
+    :param indicator_id: The ID of the indicator to update.
     :param weight: The weight assigned to the indicator when calculating.
     :param ticker: The ticker of the indicator.
     :param interval: The interval of the indicator when fetching data.
@@ -153,7 +153,7 @@ def update_indicator(
     session = Session()
 
     try:
-        indicator = session.get(IndicatorModel, id)
+        indicator = session.get(IndicatorModel, indicator_id)
 
         if indicator:
             if weight is not None:
@@ -167,14 +167,14 @@ def update_indicator(
 
             session.add(indicator)
             session.commit()
-            logger.info(f"Indicator with ID {id} updated {weight=}; {ticker=}; {interval=}; {settings=}; successfully.")
+            logger.info(f"Indicator with ID {indicator_id} updated {weight=}; {ticker=}; {interval=}; {settings=}; successfully.")
             return True
         else:
-            logger.warning(f"Indicator with ID {id} not found.")
+            logger.warning(f"Indicator with ID {indicator_id} not found.")
             return False
 
     except Exception as e:
-        logger.error(f"Error updating {weight}; {ticker}; {interval}; {settings}; for indicator with ID {id}: {e}", exc_info=True)
+        logger.error(f"Error updating {weight}; {ticker}; {interval}; {settings}; for indicator with ID {indicator_id}: {e}", exc_info=True)
         session.rollback()
         return False
 
@@ -182,29 +182,29 @@ def update_indicator(
         session.close()
 
 
-def delete_indicator(id: int) -> bool:
+def delete_indicator(indicator_id: int) -> bool:
     """
     Deletes an indicator from the database.
 
-    :param id: The ID of the indicator to delete.
+    :param indicator_id: The ID of the indicator to delete.
     :return: False if the indicator is not deleted successfully or not found, True if the indicator is deleted successfully.
     """
     session = Session()
 
     try:
-        indicator = session.get(IndicatorModel, id)
+        indicator = session.get(IndicatorModel, indicator_id)
 
         if indicator:
             session.delete(indicator)
             session.commit()
-            logger.info(f"Indicator with ID {id} deleted successfully.")
+            logger.info(f"Indicator with ID {indicator_id} deleted successfully.")
             return True
         else:
-            logger.warning(f"Indicator with ID {id} not found.")
+            logger.warning(f"Indicator with ID {indicator_id} not found.")
             return False
 
     except Exception as e:
-        logger.error(f"Error deleting indicator with ID {id}: {e}", exc_info=True)
+        logger.error(f"Error deleting indicator with ID {indicator_id}: {e}", exc_info=True)
         session.rollback()
         return False
 

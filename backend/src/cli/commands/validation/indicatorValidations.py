@@ -1,6 +1,5 @@
 from typing import Optional
 
-import typer
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from rich.console import Console
@@ -9,9 +8,27 @@ from rich.box import ROUNDED
 from rich.prompt import Prompt
 
 from src.database import get_indicator
+from src.utils.registry import indicator_registry
 from src.cli.commands.walletCommands.walletUtils import create_wallet_table
 
 console = Console()
+
+valid_indicators: list[str] = [name for name in indicator_registry.get().keys()]
+
+
+def validate_and_prompt_indicator_name(indicator_name: Optional[str] = None) -> str:
+    while True:
+        if indicator_name is None:
+            indicator_name = prompt("Enter indicator name: ",
+                                    completer=WordCompleter(words=valid_indicators,
+                                                            ignore_case=True))
+
+        if indicator_name not in valid_indicators:
+            console.print(
+                f"[bold red]Error: Indicator '[white underline bold]{indicator_name}[/white underline bold]' not found!")
+            indicator_name = None
+        else:
+            return indicator_name
 
 
 def validate_and_prompt_interval() -> str:
@@ -24,7 +41,8 @@ def validate_and_prompt_interval() -> str:
     interval: Optional[str] = None
 
     while interval is None:
-        interval = prompt("Enter interval accuracy: ", completer=WordCompleter(words=valid_interval))
+        interval = prompt("Enter interval accuracy: ",
+                          completer=WordCompleter(words=valid_interval))
         if interval not in valid_interval:
             console.print(
                 f"[bold red]Error: Interval '[white underline bold]{interval}[/white underline bold]' not found!")
@@ -53,7 +71,8 @@ def validate_and_prompt_indicator_id(profile_id: int, indicator_id: Optional[int
 
     while indicator_ids != []:
         if indicator_id is None:
-            indicator_id: str = prompt("Enter indicator id: ", completer=WordCompleter(words=[str(id) for id in indicator_ids]))
+            indicator_id: str = prompt("Enter indicator id: ",
+                                       completer=WordCompleter(words=[str(id) for id in indicator_ids]))
 
         try:
             indicator_id: int = int(indicator_id)
@@ -66,6 +85,7 @@ def validate_and_prompt_indicator_id(profile_id: int, indicator_id: Optional[int
         except ValueError:
             console.print(
                 f"[bold red]Error: Indicator ID'[white underline bold]{indicator_id}[/white underline bold]' not int!")
+
 
 def validate_and_prompt_weight(weight: Optional[str] = None) -> int:
     while True:
@@ -84,6 +104,7 @@ def validate_and_prompt_weight(weight: Optional[str] = None) -> int:
         except ValueError:
             console.print("[bold red]Error:[/bold red] Weight must be an integer.", style="red")
             continue
+
 
 def validate_and_prompt_ticker_in_wallet(wallet: dict[str, float], ticker: Optional[str] = None) -> str:
     console.print(create_wallet_table(wallet=wallet, title="Wallet"))

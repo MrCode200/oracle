@@ -15,10 +15,10 @@ from logging import getLogger
 logger = getLogger("oracle.app")
 
 from src.cli.commands.validation import validate_and_prompt_profile_name, validate_and_prompt_indicator_id, \
-    validate_and_prompt_ticker_in_wallet, validate_and_prompt_interval, validate_and_prompt_weight
-from src.cli.commands.indicatorCommands.indicatorUtils import (create_indicator_param_table,
-                                                               create_indicator_extra_table,
-                                                               create_edit_indicator_settings)
+    validate_and_prompt_ticker_in_wallet, validate_and_prompt_interval, validate_and_prompt_weight, \
+    validate_and_prompt_indicator_name
+from src.cli.commands.indicatorCommands.indicatorUtils import create_indicator_extra_table
+from src.cli.commands.utils import create_edit_object_settings, create_param_table
 from src.database import IndicatorDTO
 from src.services.entities import Profile
 from src.utils.registry import indicator_registry, profile_registry
@@ -43,20 +43,14 @@ def add_indicator_command(
     profile: Profile = profile_registry.get(profile_id)
 
     if profile.wallet == {}:
-        console.print("[bold red]Error: Wallet is empty![/bold red]")
+        console.print("[bold red]Error: Wallet is empty! No Indicator can be added.[/bold red]")
         return
 
-    if indicator_name is None:
-        indicator_name = prompt("Enter indicator name: ",
-                                completer=WordCompleter(words=[name for name in indicator_registry.get().keys()],
-                                                        ignore_case=True))
-
-    if indicator_name not in indicator_registry.get().keys():
-        console.print(
-            f"[bold red]Error: Indicator '[white underline bold]{indicator_name}[/white underline bold]' not found!")
+    # Validate indicator_name
+    indicator_name: str = validate_and_prompt_indicator_name(indicator_name)
 
     # Get all indicator parameters
-    indicator_settings: dict[str, any] = create_edit_indicator_settings(indicator_name)
+    indicator_settings: dict[str, any] = create_edit_object_settings(indicator_name)
 
     # Prompt and Validations
     ticker: str = validate_and_prompt_ticker_in_wallet(ticker)
@@ -65,7 +59,7 @@ def add_indicator_command(
 
     # Confirm changes
     console.print(Panel(Columns(
-        [create_indicator_param_table(indicator_settings), create_indicator_extra_table(ticker, interval, weight)]),
+        [create_param_table(indicator_settings), create_indicator_extra_table(ticker, interval, weight)]),
         expand=False))
 
     conformation = Prompt.ask("[bold yellow]Are you sure you want to add this indicator?[/bold yellow]",
@@ -76,14 +70,8 @@ def add_indicator_command(
 
     # Update Indicator
     with Status("Adding Indicator...", spinner="dots") as status:
-        try:
-            indicator = indicator_registry.get(indicator_name)(**indicator_settings)
-        except Exception as e:
-            console.print(f"[bold red]Error:[/bold red] {e}", style="red")
-            logger.warning(f"Error Creating Instance of indicator {indicator_name} (cli): {e}")
-            return
+        indicator = indicator_registry.get(indicator_name)(**indicator_settings)
 
-        # Success or failure message with proper styling
         if profile.add_indicator(indicator, weight=weight, ticker=ticker,
                                  interval=interval):
             status.update(
@@ -100,7 +88,7 @@ def update_indicator_command(
         profile_name: Annotated[Optional[str], Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to add indicator to.")] = None,
         indicator_id: Annotated[
-            Optional[int], Option(help="The [bold]id[/bold] of the [bold]indicator[/bold] to update.")] = None,
+            Optional[int], Option("-id", "--indicator-id",help="The [bold]id[/bold] of the [bold]indicator[/bold] to update.")] = None,
         ticker: Annotated[Optional[str], Option("-t", "--ticker",
                                                 help="The [bold]ticker[/bold] of the [bold]indicator[/bold] to update.")] = None,
         interval: Annotated[Optional[str], Option("-i", "--interval",
@@ -132,8 +120,8 @@ def update_indicator_command(
             case 0:
                 break
             case 1:
-                new_indicator_settings = create_edit_indicator_settings(indicator_name=indicator.name,
-                                                                    indicator_settings=new_indicator_settings)
+                new_indicator_settings = create_edit_object_settings(indicator_name=indicator.name,
+                                                                     indicator_settings=new_indicator_settings)
             case 2:
                 ticker: str = validate_and_prompt_ticker_in_wallet(wallet=profile.wallet, ticker=ticker)
             case 3:
@@ -175,8 +163,8 @@ def update_indicator_command(
             Columns(
                 [changes_extra_table,
                  changes_setting_table],
-            expand=False,
-            title="Changes"
+                expand=False,
+                title="Changes"
             )
         )
     )
@@ -184,7 +172,7 @@ def update_indicator_command(
     console.print(
         Panel(
             Columns(
-                [create_indicator_param_table(new_indicator_settings),
+                [create_param_table(new_indicator_settings),
                  create_indicator_extra_table(ticker, interval, weight)]),
             expand=False,
             title="Final Result"
@@ -198,7 +186,7 @@ def update_indicator_command(
         return
 
     if profile.update_indicator(
-            id=indicator.id,
+            indicator_id=indicator.id,
             name=indicator.name,
             ticker=ticker,
             interval=interval,
@@ -242,7 +230,7 @@ def list_profile_indicators_command(
         console.print(Panel(
             Columns([create_indicator_extra_table(
                 indicator.ticker, indicator.interval, indicator.weight, id=indicator.id
-            ), create_indicator_param_table(indicator.settings)]),
+            ), create_param_table(indicator.settings)]),
             title=indicator.name,
             border_style="bold magenta",
             box=box.ROUNDED,
@@ -260,6 +248,12 @@ def remove_indicator_command(
     profile = profile_registry.get(profile_id)
 
     indicator_id: int = validate_and_prompt_indicator_id(profile_id=profile_id, indicator_id=indicator_id)
+
+    conformation = Prompt.ask("[bold yellow]Are you sure you want to remove this indicator?[/bold yellow]",
+                              choices=["y", "n"], default="y")
+
+    if conformation.lower() != "y":
+        return
 
     if profile.remove_indicator(indicator_id):
         console.print(

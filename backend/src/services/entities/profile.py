@@ -7,10 +7,10 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from src.database import get_plugin
 
 from src.api import fetch_historical_data
-from src.database import create_plugin, delete_indicator, create_indicator
 from src.api import fetch_info_data
-from src.database import (IndicatorDTO, PluginDTO, ProfileDTO, get_indicator,
-                          update_profile, delete_plugin, update_indicator)
+from backend.src.database import (IndicatorDTO, PluginDTO, ProfileDTO, get_indicator,
+                          update_profile, delete_plugin, update_indicator,
+                          create_plugin, create_indicator, update_plugin, delete_indicator)
 from src.services.indicators import BaseIndicator
 from src.utils.registry import profile_registry
 from src.services.constants import Status
@@ -291,6 +291,19 @@ class Profile:
             logger.info(f"Added plugin with ID {new_plugin.id} to profile with ID {self.id}.",
                         extra={"profile_id": self.id})
             return True
+
+    def update_plugin(self, id: int, name: str, settings: dict[str, any]):
+        with self._lock:
+            if update_plugin(id=id, settings=settings):
+                self.plugins = [plugin for plugin in self.plugins if plugin.id != id]
+                self.plugins.append(PluginDTO(id=id, profile_id=self.id, name=name, settings=settings))
+                logger.info(f"Updated plugin with ID {id} in profile with ID {self.id}.",
+                            extra={"profile_id": self.id})
+                return True
+
+        logger.error(f"Failed to update plugin with ID {id} in profile with ID {self.id}.",
+                     extra={"profile_id": self.id})
+        return False
 
     def remove_plugin(self, plugin_id: int):
         with self._lock:

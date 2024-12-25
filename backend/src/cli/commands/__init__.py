@@ -1,6 +1,6 @@
 from .botCommands import (start_app_command, status_app_command,
                           stop_app_command)
-from .helperCommands import list_indicators_command
+from .helperCommands import list_indicators_command, list_plugin_command
 from .profileCommands import (change_status_command,
                               delete_profile_command, list_profiles_command,
                               create_profile_command, update_profile_command)
