@@ -1,5 +1,6 @@
 from logging import getLogger
 from threading import Lock
+from typing import Optional
 
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -9,18 +10,19 @@ from src.database import get_plugin
 from src.api import fetch_historical_data
 from src.api import fetch_info_data
 from backend.src.database import (IndicatorDTO, PluginDTO, ProfileDTO, get_indicator,
-                          update_profile, delete_plugin, update_indicator,
-                          create_plugin, create_indicator, update_plugin, delete_indicator)
+                                  update_profile, delete_plugin, update_indicator,
+                                  create_plugin, create_indicator, update_plugin, delete_indicator)
 from src.services.indicators import BaseIndicator
 from src.utils.registry import profile_registry
 from src.services.constants import Status
 
 from src.services.plugin import PluginJob
 
-#getenv
+# getenv
 BROKER_API: str = ""
 
 logger = getLogger("oracle.app")
+
 
 class Profile:
     def __init__(self, profile: ProfileDTO):
@@ -182,6 +184,33 @@ class Profile:
                 extra={"profile_id": self.id},
             )
 
+    def update_profile(
+            self,
+            name: Optional[str] = None,
+            balance: Optional[float] = None,
+            paper_balance: Optional[float] = None,
+            buy_limit: Optional[float] = None,
+            sell_limit: Optional[float] = None
+    ):
+        with self._lock:
+            if update_profile(self.id, name=name, balance=balance, paper_balance=paper_balance, buy_limit=buy_limit,
+                              sell_limit=sell_limit):
+                self.name = name if name is not None else None
+                self.balance = balance if balance is not None else None
+                self.paper_balance = paper_balance if paper_balance is not None else None
+                self.buy_limit = buy_limit if buy_limit is not None else None
+                self.sell_limit = sell_limit if sell_limit is not None else None
+                logger.info(f"Updated Profile with id: {self.id} to "
+                            f"{f"name: {name}" if name is not None else self.name}; "
+                            f"{f"balance: {balance}" if balance is not None else self.balance}; "
+                            f"{f"paper_balance: {paper_balance}" if paper_balance is not None else self.paper_balance}; "
+                            f"{f"buy_limit: {buy_limit}" if buy_limit is not None else self.buy_limit}; "
+                            f"{f"sell_limit: {sell_limit}" if sell_limit is not None else self.sell_limit}")
+                return True
+            else:
+                logger.error(f"Failed to update Profile with id: {self.id}; and name: {self.name}")
+                return False
+
     def update_wallet(self, wallet: dict[str, float], is_paper_wallet: bool = False):
         with self._lock:
             if is_paper_wallet:
@@ -204,7 +233,6 @@ class Profile:
                     f"Failed to update {"Wallet" if not is_paper_wallet else "Paper Wallet"} for Profile with id: {self.id}; and name: {self.name} to wallet: {self.wallet}",
                 )
                 return False
-
 
     def add_indicator(self, indicator: 'BaseIndicator', weight: float, ticker: str, interval: str):
         with self._lock:
@@ -235,7 +263,7 @@ class Profile:
                 self.indicators.append(
                     IndicatorDTO(
                         id=id,
-                        profile_id = self.id,
+                        profile_id=self.id,
                         name=name,
                         weight=weight,
                         ticker=ticker,
@@ -346,7 +374,6 @@ class Profile:
 
             return int(interval[:-1]) * step
 
-
         all_intervals: list[int] = [
             interval_to_minutes(indicator.interval)
             for indicator in indicators
@@ -373,7 +400,7 @@ class Profile:
 
         logger.error(
             f"Profile with id {self.id} does not have a create order plugin. Deactivating Profile",
-            extra={"profile_id": self.id},)
+            extra={"profile_id": self.id}, )
 
         self.change_status(Status.INACTIVE)
 

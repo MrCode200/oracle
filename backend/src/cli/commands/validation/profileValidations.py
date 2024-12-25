@@ -17,7 +17,8 @@ def validate_and_prompt_profile_name(profile_name: Optional[str] = None) -> Opti
 
     while True:
         if profile_name is None:
-            profile_name = prompt("Enter profile name: ", completer=WordCompleter(words=profile_names))
+            profile_name = prompt("Enter profile name: ",
+                                  completer=WordCompleter(words=profile_names, ignore_case=True))
 
         if profile_name in profile_names:
             return get_profile(name=profile_name).id
@@ -29,7 +30,8 @@ def validate_and_prompt_profile_name(profile_name: Optional[str] = None) -> Opti
 def validate_and_prompt_status(status: Optional[str] = None) -> Optional[Type[Status]]:
     while True:
         if status is None:
-            status = prompt("Enter status: ", completer=WordCompleter(words=valid_statuses, ignore_case=True))
+            status = prompt("Enter status: ",
+                            completer=WordCompleter(words=valid_statuses, ignore_case=True))
 
         if status in valid_statuses:
             return Status[status]
