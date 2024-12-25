@@ -8,3 +8,4 @@ from .profileCommands import (change_status_command,
 from .walletCommands import update_wallet_command, view_wallet_command, clear_wallet_command
 
 from .indicatorCommands import add_indicator_command, remove_indicator_command, list_profile_indicators_command
+from .pluginCommands import add_plugin_command, update_plugin_command, remove_plugin_command, list_profile_plugins_command

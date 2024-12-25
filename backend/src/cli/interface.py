@@ -25,13 +25,14 @@ if False and not logger.handlers:
         log_config.get("log_in_json"),
     )
 
-from src.cli.commands import (change_status_command, clear_wallet_command,
+from backend.src.cli.commands import (change_status_command, clear_wallet_command,
                               delete_profile_command, list_indicators_command,
                               list_profiles_command, start_app_command,
                               status_app_command, stop_app_command,
                               update_wallet_command, view_wallet_command,
                               add_indicator_command, remove_indicator_command, list_profile_indicators_command,
-                              create_profile_command, update_profile_command)
+                              create_profile_command, update_profile_command,
+                              add_plugin_command, list_plugin_command, remove_plugin_command, update_plugin_command)
 
 app = typer.Typer(rich_markup_mode="rich")
 app.command(name="list-indicators", help="Lists all available indicators.")(list_indicators_command)
@@ -54,6 +55,12 @@ indicator_app.command(name="add", help="Adds an indicator to a profile.")(add_in
 indicator_app.command(name="remove", help="Removes an indicator from a profile.")(remove_indicator_command)
 indicator_app.command(name="list", help="Lists all indicators of a profile.")(list_profile_indicators_command)
 indicator_app.command(name="update", help="Updates an indicator of a profile.")(update_indicator_command)
+
+plugin_app = typer.Typer(help="Commands to interact with plugins.")
+plugin_app.command(name="add", help="Adds a plugin to a profile.")(add_plugin_command)
+plugin_app.command(name="list", help="Lists all plugins of a profile.")(list_plugin_command)
+plugin_app.command(name="remove", help="Removes a plugin from a profile.")(remove_plugin_command)
+plugin_app.command(name="update", help="Updates a plugin of a profile.")(update_plugin_command)
 
 bot_app = typer.Typer(help="Commands to interact with the bot.", hidden=True)
 bot_app.command(name="start", help="Runs the app.")(start_app_command)
