@@ -21,6 +21,7 @@ def validate_and_prompt_plugin_name(plugin_name: Optional[str] = None):
         else:
             return plugin_name
 
+
 def validate_and_prompt_plugin_id(profile_id: int, plugin_id: Optional[int] = None):
     valid_plugin_ids = [plugin.id for plugin in profile_registry.get(profile_id).plugins]
     while True:

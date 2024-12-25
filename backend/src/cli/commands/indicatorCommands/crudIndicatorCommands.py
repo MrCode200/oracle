@@ -33,8 +33,6 @@ def add_indicator_command(
                                                         help="The [bold]name[/bold] of the [bold]indicator[/bold] to add.")] = None,
         ticker: Annotated[Optional[str], Option("-t", "--tickers",
                                                 help="List of [bold]tickers[/bold] to add indicator to.")] = "",
-        interval: Annotated[Optional[str], Option("-i", "--interval",
-                                                  help="The [bold]interval[/bold] of the [bold]indicator[/bold] to add.")] = None,
         weight: Annotated[Optional[int], Option("-w", "--weight",
                                                 help="The [bold]weight[/bold] of the [bold]indicator[/bold] to add.")] = None
 ):
@@ -53,8 +51,8 @@ def add_indicator_command(
     indicator_settings: dict[str, any] = create_edit_object_settings(indicator_name)
 
     # Prompt and Validations
-    ticker: str = validate_and_prompt_ticker_in_wallet(ticker)
-    interval: str = validate_and_prompt_interval(interval)
+    ticker: str = validate_and_prompt_ticker_in_wallet(profile.wallet, ticker)
+    interval: str = validate_and_prompt_interval()
     weight: float = validate_and_prompt_weight(weight)
 
     # Confirm changes

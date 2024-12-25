@@ -38,8 +38,8 @@ def validate_and_prompt_interval() -> str:
         title="Valid intervals:", style="bold", box=ROUNDED, expand=False))
 
     valid_interval: list[str] = ["m", "h", "d", "wk", "mo"]
-    interval: Optional[str] = None
 
+    interval: Optional[str] = None
     while interval is None:
         interval = prompt("Enter interval accuracy: ",
                           completer=WordCompleter(words=valid_interval))
@@ -54,10 +54,12 @@ def validate_and_prompt_interval() -> str:
         interval_period: str = Prompt.ask("Enter interval period: ", default="1")
         try:
             int_interval_period: int = int(interval_period)
+
             if int_interval_period <= 0:
                 console.print(
                     f"[bold red]Error: Interval period '[white underline bold]{interval_period}[/white underline bold]' must be greater than 0!")
                 interval_period = None
+
         except ValueError:
             console.print(
                 f"[bold red]Error: Interval period '[white underline bold]{interval_period}[/white underline bold]' not int!")
@@ -69,33 +71,37 @@ def validate_and_prompt_interval() -> str:
 def validate_and_prompt_indicator_id(profile_id: int, indicator_id: Optional[int] = None) -> Optional[int]:
     indicator_ids: list[int] = [indicator.id for indicator in get_indicator(profile_id=profile_id)]
 
-    while indicator_ids != []:
+    while indicator_ids:
         if indicator_id is None:
-            indicator_id: str = prompt("Enter indicator id: ",
+            indicator_id: Optional[str] = prompt("Enter indicator id: ",
                                        completer=WordCompleter(words=[str(id) for id in indicator_ids]))
 
         try:
             indicator_id: int = int(indicator_id)
-            if indicator_id in indicator_ids:
-                return indicator_id
-            else:
+
+            if indicator_id not in indicator_ids:
                 console.print(
                     f"[bold red]Error: Indicator '[white underline bold]{indicator_id}[/white underline bold]' not found!")
+                indicator_id = None
+
+            else:
+                return indicator_id
 
         except ValueError:
             console.print(
                 f"[bold red]Error: Indicator ID'[white underline bold]{indicator_id}[/white underline bold]' not int!")
-
+            indicator_id = None
 
 def validate_and_prompt_weight(weight: Optional[str] = None) -> int:
     while True:
         if weight is None:
-            weight: str = Prompt.ask("Weight", default="1")
+            weight: Optional[str] = Prompt.ask("Weight", default="1")
 
         try:
             weight: int = int(weight)
             if weight <= 0:
                 console.print("[bold red]Error:[/bold red] Weight must be greater or equal to 0.", style="red")
+                weight = None
             else:
                 confirmation: str = Prompt.ask(f"Add {weight} to indicator?", choices=["y", "n"], default="y")
                 if confirmation == "y":
@@ -103,6 +109,7 @@ def validate_and_prompt_weight(weight: Optional[str] = None) -> int:
 
         except ValueError:
             console.print("[bold red]Error:[/bold red] Weight must be an integer.", style="red")
+            weight = None
             continue
 
 
@@ -112,12 +119,13 @@ def validate_and_prompt_ticker_in_wallet(wallet: dict[str, float], ticker: Optio
     tickers_in_wallet: list[str] = list(wallet.keys())
     while True:
         if ticker is None:
-            ticker: str = prompt("Ticker: ", completer=WordCompleter(tickers_in_wallet, ignore_case=True))
+            ticker: Optional[str] = prompt("Ticker: ", completer=WordCompleter(tickers_in_wallet, ignore_case=True))
 
-        if ticker in tickers_in_wallet:
+        if ticker not in tickers_in_wallet:
+            console.print(f"[bold red] Ticker is not in Wallet! [/bold red]")
+            ticker = None
+        else:
             console.print(f"[bold green] Ticker added! [/bold green]")
             confirmation: str = Prompt.ask(f"Add {ticker} to indicator?", choices=["y", "n"], default="y")
             if confirmation == "y":
                 return ticker
-        else:
-            console.print(f"[bold red] Ticker is not in Wallet! [/bold red]")
