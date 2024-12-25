@@ -8,13 +8,11 @@ from rich.status import Status
 from rich.table import Table
 from typer import Argument, Option
 
-from src.utils.registry import plugin_registry
+from src.utils.registry import plugin_registry, profile_registry
 from src.cli.commands.validation import validate_and_prompt_profile_name, validate_and_prompt_plugin_name, \
     validate_and_prompt_plugin_id
-from src.services.plugin import BasePlugin
+from src.services.plugin import BasePlugin, PluginJob
 from src.cli.commands.utils import create_edit_object_settings, create_param_table
-
-from backend.src.utils.registry import profile_registry
 
 console = Console()
 logger = getLogger("oracle.app")
@@ -30,6 +28,16 @@ def add_plugin_command(
 
     plugin_name: str = validate_and_prompt_plugin_name(plugin_name)
     plugin: BasePlugin = plugin_registry.get(plugin_name)
+
+    if plugin.job == PluginJob.CREATE_ORDER:
+        for plugin in profile.plugins:
+            if plugin.job == PluginJob.CREATE_ORDER:
+                console.print(
+                    f"[bold red]Error:[/bold red] Only one plugin can be of type '[bold]CREATE_ORDER[/bold]'.\n"
+                    f"Remove {plugin.name} to add {plugin_name} to the profile.",
+                    style="bold red",
+                )
+                return
 
     settings: dict[str, any] = create_edit_object_settings(plugin)
 

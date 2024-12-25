@@ -278,14 +278,6 @@ class Profile:
                              extra={"profile_id": self.id})
                 return False
 
-            if new_plugin.instance.job == PluginJob.CREATE_ORDER:
-                for plugin in self.plugins:
-                    if plugin.instance.job == PluginJob.CREATE_ORDER:
-                        logger.info(
-                            f"User tried to add multiple create order plugins to profile with ID {self.id}.",
-                            extra={"profile_id": self.id})
-                        return False
-
             self.plugins.append(new_plugin)
 
             logger.info(f"Added plugin with ID {new_plugin.id} to profile with ID {self.id}.",
