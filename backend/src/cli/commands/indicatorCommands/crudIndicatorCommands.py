@@ -21,6 +21,7 @@ from src.cli.commands.indicatorCommands.indicatorUtils import create_indicator_e
 from src.cli.commands.utils import create_edit_object_settings, create_param_table
 from src.database import IndicatorDTO
 from src.services.entities import Profile
+from src.services.entities.indicator import BaseIndicator
 from src.utils.registry import indicator_registry, profile_registry
 
 console = Console()
@@ -46,9 +47,10 @@ def add_indicator_command(
 
     # Validate indicator_name
     indicator_name: str = validate_and_prompt_indicator_name(indicator_name)
+    indicator: BaseIndicator = indicator_registry.get(indicator_name)
 
     # Get all indicator parameters
-    indicator_settings: dict[str, any] = create_edit_object_settings(indicator_name)
+    indicator_settings: dict[str, any] = create_edit_object_settings(indicator)
 
     # Prompt and Validations
     ticker: str = validate_and_prompt_ticker_in_wallet(profile.wallet, ticker)
@@ -68,7 +70,7 @@ def add_indicator_command(
 
     # Update Indicator
     with Status("Adding Indicator...", spinner="dots") as status:
-        indicator = indicator_registry.get(indicator_name)(**indicator_settings)
+        indicator = indicator(**indicator_settings)
 
         if profile.add_indicator(indicator, weight=weight, ticker=ticker,
                                  interval=interval):
