@@ -112,7 +112,7 @@ class Profile:
                     df = fetch_historical_data(ticker=indicator.ticker, period="5d", interval=indicator.interval)
 
                 confidence = indicator.instance.evaluate(df=df)
-                confidences[indicator.ticker][indicator.id] = confidence
+                confidences[indicator.ticker][indicator.id] = confidence * indicator.weight
 
             for plugin in self.plugins:
                 if plugin.instance.job == PluginJob.AFTER_EVALUATION:
