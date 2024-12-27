@@ -1,17 +1,12 @@
 from rich.console import Console
 from rich.table import Table
-from src.utils.registry import indicator_registry
 
 from src.utils.registry import plugin_registry
 
-# Create a Console instance for rich output
 console = Console()
 
-# REMAKE: Move to their corresponding folderCommand
 
-
-
-def list_plugin_command():
+def list_plugins_command():
     console.print("[bold green]Available plugins:[/bold green]")
 
     # Create a table to display the indicators

@@ -105,6 +105,9 @@ class Profile:
                     plugin.instance.evaluate(self)
 
             for indicator in self.indicators:
+                if indicator.weight == 0:
+                    continue
+
                 if not BROKER_API:
                     df = fetch_historical_data(ticker=indicator.ticker, period="5d", interval=indicator.interval)
 
@@ -151,29 +154,33 @@ class Profile:
             ...
 
     def _paper_trade_agent(self, orders: dict[str, float]):
+        # Fallback in case of db doesn't update
         fallback_wallet: dict[str, float] = self.paper_wallet.copy()
         fallback_balance: float = self.paper_balance
 
-        for ticker, money_allocation in orders.items():
+        for ticker, percentage_change in orders.items():
+            # TODO: won't work if ticker is not crypto
             ticker_current_price = fetch_info_data(ticker)["currentPrice"]
 
-            if money_allocation < 0:
+            if percentage_change < 0 < self.paper_wallet[ticker]:
                 num_of_assets: float = self.paper_wallet[ticker]
+                num_of_assets_to_sell: float = num_of_assets * percentage_change
 
-                self.paper_balance += num_of_assets * ticker_current_price
-                self.paper_wallet[ticker] = 0
+                self.paper_balance += num_of_assets_to_sell * ticker_current_price
+                self.paper_wallet[ticker] = num_of_assets - num_of_assets_to_sell
 
-                logger.info(f"Profile with id {self.id} Sold {num_of_assets} of {ticker} at {ticker_current_price}",
+                logger.info(f"Profile with id {self.id} Sold {num_of_assets_to_sell} of {ticker} at {ticker_current_price}",
                             extra={"profile_id": self.id, "ticker": ticker})
 
-            elif money_allocation > 0:
-                num_of_shares: float = (self.paper_balance * abs(money_allocation)) / ticker_current_price
+            elif percentage_change > 0 < self.paper_balance:
+                dedicated_balance: float = self.paper_balance * percentage_change
+                num_of_assets_to_buy: float = dedicated_balance / ticker_current_price
 
-                self.paper_wallet[ticker] += num_of_shares
-                self.paper_balance -= (self.paper_balance * money_allocation)
+                self.paper_wallet[ticker] += num_of_assets_to_buy
+                self.paper_balance -= dedicated_balance
 
                 logger.info(
-                    f"Profile with id {self.id} Bought {num_of_shares} of {ticker} at {ticker_current_price}",
+                    f"Profile with id {self.id} Bought {num_of_assets_to_buy} of {ticker} at {ticker_current_price}",
                     extra={"profile_id": self.id, "ticker": ticker})
 
         if not update_profile(self.id, paper_balance=self.paper_balance, paper_wallet=self.paper_wallet):

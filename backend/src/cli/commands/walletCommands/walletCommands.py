@@ -2,6 +2,7 @@ import logging
 from typing import Annotated, Optional
 
 import typer
+from click import confirmation_option
 from rich import box
 from rich.columns import Columns
 from rich.console import Console
@@ -66,7 +67,7 @@ def update_wallet_command(
 
     def remove_from_wallet(ticker: str) -> bool:
         nonlocal final_wallet
-        if ticker in final_wallet and final_wallet[ticker] == 0:
+        if ticker in final_wallet:
             del final_wallet[ticker]
             return True
         return False
@@ -115,7 +116,7 @@ def update_wallet_command(
 
     for invalid_ticker in invalid_removed_tickers:
         console.print(
-            f"[bold red]Ticker '{invalid_ticker}' doesn't exist in wallet or contains assets, \n in such a case pls sell all assets before removing [/bold red].")
+            f"[bold red]Ticker '{invalid_ticker}' doesn't exist in wallet! [/bold red].")
 
 
     if prompt:
@@ -171,7 +172,7 @@ def update_wallet_command(
                     f"[bold green]Ticker '[bold]{ticker_prompt}[/bold]' removed successfully from wallet![/bold green]")
             else:
                 console.print(
-                    f"[bold red]Ticker '{ticker_prompt}' doesn't exist in wallet or contains assets, \n in such a case pls sell all assets before removing [/bold red].")
+                    f"[bold red]Ticker '{ticker_prompt}' doesn't exist in wallet![/bold red].")
         except DataFetchError as e:
             console.print(f"[bold red]Invalid ticker: [bold]{ticker_prompt}[/bold red]. Please try again.")
             continue

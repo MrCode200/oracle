@@ -197,12 +197,12 @@ def update_indicator_command(
         console.print("[bold red]Error: Indicator not updated![/bold red]")
 
 
-def list_profile_indicators_command(
-        profile_name: Annotated[Optional[str], Argument(
-            help="The [bold]name[/bold] of the [bold]profile[/bold] to add indicator to.")] = None,
+def list_indicators_command(
+        profile_name: Annotated[Optional[str], Option("--profile-name", "-pn",
+            help="The [bold]name[/bold] of the [bold]profile[/bold] to list indicators off.")] = None,
         indicator_id: Annotated[
             Optional[int], Option("--indicator-id", "-id",
-                                  help="The [bold]id[/bold] of the [bold]indicator[/bold] to add.")] = None
+                                  help="The [bold]id[/bold] of the [bold]indicator[/bold] to show detailed information.")] = None
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
     indicator_id: Optional[int] = validate_and_prompt_indicator_id(profile_id=profile_id, indicator_id=indicator_id)

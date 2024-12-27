@@ -19,6 +19,7 @@ def fetch_info_data(ticker: str) -> Optional[dict]:  # type: ignore
     :raises DataFetchError: If an error occurs while fetching data
     """
     try:
+        # TODO: check if ticker is valid is not 100% sure
         ticker_obj = Ticker(ticker)
         info = ticker_obj.info
         if "symbol" not in info:
@@ -36,6 +37,10 @@ def fetch_info_data(ticker: str) -> Optional[dict]:  # type: ignore
         if not isinstance(e, DataFetchError):
             logger.error(f"Error fetching info data: {e}")
         raise
+
+
+def fetch_ticker_price(ticker: str) -> Optional[float]:
+    ...
 
 
 def fetch_historical_data(  # type: ignore
