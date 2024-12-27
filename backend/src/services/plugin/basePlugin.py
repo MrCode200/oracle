@@ -15,13 +15,13 @@ class BasePlugin(ABC):
     def __init_subclass__(cls, **kwargs):
         plugin_registry.register(keys=cls.__name__, value=cls)
 
-    def __init__(self, strategy: "BaseStrategy", job: PluginJob):
-        self.strategy: "BaseStrategy" = strategy
+    def __init__(self, strategy: "Profile", job: PluginJob):
+        self.profile: "Profile" = strategy
         self.job: PluginJob = job
 
     @abstractmethod
     def run(
         self,
-        strategy: "BaseStrategy",  # type: ignore
+        profile: "Profile",  # type: ignore
         indicator_confidences: dict[str, dict[int, float]] = None,
     ): ...

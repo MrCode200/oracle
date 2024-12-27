@@ -2,11 +2,11 @@ from src.services.plugin.basePlugin import BasePlugin, PluginJob
 
 
 class LinearMoneyAllocationPlugin(BasePlugin):
-    def __init__(self, strategy: "BaseStrategy"):
+    def __init__(self, profile: "Profile"):
         super().__init__(PluginJob.CREATE_ORDER, strategy)
 
     @staticmethod
-    def run(self, strategy: "BaseStrategy", indicator_confidences: dict[str, dict[int, float]] = None):
+    def run(self, profile: "Profile", indicator_confidences: dict[str, dict[int, float]] = None):
         order: dict[str, float] = {}
 
         ticker_confidences: dict[str, float] = {}
