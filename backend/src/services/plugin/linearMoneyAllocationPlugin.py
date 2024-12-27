@@ -3,10 +3,10 @@ from src.services.plugin.basePlugin import BasePlugin, PluginJob
 
 class LinearMoneyAllocationPlugin(BasePlugin):
     def __init__(self, profile: "Profile"):
-        super().__init__(PluginJob.CREATE_ORDER, strategy)
+        super().__init__(PluginJob.CREATE_ORDER, profile)
 
     @staticmethod
-    def run(self, profile: "Profile", indicator_confidences: dict[str, dict[int, float]] = None):
+    def run(self, indicator_confidences: dict[str, dict[int, float]] = None):
         order: dict[str, float] = {}
 
         ticker_confidences: dict[str, float] = {}
