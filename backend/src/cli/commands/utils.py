@@ -1,8 +1,8 @@
 from inspect import signature, Signature
 from typing import Optional
-import ast
 from enum import Enum
 
+from pydantic import TypeAdapter, ValidationError
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
@@ -13,7 +13,8 @@ from rich.table import Table
 from rich.box import ROUNDED
 
 console = Console()
-
+# TODO: Rename this file to create_edit_object
+# TODO: Move convert_to_type into new file
 
 def create_param_table(params: dict[str, any], types: Optional[dict[str, any]] = None) -> Table:
     """
@@ -35,8 +36,14 @@ def create_param_table(params: dict[str, any], types: Optional[dict[str, any]] =
             param_type: str = str(types[param_name])
         else:
             param_type: str = str(param.__class__.__name__)
-        param_text: Text = Text(param_type)
-        param_table.add_row(str(i), param_name, str(param), param_text)
+
+        param_type_text: Text = Text(str(param_type))
+
+
+        if type(param) == str:
+            param: Text = Text("'" + str(param) + "'")
+
+        param_table.add_row(str(i), param_name, str(param), param_type_text)
         i += 1
 
     return param_table
@@ -60,9 +67,7 @@ def create_edit_object_settings(obj: object, settings: Optional[dict[str, any]] 
         for param_name, param in params.items():
             settings[param_name] = param.default
 
-    types: dict[str, any] = {}
-    for param_name, param in params.items():
-        types[param_name] = param.annotation
+    types: dict[str, any] = obj.__init__.__annotations__
 
     if settings == {}:
         return settings
@@ -90,11 +95,12 @@ def create_edit_object_settings(obj: object, settings: Optional[dict[str, any]] 
             for name, value in settings.items():
                 if value == Signature.empty:
                     console.print(
-                        f"[bold red]Error:[/bold red] Parameter '[underline grey]{name}[/underline grey]' cannot be '[underline grey]{Signature.empty}[/underline grey]' is not a valid parameter.")
+                        f"[bold red]Error:[/bold red] Parameter '[underline grey]{name}[/underline grey]' is not a valid parameter for type '[underline grey]{Signature.empty}[/underline grey]'.")
                     empty_parameter_flag = True
                     break
 
             if not empty_parameter_flag:
+                console.print(create_param_table(settings, types=types))
                 confirmation = Confirm.ask(
                     "Are you sure you want to apply these changes?",
                     choices=["y", "n"],
@@ -114,99 +120,20 @@ def create_edit_object_settings(obj: object, settings: Optional[dict[str, any]] 
                     enum_values = [member.name for member in param_annotation]
                     console.print(f"[bold green]Enum options for {param_name}[/bold green]: {', '.join(enum_values)}")
 
-                param_value = Prompt.ask(f"New value for [bold green]{param_name}[/bold green]:",
+                param_value = Prompt.ask(f"New value for [bold green]{param_name}[/bold green] [bright_blue]type[{types[param_name]}]",
                                          default=str(param_value))
 
                 try:
-                    print(types[param_name])
-                    settings[param_name] = convert_to_type(param_value, types[param_name], fallback=param_value)
-                except (ValueError, SyntaxError) as e:
-                    console.print(f"[bold red]Error:[/bold red] {e}")
+                    typer_adapter: TypeAdapter = TypeAdapter(types[param_name])
+                    settings[param_name] = typer_adapter.validate_python(param_value)
+                except ValidationError:
+                    console.print(f"[bold red]Conversion Error:[/bold red] Cannot convert '[underline grey]{param_value}[/underline grey]' to '[underline grey]{types[param_name]}[/underline grey]'.")
             else:
                 console.print(
-                    f"[bold red] Parameter '[underline grey]{user_input}[/underline grey]' is not a valid parameter.[/bold red]"
-                )
+                    f"[bold red]Error:[/bold red] Parameter '[underline grey]{user_input}[/underline grey]' does not exist.")
 
-def convert_to_type(
-        value: any,
-        target_type: type,
-        fallback: any = None,
-        raise_exception: bool = True
-) -> any:
-    """
-    Convert a value to a specific type.
-    Uses the `ast.literal_eval` function to evaluate the value of basic types (str not included).
-
-    Supports:
-    - Enum members by name or value
-    - Conversion to basic types like int, str, float, bool, etc.
-    - List, Dict, Tuple and Optional as parameterized generics
-    - Union of basic types
-
-    :param value: The value to convert.
-    :param target_type: The type to convert the value to.
-    :param fallback: The value to return if the conversion fails.
-    :param raise_exception: Whether to raise an exception if the value cannot be evaluated.
-    :return: The converted value or the fallback value.
-    """
-    # Check if Enum
-    if isinstance(target_type, type) and issubclass(target_type, Enum) and target_type is not Enum:
-        valid_names = [member.name for member in target_type]
-        valid_values = [member.value for member in target_type]
-
-        if value in valid_names:
-            return target_type[value]
-        elif value in valid_values:
-            return target_type(value)
-        else:
-            if raise_exception:
-                raise ValueError(f"Value '{value}' is not a valid member of enum '{target_type.__name__}'.")
-
-            return fallback
-
-    # Turn to basic type
-    if target_type == str:
-        return str(value)
-
-    try:
-        evaluated_value: any = ast.literal_eval(value)
-    except (ValueError, SyntaxError) as e:
-        if raise_exception:
-            raise e
-        else:
-            return fallback
-
-    # Check if basic type
-    try:
-        if isinstance(evaluated_value, target_type):
-            return evaluated_value
-        else:
-            if raise_exception:
-                raise ValueError(f"Value '{value}' cannot be converted to type '{target_type}'.")
-
-            return fallback
-    except TypeError as e:
+class Test:
+    def __init__(self, a: bool, b: int | str = "o", op: Optional[str] = None) -> None:
         pass
 
-    # Check if parameterized generic
-    try:
-        if hasattr(target_type, "__origin__"):
-            origin: type = target_type.__origin__
-            if origin == list:
-                item_type: type = target_type.__args__[0]
-                return [convert_to_type(item, item_type) for item in evaluated_value]
-
-            elif origin == dict:
-                key_type, item_type = target_type.__args__
-                return {convert_to_type(key, key_type): convert_to_type(item, item_type)
-                        for key, item in evaluated_value.items()}
-
-            elif origin == tuple:
-                item_type: type = target_type.__args__[0]
-                return tuple(convert_to_type(item, item_type) for item in evaluated_value)
-
-    except Exception as e:
-        if raise_exception:
-            raise e
-        else:
-            return fallback
+create_edit_object_settings(Test)

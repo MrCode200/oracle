@@ -5,7 +5,7 @@ from math import ceil
 import pandas_ta as ta
 from pandas import DataFrame
 from src.utils.registry import indicator_registry
-
+from src.utils import check_annotation
 logger = logging.getLogger("oracle.app")
 
 
@@ -28,6 +28,7 @@ class BaseIndicator(ABC):
             if not required_keys <= set(setting.keys()):  # Checks if all required keys are present
                 raise AttributeError(
                     f"_EA_SETTINGS: dict must contain dictionaries with the keys 'start', 'stop', and 'step'. Argument missing those keys: {key}")"""
+        check_annotation(cls.__init__, ignore=["self"])
 
         indicator_registry.register(keys=cls.__name__, value=cls)
 

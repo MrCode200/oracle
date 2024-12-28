@@ -1,8 +1,9 @@
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Optional
 
 from src.utils.registry import plugin_registry
+from src.utils import check_annotations
 
 
 class PluginJob(Enum):
@@ -21,6 +22,8 @@ class BasePlugin(ABC):
 
         if not isinstance(cls.job, PluginJob):
             raise TypeError("Plugin job must be of type PluginJob")
+
+        check_annotations(cls.__init__, ignore=["self"])
 
         plugin_registry.register(keys=cls.__name__, value=cls)
 
