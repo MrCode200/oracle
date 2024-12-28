@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
+from typing import Optional
 
 from src.utils.registry import plugin_registry
 
@@ -15,12 +16,12 @@ class BasePlugin(ABC):
     def __init_subclass__(cls, **kwargs):
         plugin_registry.register(keys=cls.__name__, value=cls)
 
-    def __init__(self, profile: "Profile", job: PluginJob):
-        self.profile: "Profile" = profile
+    def __init__(self, job: PluginJob):
         self.job: PluginJob = job
 
     @abstractmethod
     def run(
         self,
-        indicator_confidences: dict[str, dict[int, float]] = None,
+        profile: "Profile",
+        indicator_confidences: Optional[dict[str, dict[int, float]]] = None,
     ): ...

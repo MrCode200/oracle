@@ -1,12 +1,14 @@
+from typing import Optional
+
 from src.services.plugin.basePlugin import BasePlugin, PluginJob
 
 
 class LinearMoneyAllocationPlugin(BasePlugin):
-    def __init__(self, profile: "Profile"):
-        super().__init__(PluginJob.CREATE_ORDER, profile)
+    def __init__(self):
+        super().__init__(PluginJob.CREATE_ORDER)
 
     @staticmethod
-    def run(self, indicator_confidences: dict[str, dict[int, float]] = None):
+    def run(self, profile: "Profile", indicator_confidences: Optional[dict[str, dict[int, float]]] = None):
         order: dict[str, float] = {}
 
         ticker_confidences: dict[str, float] = {}
