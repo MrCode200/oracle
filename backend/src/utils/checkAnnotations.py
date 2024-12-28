@@ -1,7 +1,7 @@
 from typing import Callable, Optional
 from inspect import signature, Parameter
 
-def check_annotation(func: Callable, ignore: Optional[list[str]]=None) -> None:
+def check_annotations(func: Callable, ignore: Optional[list[str]]=None) -> None:
     """
     Check if all parameters have an annotation
 
