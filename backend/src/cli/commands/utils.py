@@ -131,9 +131,3 @@ def create_edit_object_settings(obj: object, settings: Optional[dict[str, any]] 
             else:
                 console.print(
                     f"[bold red]Error:[/bold red] Parameter '[underline grey]{user_input}[/underline grey]' does not exist.")
-
-class Test:
-    def __init__(self, a: bool, b: int | str = "o", op: Optional[str] = None) -> None:
-        pass
-
-create_edit_object_settings(Test)
