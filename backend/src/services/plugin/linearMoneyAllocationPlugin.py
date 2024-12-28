@@ -1,13 +1,12 @@
+from abc import ABC
 from typing import Optional
 
-from src.services.plugin.basePlugin import BasePlugin, PluginJob
+from backend.src.services.plugin.basePlugin import BasePlugin, PluginJob
 
 
 class LinearMoneyAllocationPlugin(BasePlugin):
-    def __init__(self):
-        super().__init__(PluginJob.CREATE_ORDER)
+    job = PluginJob.CREATE_ORDER
 
-    @staticmethod
     def run(self, profile: "Profile", indicator_confidences: Optional[dict[str, dict[int, float]]] = None):
         order: dict[str, float] = {}
 

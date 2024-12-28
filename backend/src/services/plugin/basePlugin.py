@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 from enum import Enum
 from typing import Optional
 
@@ -13,11 +13,18 @@ class PluginJob(Enum):
 
 # REMAKE: Check how to make the arguments passed only when needed so that not every functions needs to take Strategy as a Argument
 class BasePlugin(ABC):
+    def __new__(cls, name, bases, dct):
+        if 'job' not in dct:
+            raise TypeError("Plugin must have a job property")
+
+        if not isinstance(dct['job'], PluginJob):
+            raise TypeError("Plugin job must be of type PluginJob")
+
+        return super().__new__(cls, name, bases, dct)
+
+
     def __init_subclass__(cls, **kwargs):
         plugin_registry.register(keys=cls.__name__, value=cls)
-
-    def __init__(self, job: PluginJob):
-        self.job: PluginJob = job
 
     @abstractmethod
     def run(
