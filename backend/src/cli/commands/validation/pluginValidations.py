@@ -9,7 +9,7 @@ from src.utils.registry import plugin_registry, profile_registry
 console = Console()
 
 def validate_and_prompt_plugin_name(plugin_name: Optional[str] = None):
-    valid_plugin_names = [name for name in plugin_registry.get().values()]
+    valid_plugin_names = [name for name in plugin_registry.get().keys()]
     while True:
         if plugin_name is None:
             plugin_name = prompt("Enter the name of the plugin: ",
