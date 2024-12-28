@@ -102,7 +102,7 @@ class Profile:
         with self._lock:
             for plugin in self.plugins:
                 if plugin.instance.job == PluginJob.BEFORE_EVALUATION:
-                    plugin.instance.evaluate(self, profile=self)
+                    plugin.instance.evaluate(profile=self)
 
             for indicator in self.indicators:
                 if indicator.weight == 0:
@@ -116,11 +116,11 @@ class Profile:
 
             for plugin in self.plugins:
                 if plugin.instance.job == PluginJob.AFTER_EVALUATION:
-                    confidences = plugin.instance.evaluate(self, profile=self, confidences=confidences)
+                    confidences = plugin.instance.evaluate(profile=self, confidences=confidences)
 
             for plugin in self.plugins:
                 if plugin.instance.job == PluginJob.CREATE_ORDER:
-                    order: dict[str, float] = plugin.instance.evaluate(self, profile=self, confidences=confidences)
+                    order: dict[str, float] = plugin.instance.evaluate(profile=self, confidences=confidences)
                     break
 
             logger.info(
