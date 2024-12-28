@@ -5,7 +5,7 @@ from math import ceil
 import pandas_ta as ta
 from pandas import DataFrame
 from src.utils.registry import indicator_registry
-from src.utils import check_annotations
+from src.utils import check_annotations_for_init
 logger = logging.getLogger("oracle.app")
 
 

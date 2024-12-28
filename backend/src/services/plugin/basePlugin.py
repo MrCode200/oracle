@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Optional
 
 from src.utils.registry import plugin_registry
-from src.utils import check_annotations
+from src.utils import check_annotations_for_init
 
 
 class PluginJob(Enum):

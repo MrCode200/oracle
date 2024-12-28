@@ -1,2 +1,2 @@
 from .configOperations import load_config
-from .checkAnnotations import check_annotations
+from .checkAnnotations import check_annotations_for_init
