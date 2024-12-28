@@ -71,6 +71,7 @@ bot_app.command(name="status", help="Checks the status of the app.")(status_app_
 
 profile_app.add_typer(wallet_app, name="wallet")
 profile_app.add_typer(indicator_app, name="indicator")
+profile_app.add_typer(plugin_app, name="plugin")
 app.add_typer(profile_app, name="profile")
 app.add_typer(bot_app, name="bot")
 
@@ -91,6 +92,10 @@ command_list.append("profile wallet --help")
 for command in indicator_app.registered_commands:
     command_list.append("profile indicator " + command.name)
 command_list.append("profile indicator --help")
+
+for command in plugin_app.registered_commands:
+    command_list.append("profile plugin " + command.name)
+command_list.append("profile plugin --help")
 
 for command in bot_app.registered_commands:
     if not command.hidden:
