@@ -31,6 +31,8 @@ class BaseIndicator(ABC):
 
         indicator_registry.register(keys=cls.__name__, value=cls)
 
+        super().__init_subclass__(**kwargs)
+
 
     @classmethod
     def EA_SETTINGS(cls) -> dict[str, dict[str, int | float]]:

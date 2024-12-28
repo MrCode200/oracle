@@ -70,9 +70,9 @@ def add_indicator_command(
 
     # Update Indicator
     with Status("Adding Indicator...", spinner="dots") as status:
-        indicator = indicator(**indicator_settings)
+        indicator_instance = indicator(**indicator_settings)
 
-        if profile.add_indicator(indicator, weight=weight, ticker=ticker,
+        if profile.add_indicator(indicator_instance, weight=weight, ticker=ticker,
                                  interval=interval):
             status.update(
                 f"[bold green]Indicator '[bold]{indicator_name}[/bold]' successfully added to profile '[bold]{profile_name}[/bold]'.")

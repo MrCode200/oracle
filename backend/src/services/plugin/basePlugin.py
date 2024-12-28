@@ -13,18 +13,18 @@ class PluginJob(Enum):
 
 # REMAKE: Check how to make the arguments passed only when needed so that not every functions needs to take Strategy as a Argument
 class BasePlugin(ABC):
-    def __new__(cls, name, bases, dct):
-        if 'job' not in dct:
-            raise TypeError("Plugin must have a job property")
-
-        if not isinstance(dct['job'], PluginJob):
-            raise TypeError("Plugin job must be of type PluginJob")
-
-        return super().__new__(cls, name, bases, dct)
-
+    job: PluginJob = ...
 
     def __init_subclass__(cls, **kwargs):
+        if 'job' not in cls.__dict__:
+            raise TypeError("Plugin must have a job property")
+
+        if not isinstance(cls.job, PluginJob):
+            raise TypeError("Plugin job must be of type PluginJob")
+
         plugin_registry.register(keys=cls.__name__, value=cls)
+
+        super.__init_subclass__(**kwargs)
 
     @abstractmethod
     def run(
