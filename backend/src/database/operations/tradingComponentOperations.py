@@ -75,7 +75,7 @@ def create_trading_component(
         )
 
     except IntegrityError as e:
-        logger.error(f"Error creating trading_component {name}: {e}", exc_info=True)
+        logger.error(f"Error creating Trading Component {name}: {e}", exc_info=True)
         session.rollback()
 
     finally:
@@ -115,7 +115,7 @@ def get_trading_component(
                 return None
 
         if profile_id:
-            logger.info(f"trading_components with {profile_id=} retrieved.")
+            logger.info(f"Trading Components with {profile_id=} retrieved.")
             return [
                 convert_to_dto(trading_component) for trading_component in session.query(TradingComponentModel).filter_by(
                 profile_id=profile_id

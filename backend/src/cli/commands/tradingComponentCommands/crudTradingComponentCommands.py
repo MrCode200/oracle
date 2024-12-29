@@ -134,8 +134,7 @@ def update_trading_component_command(
             case 0:
                 break
             case 1:
-                new_tc_settings = create_edit_object_settings(obj=tc.instance,
-                                                                     settings=new_tc_settings)
+                new_tc_settings = create_edit_object_settings(obj=tc.instance.__class__, settings=new_tc_settings)
             case 2:
                 ticker: str = validate_and_prompt_ticker_in_wallet(wallet=profile.wallet, ticker=ticker)
             case 3:

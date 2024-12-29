@@ -54,10 +54,10 @@ class MovingAverageConvergenceDivergence(BaseTradingComponent):
         self.fast_period = fast_period
         self.slow_period = slow_period
         self.signal_line_period = signal_line_period
-        self.max_momentum_lookback = momentum_max_lookback
+        self.momentum_max_lookback = momentum_max_lookback
         self.momentum_signal_weight = momentum_signal_weight
-        self.return_crossover_weigth = crossover_return_weight
-        self.max_crossover_gradient_degree = crossover_max_gradient_degree
+        self.crossover_return_weight = crossover_return_weight
+        self.crossover_max_gradient_degree = crossover_max_gradient_degree
         self.crossover_gradient_signal_weight = crossover_gradient_signal_weight
         self.crossover_weight_impact = crossover_weight_impact
         self.zero_line_crossover_weight = zero_line_crossover_weight
@@ -100,14 +100,14 @@ class MovingAverageConvergenceDivergence(BaseTradingComponent):
 
         # Calculate momentum as the maximum absolute value of the histogram over the lookback period.
         # This shows the strength of the trend.
-        max_momentum = max(np.abs(histogram.iloc[-self.max_momentum_lookback:]))
+        max_momentum = max(np.abs(histogram.iloc[-self.momentum_max_lookback:]))
         max_momentum = 1 if max_momentum == 0 else max_momentum  # Avoid division by zero
         normalized_momentum_signal: float = (current_histogram_value / max_momentum) ** 2
 
         # The Zero Line Crossover: Checks if the MACD line crosses above or below the signal line.
         crossover = check_crossover(current_macd_value, current_signal_value, macd_line.iloc[-2],
-                                    signal_line_ema.iloc[-2], self.return_crossover_weigth,
-                                    self.max_crossover_gradient_degree,
+                                    signal_line_ema.iloc[-2], self.crossover_return_weight,
+                                    self.crossover_max_gradient_degree,
                                     self.crossover_gradient_signal_weight, self.crossover_weight_impact)
 
         zero_line_crossover_signal = crossover
