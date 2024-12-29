@@ -22,8 +22,8 @@ class ProfileModel(Base):  # type: ignore
     sell_limit = Column(Float)
 
 
-class IndicatorModel(Base):
-    __tablename__ = "indicators"
+class TradingComponentModel(Base):
+    __tablename__ = "trading_components"
     id = Column(Integer, primary_key=True, autoincrement=True)
     profile_id = Column(Integer, ForeignKey("profiles.id", ondelete="CASCADE"))
 

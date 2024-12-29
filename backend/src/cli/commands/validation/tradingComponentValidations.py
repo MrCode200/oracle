@@ -7,28 +7,27 @@ from rich.panel import Panel
 from rich.box import ROUNDED
 from rich.prompt import Prompt
 
-from src.database import get_indicator
-from src.utils.registry import indicator_registry
+from src.database import get_trading_component
+from src.utils.registry import tc_registry
 from src.cli.commands.walletCommands.walletUtils import create_wallet_table
 
 console = Console()
 
-valid_indicators: list[str] = [name for name in indicator_registry.get().keys()]
+def validate_and_prompt_tc_name(tc_name: Optional[str] = None) -> str:
+    valid_tcs: list[str] = [name for name in tc_registry.get().keys()]
 
-
-def validate_and_prompt_indicator_name(indicator_name: Optional[str] = None) -> str:
     while True:
-        if indicator_name is None:
-            indicator_name = prompt("Enter indicator name: ",
-                                    completer=WordCompleter(words=valid_indicators,
+        if tc_name is None:
+            tc_name = prompt("Enter Trading Component name: ",
+                             completer=WordCompleter(words=valid_tcs,
                                                             ignore_case=True))
 
-        if indicator_name not in valid_indicators:
+        if tc_name not in valid_tcs:
             console.print(
-                f"[bold red]Error: Indicator '[white underline bold]{indicator_name}[/white underline bold]' not found!")
-            indicator_name = None
+                f"[bold red]Error: Trading Component '[white underline bold]{tc_name}[/white underline bold]' not found!")
+            tc_name = None
         else:
-            return indicator_name
+            return tc_name
 
 
 def validate_and_prompt_interval() -> str:
@@ -68,21 +67,21 @@ def validate_and_prompt_interval() -> str:
     return str(interval_period + interval)
 
 
-def validate_and_prompt_indicator_id(profile_id: int, indicator_id: Optional[int] = None, allow_none: bool = False) -> Optional[int]:
-    valid_indicator_ids: list[str] = [str(indicator.id) for indicator in get_indicator(profile_id=profile_id)]
-    user_input: Optional[str] = str(indicator_id) if indicator_id is not None else None
+def validate_and_prompt_tc_id(profile_id: int, trading_component_id: Optional[int] = None, allow_none: bool = False) -> Optional[int]:
+    valid_tc_ids: list[str] = [str(tc.id) for tc in get_trading_component(profile_id=profile_id)]
+    user_input: Optional[str] = str(trading_component_id) if trading_component_id is not None else None
 
-    while valid_indicator_ids:
+    while valid_tc_ids:
         if user_input is None:
-            user_input = prompt(f"Enter indicator id{' (Optional)' if allow_none else ''}: ",
-                                       completer=WordCompleter(words=[str(indi_id) for indi_id in valid_indicator_ids]))
+            user_input = prompt(f"Enter Trading Component id{' (Optional)' if allow_none else ''}: ",
+                                       completer=WordCompleter(words=[str(indi_id) for indi_id in valid_tc_ids]))
 
         if user_input == "" and allow_none:
             return None
 
-        if user_input not in valid_indicator_ids:
+        if user_input not in valid_tc_ids:
             console.print(
-                f"[bold red]Error: Indicator '[white underline bold]{indicator_id}[/white underline bold]' not found!")
+                f"[bold red]Error: Trading Component '[white underline bold]{trading_component_id}[/white underline bold]' not found!")
             user_input = None
 
         else:
@@ -104,7 +103,7 @@ def validate_and_prompt_weight(weight: Optional[str | int] = None) -> int:
             console.print("[bold red]Error:[/bold red] Weight must be greater or equal to 0.", style="red")
             weight = None
         else:
-            confirmation: str = Prompt.ask(f"Add {weight} to indicator?", choices=["y", "n"], default="y")
+            confirmation: str = Prompt.ask(f"Add {weight} to Trading Component?", choices=["y", "n"], default="y")
             if confirmation == "y":
                 return weight
 
@@ -123,6 +122,6 @@ def validate_and_prompt_ticker_in_wallet(wallet: dict[str, float], ticker: Optio
             ticker = None
         else:
             console.print(f"[bold green] Ticker added! [/bold green]")
-            confirmation: str = Prompt.ask(f"Add {ticker} to indicator?", choices=["y", "n"], default="y")
+            confirmation: str = Prompt.ask(f"Add {ticker} to Trading Component?", choices=["y", "n"], default="y")
             if confirmation == "y":
                 return ticker

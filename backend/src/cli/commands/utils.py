@@ -23,7 +23,6 @@ def create_param_table(params: dict[str, any], types: Optional[dict[str, any]] =
     :param params: The parameters of the object
     :param types: The types of the parameters
     """
-    print(types)
     param_table = Table(header_style="bold cyan", box=ROUNDED, style="bold")
     param_table.add_column("", style="dim")
     param_table.add_column("Parameter", style="bold green")

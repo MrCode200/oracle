@@ -1,2 +1,2 @@
-from .models import (Base, IndicatorModel, OrderModel,  # type: ignore
+from .models import (Base, TradingComponentModel, OrderModel,  # type: ignore
                      PluginModel, ProfileModel)

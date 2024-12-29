@@ -33,5 +33,5 @@ class BasePlugin(ABC):
     def run(
         self,
         profile: "Profile",
-        indicator_confidences: Optional[dict[str, dict[int, float]]] = None,
+        tc_confidences: Optional[dict[str, dict[int, float]]] = None,
     ): ...

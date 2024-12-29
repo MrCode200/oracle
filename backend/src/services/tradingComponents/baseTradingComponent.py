@@ -2,20 +2,18 @@ import logging
 from abc import ABC, abstractmethod
 from math import ceil
 
-import pandas_ta as ta
 from pandas import DataFrame
-from src.utils.registry import indicator_registry
+from src.utils.registry import tc_registry
 from src.utils import check_annotations_for_init
 logger = logging.getLogger("oracle.app")
 
 
-# noinspection PyPep8Naming
-class BaseIndicator(ABC):
+class BaseTradingComponent(ABC):
     """
-    Defines an abstract base class for indicators.
+    Defines an abstract base class for Trading Components.
 
     Methods
-        - classmethod EA_RANGE(cls) -> tuple[int, int]: Returns the range of the indicator.
+        - classmethod EA_RANGE(cls) -> tuple[int, int]: Returns the range of the trading_component.
         - evaluate() -> float: Abstract method to run the algorithms on the provided database.
         - backtest() -> float: Abstract method to test the accuracy of the algorithms on the provided database.
         - _process_trade_signal() -> float: Abstract method to buy and sell as well as append for all backtest functions.
@@ -30,7 +28,7 @@ class BaseIndicator(ABC):
                     f"_EA_SETTINGS: dict must contain dictionaries with the keys 'start', 'stop', and 'step'. Argument missing those keys: {key}")"""
         check_annotations_for_init(cls)
 
-        indicator_registry.register(keys=cls.__name__, value=cls)
+        tc_registry.register(keys=cls.__name__, value=cls)
 
         super().__init_subclass__(**kwargs)
 
@@ -49,7 +47,7 @@ class BaseIndicator(ABC):
         Conducts a backtest on the provided market data to evaluate the performance of a trading strategy.
 
         NOTE:
-            - It may not work if the df is not the length of the indicator series!
+            - It may not work if the df is not the length of the Trading Component series!
 
         :param df: The DataFrame containing the market data with a 'Close' column.
         :param partition_amount: The number of partitions to divide the data into for recalculating the Return on Investment (ROI). Must be greater than 0.
@@ -60,7 +58,7 @@ class BaseIndicator(ABC):
 
         :raises ValueError: If `partition_amount` is less than or equal to 0.
         """
-        indicator_name = self.__class__.__name__
+        tc_name = self.__class__.__name__
 
         base_balance: float = 1_000_000
         balance: float = base_balance
@@ -76,12 +74,12 @@ class BaseIndicator(ABC):
             is_partition_cap_reached: bool = (
                     (i + 1) % partition_amount == 0) if partition_amount > 1 else False
 
-            base_balance, balance, shares = BaseIndicator.process_trade_signal(
+            base_balance, balance, shares = BaseTradingComponent.process_trade_signal(
                 base_balance, balance, shares,
                 df.iloc[i].Close, df.index[i] ,trade_signal,
                 buy_limit, sell_limit,
                 net_worth_history, is_partition_cap_reached,
-                indicator_name
+                tc_name
             )
 
         if not is_partition_cap_reached:
@@ -89,7 +87,7 @@ class BaseIndicator(ABC):
             net_worth_history.append(total_net_worth / base_balance)
 
         logger.info(f"Backtest completed with Return on Investment of {[str(roi * 100) for roi in net_worth_history]}",
-                    extra={"indicator": indicator_name})
+                    extra={"Trading Component": tc_name})
 
         return net_worth_history
 
@@ -105,7 +103,7 @@ class BaseIndicator(ABC):
             sell_limit: float,
             net_worth_history: list[float],
             is_partition_cap_reached: bool,
-            indicator_name: str
+            tc_name: str
     ) -> tuple[float, float, float]:
         """
         Applies a trade signal to update the portfolio's cash balance, owned shares, and records the ROI.
@@ -124,7 +122,7 @@ class BaseIndicator(ABC):
         :param buy_limit: The percentage of when to buy, (default is 0.8).
         :param net_worth_history: A list storing the historical values of the portfolio for ROI tracking.
         :param is_partition_cap_reached: A flag indicating whether the ROI should be recorded for the current period.
-        :param indicator_name: The name of the strategy used for logging purposes.
+        :param tc_name: The name of the strategy used for logging purposes.
 
         :return: A tuple containing:
             - updated `original_balance` (float): The updated balance after executing the trade.
@@ -141,13 +139,13 @@ class BaseIndicator(ABC):
             shares = balance / latest_price
             balance = 0
             logger.debug(
-                "Indicator_Backtest: Executed Buy on signal `{}` and shares `{}` with a price of `{}`; date: `{}`".format(trade_signal, shares, latest_price, date),
-                extra={"strategy": indicator_name})
+                "TC-Backtest: Executed Buy on signal `{}` and shares `{}` with a price of `{}`; date: `{}`".format(trade_signal, shares, latest_price, date),
+                extra={"strategy": tc_name})
 
         elif trade_signal <= sell_limit and shares > 0:  # Sell
             logger.debug(
-                "Indicator_Backtest: Executed Sell on signal `{}` and shares `{}` with a price of `{}`; date: `{}`".format(trade_signal, shares, latest_price, date),
-                extra={"strategy": indicator_name})
+                "TC-Backtest: Executed Sell on signal `{}` and shares `{}` with a price of `{}`; date: `{}`".format(trade_signal, shares, latest_price, date),
+                extra={"strategy": tc_name})
             balance += shares * latest_price
             shares = 0
 
@@ -158,7 +156,7 @@ class BaseIndicator(ABC):
             base_balance = total_net_worth
 
             logger.debug(
-                f"Indicator_Backtest: Appended ROI, Total Net Worth:{total_net_worth}; ROI: {net_worth_history[-1]}",
-                extra={"strategy": indicator_name})
+                f"TC-Backtest: Appended ROI, Total Net Worth:{total_net_worth}; ROI: {net_worth_history[-1]}",
+                extra={"strategy": tc_name})
 
         return base_balance, balance, shares

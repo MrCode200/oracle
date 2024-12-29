@@ -1,5 +1,4 @@
 from logging import getLogger
-import atexit
 
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.engine import URL
@@ -38,12 +37,12 @@ with base_engine.connect() as conn:
 engine: Engine = create_engine(DATABASE_URL)
 
 
-from .dtos import IndicatorDTO, OrderDTO, PluginDTO, ProfileDTO
-from .models import Base, IndicatorModel, OrderModel, PluginModel, ProfileModel
-from .operations import (create_indicator, create_order, create_plugin,
-                         create_profile, delete_indicator, delete_plugin,
-                         delete_profile, get_indicator, get_order, get_plugin,
-                         get_profile, update_indicator, update_plugin,
+from .dtos import TradingComponentDTO, OrderDTO, PluginDTO, ProfileDTO
+from .models import Base, TradingComponentModel, OrderModel, PluginModel, ProfileModel
+from .operations import (create_trading_component, create_order, create_plugin,
+                         create_profile, delete_trading_component, delete_plugin,
+                         delete_profile, get_trading_component, get_order, get_plugin,
+                         get_profile, update_trading_component, update_plugin,
                          update_profile)
 
 Base.metadata.create_all(engine)

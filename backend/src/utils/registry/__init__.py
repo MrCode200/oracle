@@ -4,8 +4,8 @@ from .registry import Registry  # type: ignore
 
 logger = getLogger("oracle.app")
 
-indicator_registry: Registry = Registry(
-    registry_name="indicator_registry", raise_exception=False, log=True, logger=logger
+tc_registry: Registry = Registry(
+    registry_name="tc_registry", raise_exception=False, log=True, logger=logger
 )
 profile_registry: Registry = Registry(
     registry_name="profile_registry", raise_exception=False, log=True, logger=logger

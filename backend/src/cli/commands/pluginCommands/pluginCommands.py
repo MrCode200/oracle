@@ -9,7 +9,7 @@ console = Console()
 def list_plugins_command():
     console.print("[bold green]Available plugins:[/bold green]")
 
-    # Create a table to display the indicators
+    # Create a table to display the Plugins
     table = Table(show_header=True, header_style="bold blue")
     table.add_column("Number", style="dim")
     table.add_column("Plugin Name")

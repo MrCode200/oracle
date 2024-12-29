@@ -7,7 +7,7 @@ logger = getLogger("oracle.app")
 
 # noinspection PyArgumentList
 def trend_based_pullback(
-    indicator_series: Series,
+    tc_series: Series,
     base_line: float,
     tolerance: float,
     lookback_window: int,
@@ -17,13 +17,13 @@ def trend_based_pullback(
     rate_of_change_weight: float = 1,
 ) -> bool | float:
     """
-    General function to detect trend-based pullbacks for any given indicator.
+    General function to detect trend-based pullbacks for any given Trading Component.
 
-    :param indicator_series: The indicator series (e.g., MACD, EMA, RSI) to analyze.
-    :param base_line: The line which the indicator should be considered to have "pulled back."
+    :param tc_series: The Trading Component series (e.g., MACD, EMA, RSI) to analyze.
+    :param base_line: The line which the Trading Component should be considered to have "pulled back."
     :param tolerance: The allowed deviation to consider as a valid pullback.
     :param lookback_window: The number of periods to look back for potential pullback behavior.
-        Automatically chooses the len(indicator_series) if lookback_period > len(indicator_series)
+        Automatically chooses the len(tc_series) if lookback_period > len(tc_series)
     :param direction: Direction of the pullback ('both', 'up', or 'down') from the limit.
     :param return_pullback_strength: Whether to return the strength of the pullback.
     :param magnitude_weight: The weight for the magnitude calculation.
@@ -45,8 +45,8 @@ def trend_based_pullback(
     if lookback_window < 0:
         raise AttributeError("Lookback period must be positive.")
 
-    lookback_window = min(lookback_window, len(indicator_series))
-    current_value = indicator_series.iloc[-1]
+    lookback_window = min(lookback_window, len(tc_series))
+    current_value = tc_series.iloc[-1]
 
     pullback_found: bool = False
     pullback_direction: str = None
@@ -57,16 +57,17 @@ def trend_based_pullback(
     if direction in ["both", "up"]:
         if current_value > tolerance:
             for i in range(1, -lookback_window):
-                current_value = indicator_series.iloc[-i]
+                current_value = tc_series.iloc[-i]
 
                 # Break if trend reverses (e.g., from positive to negative)
                 if current_value < base_line:
                     break
 
-                # Check if the indicator entered the limit and then pulls back
+                # Check if the Trading Component entered the limit and then pulls back
                 if base_line < current_value < tolerance:
                     value_entered_limit_index = i
-                # Check if the indicator entered the limit and then pulls back
+
+                # Check if the Trading Component entered the limit and then pulls back
                 elif current_value > tolerance:
                     value_above_limit_index = i
 
@@ -82,16 +83,17 @@ def trend_based_pullback(
     elif direction in ["both", "down"]:
         if current_value < -tolerance:
             for i in range(1, -lookback_window):
-                current_value = indicator_series.iloc[-i]
+                current_value = tc_series.iloc[-i]
 
                 # Break if trend reverses (e.g., from negative to positive)
                 if current_value > 0:
                     break
 
-                # Check if the indicator entered the limit and then pulls back
+                # Check if the Trading Component entered the limit and then pulls back
                 if base_line > current_value > -tolerance:
                     value_entered_limit_index = i
-                # Check if the indicator entered the limit and then pulls back
+
+                # Check if the Trading Component entered the limit and then pulls back
                 elif current_value < -tolerance:
                     value_above_limit_index = i
 
@@ -109,29 +111,29 @@ def trend_based_pullback(
 
     if pullback_direction == "up":
         closest_value_to_base_line = min(
-            indicator_series.iloc[-value_above_limit_index:]
+            tc_series.iloc[-value_above_limit_index:]
         )
     elif pullback_direction == "down":
         closest_value_to_base_line = max(
-            indicator_series.iloc[-value_above_limit_index:]
+            tc_series.iloc[-value_above_limit_index:]
         )
 
     pullback_magnitude: float = abs(current_value - closest_value_to_base_line)
     max_magnitude: float = max(
-        abs(indicator_series.max() - base_line), abs(indicator_series.min() - base_line)
+        abs(tc_series.max() - base_line), abs(tc_series.min() - base_line)
     )
     pullback_magnitude_signal: float = pullback_magnitude / max_magnitude
 
     pullback_index: int = (
-        indicator_series.iloc[-value_above_limit_index:]
-        .index[indicator_series == closest_value_to_base_line]
+        tc_series.iloc[-value_above_limit_index:]
+        .index[tc_series == closest_value_to_base_line]
         .values[-1]
     )
     rate_of_change: float = abs((current_value - closest_value_to_base_line)) / (
-        len(indicator_series) - pullback_index
+            len(tc_series) - pullback_index
     )
     max_rate_of_change: float = max(
-        abs(indicator_series.max() - indicator_series.min()) / lookback_window
+        abs(tc_series.max() - tc_series.min()) / lookback_window
     )
     rate_of_change_signal: float = rate_of_change / max_rate_of_change
 

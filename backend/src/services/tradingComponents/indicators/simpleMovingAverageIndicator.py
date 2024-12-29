@@ -1,15 +1,15 @@
 import logging
 
 import pandas
-from pandas import DataFrame, Series
+from pandas import DataFrame
 from pandas_ta import sma
-from src.services.indicators import BaseIndicator
-from src.services.indicators.utils import check_crossover
+from src.services.tradingComponents import BaseTradingComponent
+from src.services.tradingComponents.indicators.utils import check_crossover
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 
 
-class SimpleMovingAverage(BaseIndicator):
+class SimpleMovingAverage(BaseTradingComponent):
     """
     Implements the Simple Moving Average (SMA) trading strategy.
 
@@ -99,7 +99,7 @@ class SimpleMovingAverage(BaseIndicator):
             self.crossover_weight_impact,
         )
 
-        logger.info(f"Evaluated a confidence of {crossover_signal}", extra={"indicator": self.__class__.__name__})
+        logger.info(f"Evaluated a confidence of {crossover_signal}", extra={"trading_component": self.__class__.__name__})
 
 
         return crossover_signal

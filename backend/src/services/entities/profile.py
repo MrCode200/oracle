@@ -9,10 +9,10 @@ from src.database import get_plugin
 
 from src.api import fetch_historical_data
 from src.api import fetch_info_data
-from src.database import (IndicatorDTO, PluginDTO, ProfileDTO, get_indicator,
-                          update_profile, delete_plugin, update_indicator,
-                          create_plugin, create_indicator, update_plugin, delete_indicator)
-from src.services.indicators import BaseIndicator
+from src.database import (TradingComponentDTO, PluginDTO, ProfileDTO, get_trading_component,
+                          update_profile, delete_plugin, update_trading_component,
+                          create_plugin, create_trading_component, update_plugin, delete_trading_component)
+
 from src.utils.registry import profile_registry
 from src.services.constants import Status
 
@@ -34,8 +34,8 @@ class Profile:
         self.paper_balance: float = profile.paper_balance
         self.paper_wallet: dict[str, float] = profile.paper_wallet
 
-        # REMAKE: dict[id, indicatorDTO] and also for plugin
-        self.indicators: list[IndicatorDTO] = get_indicator(profile_id=profile.id)
+        # REMAKE: dict[id, TradingComponentDTO] and also for plugin
+        self.trading_components: list[TradingComponentDTO] = get_trading_component(profile_id=profile.id)
         self.plugins: list[PluginDTO] = get_plugin(profile_id=profile.id)
         self.buy_limit: float = profile.buy_limit
         self.sell_limit: float = profile.sell_limit
@@ -104,23 +104,23 @@ class Profile:
                 if plugin.instance.job == PluginJob.BEFORE_EVALUATION:
                     plugin.instance.run(profile=self)
 
-            for indicator in self.indicators:
-                if indicator.weight == 0:
+            for trading_component in self.trading_components:
+                if trading_component.weight == 0:
                     continue
 
                 if not BROKER_API:
-                    df = fetch_historical_data(ticker=indicator.ticker, period="5d", interval=indicator.interval)
+                    df = fetch_historical_data(ticker=trading_component.ticker, period="5d", interval=trading_component.interval)
 
-                confidence = indicator.instance.evaluate(df=df)
-                confidences[indicator.ticker][indicator.id] = confidence * indicator.weight
+                confidence = trading_component.instance.evaluate(df=df)
+                confidences[trading_component.ticker][trading_component.id] = confidence * trading_component.weight
 
             for plugin in self.plugins:
                 if plugin.instance.job == PluginJob.AFTER_EVALUATION:
-                    confidences = plugin.instance.run(profile=self, indicator_confidences=confidences)
+                    confidences = plugin.instance.run(profile=self, trading_component_confidences=confidences)
 
             for plugin in self.plugins:
                 if plugin.instance.job == PluginJob.CREATE_ORDER:
-                    order: dict[str, float] = plugin.instance.run(profile=self, indicator_confidences=confidences)
+                    order: dict[str, float] = plugin.instance.run(profile=self, trading_component_confidences=confidences)
                     break
 
             logger.info(
@@ -242,35 +242,35 @@ class Profile:
                 )
                 return False
 
-    def add_indicator(self, indicator: 'BaseIndicator', weight: float, ticker: str, interval: str):
+    def add_trading_component(self, trading_component: 'Basetrading_component', weight: float, ticker: str, interval: str):
         with self._lock:
-            new_indicator: IndicatorDTO = create_indicator(
+            new_trading_component: TradingComponentDTO = create_trading_component(
                 profile_id=self.id,
-                name=indicator.__class__.__name__,
+                name=trading_component.__class__.__name__,
                 weight=weight,
                 ticker=ticker,
                 interval=interval,
-                settings=indicator.__dict__,
+                settings=trading_component.__dict__,
             )
-            if new_indicator is not None:
-                self.indicators.append(new_indicator)
-                logger.info(f"Added indicator with ID {new_indicator.id} to profile with ID {self.id}.",
+            if new_trading_component is not None:
+                self.trading_components.append(new_trading_component)
+                logger.info(f"Added trading_component with ID {new_trading_component.id} to profile with ID {self.id}.",
                             extra={"profile_id": self.id})
                 self._update_scheduler()
 
                 return True
 
-        logger.error(f"Failed to add indicator to profile with ID {self.id}.",
+        logger.error(f"Failed to add trading_component to profile with ID {self.id}.",
                      extra={"profile_id": self.id})
         return False
 
-    def update_indicator(self, indicator_id: int, name: str, weight: float, ticker: str, interval: str, settings: dict[str, any]):
+    def update_trading_component(self, trading_component_id: int, name: str, weight: float, ticker: str, interval: str, settings: dict[str, any]):
         with self._lock:
-            if update_indicator(indicator_id=indicator_id, weight=weight, ticker=ticker, interval=interval, settings=settings):
-                self.indicators = [indicator for indicator in self.indicators if indicator.id != indicator_id]
-                self.indicators.append(
-                    IndicatorDTO(
-                        id=indicator_id,
+            if update_trading_component(trading_component_id=trading_component_id, weight=weight, ticker=ticker, interval=interval, settings=settings):
+                self.trading_components = [trading_component for trading_component in self.trading_components if trading_component.id != trading_component_id]
+                self.trading_components.append(
+                    TradingComponentDTO(
+                        id=trading_component_id,
                         profile_id=self.id,
                         name=name,
                         weight=weight,
@@ -279,25 +279,25 @@ class Profile:
                         settings=settings
                     )
                 )
-                logger.info(f"Updated indicator with ID {indicator_id} in profile with ID {self.id}.",
+                logger.info(f"Updated trading_component with ID {trading_component_id} in profile with ID {self.id}.",
                             extra={"profile_id": self.id})
                 return True
 
-        logger.error(f"Failed to update indicator with ID {indicator_id} in profile with ID {self.id}.",
+        logger.error(f"Failed to update trading_component with ID {trading_component_id} in profile with ID {self.id}.",
                      extra={"profile_id": self.id})
         return False
 
-    def remove_indicator(self, indicator_id: int):
+    def remove_trading_component(self, trading_component_id: int):
         with self._lock:
-            if delete_indicator(indicator_id=indicator_id):
-                self.indicators = [indicator for indicator in self.indicators if indicator.id != indicator_id]
+            if delete_trading_component(trading_component_id=trading_component_id):
+                self.trading_components = [trading_component for trading_component in self.trading_components if trading_component.id != trading_component_id]
 
-                logger.info(f"Removed indicator with ID {indicator_id} from profile with ID {self.id}.",
+                logger.info(f"Removed trading_component with ID {trading_component_id} from profile with ID {self.id}.",
                             extra={"profile_id": self.id})
                 return True
 
         logger.error(
-            f"Failed to remove indicator with ID {indicator_id} from profile with ID {self.id}.",
+            f"Failed to remove trading_component with ID {trading_component_id} from profile with ID {self.id}.",
             extra={"profile_id": self.id})
         return False
 
@@ -359,9 +359,9 @@ class Profile:
         self._update_scheduler()
 
     def _update_scheduler(self):
-        indicators: list[IndicatorDTO] | None = self.indicators
-        if not indicators:
-            logger.info(f"No indicators found for Profile with id: {self.id}", extra={"profile_id": self.id})
+        trading_components: list[TradingComponentDTO] | None = self.trading_components
+        if not trading_components:
+            logger.info(f"No trading_components found for Profile with id: {self.id}", extra={"profile_id": self.id})
             return
 
         def interval_to_minutes(interval: str) -> int:
@@ -383,16 +383,14 @@ class Profile:
             return int(interval[:-1]) * step
 
         all_intervals: list[int] = [
-            interval_to_minutes(indicator.interval)
-            for indicator in indicators
+            interval_to_minutes(trading_component.interval)
+            for trading_component in trading_components
         ]
 
         smallest_interval: int = min(all_intervals)
 
         if hasattr(self, 'job') and self.job:
             self.job.remove()
-
-        # TODO: Intervall need start time (example: for 60min/1h round to one hour when starting interval or not?)
 
         self.job = self.scheduler.add_job(self.evaluate, "interval", minutes=smallest_interval)
 

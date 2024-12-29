@@ -47,7 +47,7 @@ def add_plugin_command(
                         border_style="bold bright_magenta",
                         expand=False))
 
-    conformation = Prompt.ask("[bold yellow]Are you sure you want to add this indicator?[/bold yellow]",
+    conformation = Prompt.ask("[bold yellow]Are you sure you want to add this Trading Component?[/bold yellow]",
                               choices=["y", "n"], default="y")
 
     if conformation.lower() == "n":

@@ -2,13 +2,13 @@ from logging import getLogger
 
 import numpy as np
 from pandas import DataFrame, Series
-from src.services.indicators import BaseIndicator
-from src.services.indicators.utils import check_crossover, trend_based_pullback
+from src.services.tradingComponents import BaseTradingComponent
+from src.services.tradingComponents.indicators.utils import check_crossover, trend_based_pullback
 
 logger = getLogger("oracle.app")
 
 
-class MovingAverageConvergenceDivergence(BaseIndicator):
+class MovingAverageConvergenceDivergence(BaseTradingComponent):
     """
     A class to represent the Moving Average Convergence Divergence (MACD) strategy.
 
@@ -128,7 +128,7 @@ class MovingAverageConvergenceDivergence(BaseIndicator):
             zero_line_pullback_signal = 0
         else:
             # Can be removed if it ever happens (o′┏▽┓｀o)
-            logger.critical(f"Zero Line Pullback Signal: {zero_line_pullback_signal}", extra={"indicator": "MACD"})
+            logger.critical(f"Zero Line Pullback Signal: {zero_line_pullback_signal}", extra={"trading_component": "MACD"})
 
         base_weight = self.momentum_signal_weight + self.zero_line_crossover_weight + self.zero_line_pullback_weight
         weight = 1 if base_weight == 0 else (normalized_momentum_signal * self.momentum_signal_weight +
@@ -144,6 +144,6 @@ class MovingAverageConvergenceDivergence(BaseIndicator):
             confidence = -(1 - (1 - weight) * self.weight_impact)
 
         # Log the MACD evaluation result for debugging and analysis purposes.
-        logger.info(f"Evaluated a confidence of {confidence}", extra={"indicator": self.__class__.__name__})
+        logger.info(f"Evaluated a confidence of {confidence}", extra={"trading_component": self.__class__.__name__})
 
         return confidence

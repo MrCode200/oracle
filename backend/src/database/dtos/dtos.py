@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.utils.registry import indicator_registry, plugin_registry
+from src.utils.registry import tc_registry, plugin_registry
 
 
 @dataclass
@@ -17,7 +17,7 @@ class ProfileDTO:
 
 
 @dataclass
-class IndicatorDTO:
+class TradingComponentDTO:
     id: int
     profile_id: int
     name: str
@@ -27,7 +27,7 @@ class IndicatorDTO:
     settings: dict[str, any]
 
     def __post_init__(self):
-        self.instance: 'BaseIndicator' = indicator_registry.get(self.name)(**self.settings)
+        self.instance: 'BaseIndicator' = tc_registry.get(self.name)(**self.settings)
 
 @dataclass
 class PluginDTO:

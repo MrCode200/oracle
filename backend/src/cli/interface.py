@@ -24,17 +24,17 @@ if False and not logger.handlers:
     )
 
 from src.cli.commands import (change_status_command, clear_wallet_command,
-                              delete_profile_command, list_indicators_command,
+                              delete_profile_command, list_trading_components_command,
                               list_profiles_command, start_app_command,
                               status_app_command, stop_app_command,
                               update_wallet_command, view_wallet_command,
-                              add_indicator_command, remove_indicator_command, list_profile_plugins_command,
+                              add_trading_component_command, remove_trading_component_command, list_profile_plugins_command,
                               create_profile_command, update_profile_command,
                               add_plugin_command, list_plugins_command, remove_plugin_command, update_plugin_command,
-                              list_profile_indicators_command, update_indicator_command)
+                              list_profile_trading_component_command, update_trading_component_command)
 
 app = typer.Typer(rich_markup_mode="rich")
-app.command(name="list-indicators", help="Lists all available indicators.")(list_indicators_command)
+app.command(name="list-tcs", help="Lists all available Trading Components.")(list_trading_components_command)
 app.command(name="list-plugins", help="Logs a message.")(list_plugins_command)
 
 profile_app = typer.Typer(help="Commands to interact with profiles.")
@@ -50,11 +50,11 @@ wallet_app.command(name="view", help="Shows the wallet of a profile.")(view_wall
 wallet_app.command(name="update", help="Updates the wallet of a profile.")(update_wallet_command)
 wallet_app.command(name="clear", help="Clears the wallet of a profile.")(clear_wallet_command)
 
-indicator_app = typer.Typer(help="Commands to interact with indicators.")
-indicator_app.command(name="add", help="Adds an indicator to a profile.")(add_indicator_command)
-indicator_app.command(name="remove", help="Removes an indicator from a profile.")(remove_indicator_command)
-indicator_app.command(name="list", help="Lists all indicators of a profile.")(list_profile_indicators_command)
-indicator_app.command(name="update", help="Updates an indicator of a profile.")(update_indicator_command)
+trading_component_app = typer.Typer(help="Commands to interact with Trading Components.")
+trading_component_app.command(name="add", help="Adds an Trading Components to a profile.")(add_trading_component_command)
+trading_component_app.command(name="remove", help="Removes an Trading Components from a profile.")(remove_trading_component_command)
+trading_component_app.command(name="list", help="Lists all Trading Components of a profile.")(list_profile_trading_component_command)
+trading_component_app.command(name="update", help="Updates an Trading Components of a profile.")(update_trading_component_command)
 
 plugin_app = typer.Typer(help="Commands to interact with plugins.")
 plugin_app.command(name="add", help="Adds a plugin to a profile.")(add_plugin_command)
@@ -68,7 +68,7 @@ bot_app.command(name="stop", help="Stops the app.")(stop_app_command)
 bot_app.command(name="status", help="Checks the status of the app.")(status_app_command)
 
 profile_app.add_typer(wallet_app, name="wallet")
-profile_app.add_typer(indicator_app, name="indicator")
+profile_app.add_typer(trading_component_app, name="tc")
 profile_app.add_typer(plugin_app, name="plugin")
 app.add_typer(profile_app, name="profile")
 app.add_typer(bot_app, name="bot")
@@ -87,9 +87,9 @@ for command in wallet_app.registered_commands:
     command_list.append("profile wallet " + command.name)
 command_list.append("profile wallet --help")
 
-for command in indicator_app.registered_commands:
-    command_list.append("profile indicator " + command.name)
-command_list.append("profile indicator --help")
+for command in trading_component_app.registered_commands:
+    command_list.append("profile tc " + command.name)
+command_list.append("profile tc --help")
 
 for command in plugin_app.registered_commands:
     command_list.append("profile plugin " + command.name)

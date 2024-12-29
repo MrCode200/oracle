@@ -1,6 +1,5 @@
 import logging
 import time
-import atexit
 
 from src.custom_logger.loggingManager import setup_logger
 from src.services.constants import Status
@@ -27,7 +26,6 @@ def init_app():
 
     logger.info("Initializing Oracle...")
 
-    from src.services.indicators import simpleMovingAverageIndicator
     logger.info("All Indicators Registered Successfully...")
 
     init_service()

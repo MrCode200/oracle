@@ -6,12 +6,12 @@ from src.services.plugin.basePlugin import BasePlugin, PluginJob
 class LinearMoneyAllocationPlugin(BasePlugin):
     job = PluginJob.CREATE_ORDER
 
-    def run(self, profile: "Profile", indicator_confidences: Optional[dict[str, dict[int, float]]] = None):
+    def run(self, profile: "Profile", tc_confidences: Optional[dict[str, dict[int, float]]] = None):
         order: dict[str, float] = {}
 
         ticker_confidences: dict[str, float] = {}
-        for ticker in indicator_confidences.keys():
-            ticker_confidences[ticker] = sum(indicator_confidences[ticker].values())
+        for ticker in tc_confidences.keys():
+            ticker_confidences[ticker] = sum(tc_confidences[ticker].values())
 
         confidence_sum: float = sum(ticker_confidences.values())
 
