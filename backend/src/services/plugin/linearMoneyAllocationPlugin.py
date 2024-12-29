@@ -1,7 +1,6 @@
-from abc import ABC
 from typing import Optional
 
-from backend.src.services.plugin.basePlugin import BasePlugin, PluginJob
+from src.services.plugin.basePlugin import BasePlugin, PluginJob
 
 
 class LinearMoneyAllocationPlugin(BasePlugin):

@@ -22,15 +22,20 @@ def validate_and_prompt_plugin_name(plugin_name: Optional[str] = None):
             return plugin_name
 
 
-def validate_and_prompt_plugin_id(profile_id: int, plugin_id: Optional[int] = None):
-    valid_plugin_ids = [plugin.id for plugin in profile_registry.get(profile_id).plugins]
-    while True:
-        if plugin_id is None:
-            plugin_id = prompt("Enter the id of the plugin: ",
-                                completer=WordCompleter(valid_plugin_ids, ignore_case=True))
+def validate_and_prompt_plugin_id(profile_id: int, plugin_id: Optional[int] = None, allow_none: bool = False):
+    valid_plugin_ids = [str(plugin.id) for plugin in profile_registry.get(profile_id).plugins]
+    user_input: Optional[str] = str(plugin_id) if plugin_id is not None else None
 
-        if plugin_id not in valid_plugin_ids:
+    while True:
+        if user_input is None:
+            user_input = prompt(f"Enter the id of the plugin {'(Optional)' if allow_none else ''}: ",
+                                completer=WordCompleter(valid_plugin_ids))
+
+        if user_input == "" and allow_none:
+            return None
+
+        if user_input not in valid_plugin_ids:
             console.print(f"[bold red]Error: Plugin '[white underline bold]{plugin_id}[/white underline bold]' not found!")
-            plugin_id = None
+            user_input = None
         else:
-            return plugin_id
+            return int(user_input)

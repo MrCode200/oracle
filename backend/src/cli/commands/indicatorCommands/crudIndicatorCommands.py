@@ -21,7 +21,7 @@ from src.cli.commands.indicatorCommands.indicatorUtils import create_indicator_e
 from src.cli.commands.utils import create_edit_object_settings, create_param_table
 from src.database import IndicatorDTO
 from src.services.entities import Profile
-from src.services.entities.indicator import BaseIndicator
+from src.services.indicators import BaseIndicator
 from src.utils.registry import indicator_registry, profile_registry
 
 console = Console()
@@ -88,7 +88,8 @@ def update_indicator_command(
         profile_name: Annotated[Optional[str], Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to add indicator to.")] = None,
         indicator_id: Annotated[
-            Optional[int], Option("-id", "--indicator-id",help="The [bold]id[/bold] of the [bold]indicator[/bold] to update.")] = None,
+            Optional[int], Option("-id", "--indicator-id",
+                                  help="The [bold]id[/bold] of the [bold]indicator[/bold] to update.")] = None,
         ticker: Annotated[Optional[str], Option("-t", "--ticker",
                                                 help="The [bold]ticker[/bold] of the [bold]indicator[/bold] to update.")] = None,
         interval: Annotated[Optional[str], Option("-i", "--interval",
@@ -197,15 +198,16 @@ def update_indicator_command(
         console.print("[bold red]Error: Indicator not updated![/bold red]")
 
 
-def list_indicators_command(
-        profile_name: Annotated[Optional[str], Option("--profile-name", "-pn",
+def list_profile_indicators_command(
+        profile_name: Annotated[Optional[str], Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to list indicators off.")] = None,
         indicator_id: Annotated[
             Optional[int], Option("--indicator-id", "-id",
                                   help="The [bold]id[/bold] of the [bold]indicator[/bold] to show detailed information.")] = None
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
-    indicator_id: Optional[int] = validate_and_prompt_indicator_id(profile_id=profile_id, indicator_id=indicator_id)
+    indicator_id: Optional[int] = validate_and_prompt_indicator_id(profile_id=profile_id, indicator_id=indicator_id,
+                                                                   allow_none=True)
 
     profile = profile_registry.get(profile_id)
     indicators = profile.indicators

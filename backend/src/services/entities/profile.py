@@ -9,7 +9,7 @@ from src.database import get_plugin
 
 from src.api import fetch_historical_data
 from src.api import fetch_info_data
-from backend.src.database import (IndicatorDTO, PluginDTO, ProfileDTO, get_indicator,
+from src.database import (IndicatorDTO, PluginDTO, ProfileDTO, get_indicator,
                                   update_profile, delete_plugin, update_indicator,
                                   create_plugin, create_indicator, update_plugin, delete_indicator)
 from src.services.indicators import BaseIndicator
@@ -304,7 +304,7 @@ class Profile:
         with self._lock:
             new_plugin: PluginDTO = create_plugin(
                 profile_id=self.id,
-                name=plugin.__name__,
+                name=plugin.__class__.__name__,
                 settings=plugin.__dict__,
             )
 

@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated, Optional, Type
 
 import typer
 from rich.console import Console
@@ -60,7 +60,7 @@ def change_status_command(
         run_on_start: Annotated[bool, typer.Option("--run-on-start", "-r", help="Run the strategy on start")] = False
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
-    status: Status = validate_and_prompt_status(status)
+    status: Type[Status] = validate_and_prompt_status(status)
 
     profile: Profile = profile_registry.get(profile_id)
     if not profile:

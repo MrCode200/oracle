@@ -3,8 +3,6 @@ import sys
 
 import typer
 
-from src.cli.commands.indicatorCommands import update_indicator_command
-
 sys.path.append('D:\\MyFolders\\Code\\Oracle\\backend')
 
 from src.custom_logger.loggingManager import setup_logger
@@ -30,14 +28,14 @@ from src.cli.commands import (change_status_command, clear_wallet_command,
                               list_profiles_command, start_app_command,
                               status_app_command, stop_app_command,
                               update_wallet_command, view_wallet_command,
-                              add_indicator_command, remove_indicator_command, list_profile_indicators_command,
+                              add_indicator_command, remove_indicator_command, list_profile_plugins_command,
                               create_profile_command, update_profile_command,
-                              add_plugin_command, list_plugin_command, remove_plugin_command, update_plugin_command,
-                              list_plugin_command)
+                              add_plugin_command, list_plugins_command, remove_plugin_command, update_plugin_command,
+                              list_profile_indicators_command, update_indicator_command)
 
 app = typer.Typer(rich_markup_mode="rich")
 app.command(name="list-indicators", help="Lists all available indicators.")(list_indicators_command)
-app.command(name="list-plugins", help="Logs a message.")(list_plugin_command)
+app.command(name="list-plugins", help="Logs a message.")(list_plugins_command)
 
 profile_app = typer.Typer(help="Commands to interact with profiles.")
 profile_app.command(name="delete", help="Deletes a profile.")(delete_profile_command)
@@ -60,7 +58,7 @@ indicator_app.command(name="update", help="Updates an indicator of a profile.")(
 
 plugin_app = typer.Typer(help="Commands to interact with plugins.")
 plugin_app.command(name="add", help="Adds a plugin to a profile.")(add_plugin_command)
-plugin_app.command(name="list", help="Lists all plugins of a profile.")(list_plugin_command)
+plugin_app.command(name="list", help="Lists all plugins of a profile.")(list_profile_plugins_command)
 plugin_app.command(name="remove", help="Removes a plugin from a profile.")(remove_plugin_command)
 plugin_app.command(name="update", help="Updates a plugin of a profile.")(update_plugin_command)
 

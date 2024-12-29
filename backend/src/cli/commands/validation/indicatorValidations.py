@@ -68,14 +68,16 @@ def validate_and_prompt_interval() -> str:
     return str(interval_period + interval)
 
 
-def validate_and_prompt_indicator_id(profile_id: int, indicator_id: Optional[int] = None) -> Optional[int]:
+def validate_and_prompt_indicator_id(profile_id: int, indicator_id: Optional[int] = None, allow_none: bool = False) -> Optional[int]:
     indicator_ids: list[int] = [indicator.id for indicator in get_indicator(profile_id=profile_id)]
 
     while indicator_ids:
         if indicator_id is None:
-            indicator_id: Optional[str] = prompt("Enter indicator id: ",
+            indicator_id: Optional[str] = prompt(f"Enter indicator id{' (Optional)' if allow_none else ''}: ",
                                        completer=WordCompleter(words=[str(id) for id in indicator_ids]))
 
+        if indicator_id == "" and allow_none:
+            return None
         try:
             indicator_id: int = int(indicator_id)
 

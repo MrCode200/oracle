@@ -2,7 +2,6 @@ import logging
 from typing import Annotated, Optional
 
 import typer
-from click import confirmation_option
 from rich import box
 from rich.columns import Columns
 from rich.console import Console
@@ -25,7 +24,7 @@ logger = logging.getLogger("oracle.app")
 
 def view_wallet_command(
         profile_name: Annotated[str, typer.Argument(
-            help="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None,
+            help="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None
 ):
     profile: int = validate_and_prompt_profile_name(profile_name)
     profile: Profile = profile_registry.get(profile)
