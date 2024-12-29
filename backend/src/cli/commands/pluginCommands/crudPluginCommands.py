@@ -22,7 +22,7 @@ logger = getLogger("oracle.app")
 def add_plugin_command(
         profile_name: Annotated[
             str, Argument(help="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None,
-        plugin_name: Annotated[str, Option("--name", "-n", help="The name of the plugin to add.")] = None,
+        plugin_name: Annotated[str, Argument(help="The name of the plugin to add.")] = None,
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
     profile = profile_registry.get(profile_id)
@@ -70,7 +70,7 @@ def add_plugin_command(
 def update_plugin_command(
         profile_name: Annotated[
             str, Argument(help="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None,
-        plugin_id: Annotated[str, Option("--plugin-id", "-id", help="The id of the plugin to update.")] = None,
+        plugin_id: Annotated[str, Argument(help="The id of the plugin to update.")] = None,
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
     profile = profile_registry.get(profile_id)
@@ -94,7 +94,7 @@ def update_plugin_command(
 def list_profile_plugins_command(
         profile_name: Annotated[
             str, Argument(help="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None,
-        plugin_id: Annotated[str, Option("--plugin-id", "-id", help="The id of the plugin to update.")] = None,
+        plugin_id: Annotated[str, Argument(help="The id of the plugin to update.")] = None,
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
 
@@ -123,7 +123,7 @@ def list_profile_plugins_command(
 def remove_plugin_command(
         profile_name: Annotated[
             str, Argument(help="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None,
-        plugin_id: Annotated[str, Option("--plugin-id", "-id", help="The id of the plugin to update.")] = None,
+        plugin_id: Annotated[str, Argument(help="The id of the plugin to update.")] = None,
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
     profile = profile_registry.get(profile_id)
@@ -136,7 +136,7 @@ def remove_plugin_command(
     if conformation.lower() != "y":
         return
 
-    if profile.remove_plugin(id=plugin_id):
+    if profile.remove_plugin(plugin_id=plugin_id):
         console.print(
             f"[bold green]Plugin '[bold]{plugin_id}[/bold]' successfully removed from profile '[bold]{profile_name}[/bold]'.")
     else:

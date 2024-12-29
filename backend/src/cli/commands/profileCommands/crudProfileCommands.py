@@ -24,7 +24,7 @@ def create_profile_command(
         sell_limit: Annotated[float, Option("--sell-limit", "-sl", help="The sell limit of the profile.",
                                             prompt="Enter sell limit", min=-1.0, max=0.0)] = -0.8,
 ):
-    invalid_profile_names = [profile.name for profile in profile_registry.get()]
+    invalid_profile_names = [profile.name for profile in profile_registry.get().values()]
     if profile_name in invalid_profile_names:
         console.print(
             f"[bold]Error:[/bold] Profile '[bold]{profile_name}[/bold]' already exists.\n"

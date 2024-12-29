@@ -88,14 +88,14 @@ def update_indicator_command(
         profile_name: Annotated[Optional[str], Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to add indicator to.")] = None,
         indicator_id: Annotated[
-            Optional[int], Option("-id", "--indicator-id",
-                                  help="The [bold]id[/bold] of the [bold]indicator[/bold] to update.")] = None,
+            Optional[int], Argument(
+                help="The [bold]id[/bold] of the [bold]indicator[/bold] to update.")] = None,
         ticker: Annotated[Optional[str], Option("-t", "--ticker",
                                                 help="The [bold]ticker[/bold] of the [bold]indicator[/bold] to update.")] = None,
         interval: Annotated[Optional[str], Option("-i", "--interval",
                                                   help="The [bold]interval[/bold] of the [bold]indicator[/bold] to update.")] = None,
         weight: Annotated[Optional[float], Option("-w", "--weight",
-                                                help="The [bold]weight[/bold] of the [bold]indicator[/bold] to update.")] = None
+                                                  help="The [bold]weight[/bold] of the [bold]indicator[/bold] to update.")] = None
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
     profile = profile_registry.get(profile_id)
@@ -106,8 +106,9 @@ def update_indicator_command(
     new_indicator_settings: dict[str, any] = indicator.settings
     console.print(Panel(
         Columns(
-            [create_param_table(new_indicator_settings), create_indicator_extra_table(indicator.ticker, indicator.interval, str(indicator.weight))]),
-        )
+            [create_param_table(new_indicator_settings),
+             create_indicator_extra_table(indicator.ticker, indicator.interval, str(indicator.weight))]),
+    )
     )
 
     while True:
@@ -117,7 +118,8 @@ def update_indicator_command(
             f"[blue][1][/blue] To edit parameters\n"
             f"[blue][2][/blue] To edit ticker\n"
             f"[blue][3][/blue] To edit Interval\n"
-            f"[blue][4][/blue] To edit Weight\n", expand=False, title="Options", border_style="bold bright_cyan", style="bold"))
+            f"[blue][4][/blue] To edit Weight\n", expand=False, title="Options", border_style="bold bright_cyan",
+            style="bold"))
 
         option: str = input("Option: ")
         if not option.isdigit():
@@ -220,8 +222,8 @@ def list_profile_indicators_command(
         profile_name: Annotated[Optional[str], Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to list indicators off.")] = None,
         indicator_id: Annotated[
-            Optional[int], Option("--indicator-id", "-id",
-                                  help="The [bold]id[/bold] of the [bold]indicator[/bold] to show detailed information.")] = None
+            Optional[int], Argument(
+                help="The [bold]id[/bold] of the [bold]indicator[/bold] to show detailed information.")] = None
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
     indicator_id: Optional[int] = validate_and_prompt_indicator_id(profile_id=profile_id, indicator_id=indicator_id,
@@ -262,7 +264,7 @@ def remove_indicator_command(
         profile_name: Annotated[Optional[str], Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to add indicator to.")] = None,
         indicator_id: Annotated[
-            Optional[int], Option(help="The [bold]id[/bold] of the [bold]indicator[/bold] to add.")] = None
+            Optional[int], Argument(help="The [bold]id[/bold] of the [bold]indicator[/bold] to add.")] = None
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
     profile = profile_registry.get(profile_id)
