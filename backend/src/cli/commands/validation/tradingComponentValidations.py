@@ -8,7 +8,7 @@ from rich.box import ROUNDED
 from rich.prompt import Prompt
 
 from src.database import get_trading_component
-from src.utils.registry import tc_registry
+from src.utils.registry import tc_registry, profile_registry
 from src.cli.commands.walletCommands.walletUtils import create_wallet_table
 
 console = Console()
@@ -68,7 +68,7 @@ def validate_and_prompt_interval() -> str:
 
 
 def validate_and_prompt_tc_id(profile_id: int, trading_component_id: Optional[int] = None, allow_none: bool = False) -> Optional[int]:
-    valid_tc_ids: list[str] = [str(tc.id) for tc in get_trading_component(profile_id=profile_id)]
+    valid_tc_ids: list[str] = [str(tc.id) for tc in profile_registry.get(profile_id).trading_components]
     user_input: Optional[str] = str(trading_component_id) if trading_component_id is not None else None
 
     while valid_tc_ids:
