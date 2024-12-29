@@ -20,7 +20,7 @@ def convert_to_dto(plugin: PluginModel) -> PluginDTO | None:
         id=plugin.id,
         profile_id=plugin.profile_id,
         name=plugin.name,
-        settings=plugin.plugin_settings,
+        settings=plugin.settings,
     )
 
 
@@ -42,7 +42,7 @@ def create_plugin(
         new_plugin = PluginModel(
             profile_id=profile_id,
             name=name,
-            plugin_settings=settings,
+            settings=settings,
         )
         session.add(new_plugin)
         session.commit()
@@ -123,7 +123,7 @@ def update_plugin(
         if name:
             plugin.name = name
         if settings:
-            plugin.plugin_settings = settings
+            plugin.settings = settings
 
         session.commit()
         logger.info(f"Plugin with ID {id} updated {name=}; {settings=}; successfully.")

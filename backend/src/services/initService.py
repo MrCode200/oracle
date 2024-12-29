@@ -19,13 +19,4 @@ def init_service():
     for profile in profiles:
         Profile(profile)
 
-    PROFILE_CONFIG: dict[str, any] = load_config("PROFILE_CONFIG")
-    if PROFILE_CONFIG["continue_status"]:
-        for profile in profile_registry.get().values():
-            if profile.status in [Status.ACTIVE, Status.PAPER_TRADING]:
-                profile.change_status(profile.status)
-    else:
-        for profile in profile_registry.get().values():
-            profile.change_status(Status.INACTIVE)
-
     logger.info("Initialized Service Successfully, all profiles loaded!")

@@ -8,6 +8,7 @@ from rich.status import Status
 from rich.table import Table
 from typer import Argument, Option
 
+from src.database import PluginDTO
 from src.utils.registry import plugin_registry, profile_registry
 from src.cli.commands.validation import validate_and_prompt_profile_name, validate_and_prompt_plugin_name, \
     validate_and_prompt_plugin_id
@@ -34,7 +35,7 @@ def add_plugin_command(
             if plugin.job == PluginJob.CREATE_ORDER:
                 console.print(
                     f"[bold red]Error:[/bold red] Only one plugin can be of type '[bold]CREATE_ORDER[/bold]'.\n"
-                    f"Remove {plugin.name} to add {plugin_name} to the profile.",
+                    f"Remove {plugin_name} to add {plugin_name} to the profile.",
                     style="bold red",
                 )
                 return
@@ -75,9 +76,9 @@ def update_plugin_command(
     profile = profile_registry.get(profile_id)
 
     plugin_id: int = validate_and_prompt_plugin_id(profile_id=profile_id, plugin_id=plugin_id)
-    plugin: BasePlugin = profile.plugins[plugin_id]
+    plugin: PluginDTO = profile.plugins[plugin_id]
 
-    settings: dict[str, any] = create_edit_object_settings(plugin, plugin.settings)
+    settings: dict[str, any] = create_edit_object_settings(plugin.instance, plugin.settings)
 
     if profile.update_plugin(id=plugin_id, name=plugin.name, settings=settings):
         console.print(
@@ -96,7 +97,9 @@ def list_profile_plugins_command(
         plugin_id: Annotated[str, Option("--plugin-id", "-id", help="The id of the plugin to update.")] = None,
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
-    plugins: list[BasePlugin] = profile_registry.get(profile_id).plugins
+
+    plugin_id: int = validate_and_prompt_plugin_id(profile_id=profile_id, plugin_id=plugin_id, allow_none=True)
+    plugins: list[PluginDTO] = profile_registry.get(profile_id).plugins
 
     if plugin_id is None:
         plugin_table: Table = Table(show_header=True, header_style="bold blue", title="PLUGINS")
@@ -109,7 +112,7 @@ def list_profile_plugins_command(
         console.print(plugin_table)
     else:
         plugin_id: int = validate_and_prompt_plugin_id(profile_id=profile_id, plugin_id=plugin_id)
-        plugin: BasePlugin = [plugin for plugin in plugins if plugin.id == plugin_id][0]
+        plugin: PluginDTO = [plugin for plugin in plugins if plugin.id == plugin_id][0]
 
         console.print(Panel(create_param_table(plugin.settings),
                             title="SETTINGS",

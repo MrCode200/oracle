@@ -7,7 +7,7 @@ from src.services.constants import Status
 from src.utils.registry import profile_registry
 
 
-def init_app(repl: bool = False):
+def init_app():
     logger = logging.getLogger("oracle.app")
     if not logger.hasHandlers():
         from src.utils import load_config
@@ -33,16 +33,6 @@ def init_app(repl: bool = False):
     init_service()
 
     logger.info("All Profiles Registered Successfully...")
-
-    if repl:
-        return
-
-    # Was if I ever wanted to code cli again
-    logger.info("Starting Oracle main loop...")
-    atexit.register(stop_app)
-
-    while True:
-        time.sleep(1)
 
 
 def stop_app():

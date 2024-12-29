@@ -9,9 +9,9 @@ from src.database import get_plugin
 
 from src.api import fetch_historical_data
 from src.api import fetch_info_data
-from backend.src.database import (IndicatorDTO, PluginDTO, ProfileDTO, get_indicator,
-                                  update_profile, delete_plugin, update_indicator,
-                                  create_plugin, create_indicator, update_plugin, delete_indicator)
+from src.database import (IndicatorDTO, PluginDTO, ProfileDTO, get_indicator,
+                          update_profile, delete_plugin, update_indicator,
+                          create_plugin, create_indicator, update_plugin, delete_indicator)
 from src.services.indicators import BaseIndicator
 from src.utils.registry import profile_registry
 from src.services.constants import Status
@@ -102,7 +102,7 @@ class Profile:
         with self._lock:
             for plugin in self.plugins:
                 if plugin.instance.job == PluginJob.BEFORE_EVALUATION:
-                    plugin.instance.evaluate(profile=self)
+                    plugin.instance.run(profile=self)
 
             for indicator in self.indicators:
                 if indicator.weight == 0:
@@ -116,11 +116,11 @@ class Profile:
 
             for plugin in self.plugins:
                 if plugin.instance.job == PluginJob.AFTER_EVALUATION:
-                    confidences = plugin.instance.evaluate(profile=self, confidences=confidences)
+                    confidences = plugin.instance.run(profile=self, indicator_confidences=confidences)
 
             for plugin in self.plugins:
                 if plugin.instance.job == PluginJob.CREATE_ORDER:
-                    order: dict[str, float] = plugin.instance.evaluate(profile=self, confidences=confidences)
+                    order: dict[str, float] = plugin.instance.run(profile=self, indicator_confidences=confidences)
                     break
 
             logger.info(
@@ -169,8 +169,9 @@ class Profile:
                 self.paper_balance += num_of_assets_to_sell * ticker_current_price
                 self.paper_wallet[ticker] = num_of_assets - num_of_assets_to_sell
 
-                logger.info(f"Profile with id {self.id} Sold {num_of_assets_to_sell} of {ticker} at {ticker_current_price}",
-                            extra={"profile_id": self.id, "ticker": ticker})
+                logger.info(
+                    f"Profile with id {self.id} Sold {num_of_assets_to_sell} of {ticker} at {ticker_current_price}",
+                    extra={"profile_id": self.id, "ticker": ticker})
 
             elif percentage_change > 0 < self.paper_balance:
                 dedicated_balance: float = self.paper_balance * percentage_change
@@ -263,13 +264,13 @@ class Profile:
                      extra={"profile_id": self.id})
         return False
 
-    def update_indicator(self, id: int, name: str, weight: float, ticker: str, interval: str, settings: dict[str, any]):
+    def update_indicator(self, indicator_id: int, name: str, weight: float, ticker: str, interval: str, settings: dict[str, any]):
         with self._lock:
-            if update_indicator(id=id, weight=weight, ticker=ticker, interval=interval, settings=settings):
-                self.indicators = [indicator for indicator in self.indicators if indicator.id != id]
+            if update_indicator(indicator_id=indicator_id, weight=weight, ticker=ticker, interval=interval, settings=settings):
+                self.indicators = [indicator for indicator in self.indicators if indicator.id != indicator_id]
                 self.indicators.append(
                     IndicatorDTO(
-                        id=id,
+                        id=indicator_id,
                         profile_id=self.id,
                         name=name,
                         weight=weight,
@@ -278,17 +279,17 @@ class Profile:
                         settings=settings
                     )
                 )
-                logger.info(f"Updated indicator with ID {id} in profile with ID {self.id}.",
+                logger.info(f"Updated indicator with ID {indicator_id} in profile with ID {self.id}.",
                             extra={"profile_id": self.id})
                 return True
 
-        logger.error(f"Failed to update indicator with ID {id} in profile with ID {self.id}.",
+        logger.error(f"Failed to update indicator with ID {indicator_id} in profile with ID {self.id}.",
                      extra={"profile_id": self.id})
         return False
 
     def remove_indicator(self, indicator_id: int):
         with self._lock:
-            if delete_indicator(id=indicator_id):
+            if delete_indicator(indicator_id=indicator_id):
                 self.indicators = [indicator for indicator in self.indicators if indicator.id != indicator_id]
 
                 logger.info(f"Removed indicator with ID {indicator_id} from profile with ID {self.id}.",
@@ -304,7 +305,7 @@ class Profile:
         with self._lock:
             new_plugin: PluginDTO = create_plugin(
                 profile_id=self.id,
-                name=plugin.__name__,
+                name=plugin.__class__.__name__,
                 settings=plugin.__dict__,
             )
 

@@ -68,49 +68,46 @@ def validate_and_prompt_interval() -> str:
     return str(interval_period + interval)
 
 
-def validate_and_prompt_indicator_id(profile_id: int, indicator_id: Optional[int] = None) -> Optional[int]:
-    indicator_ids: list[int] = [indicator.id for indicator in get_indicator(profile_id=profile_id)]
+def validate_and_prompt_indicator_id(profile_id: int, indicator_id: Optional[int] = None, allow_none: bool = False) -> Optional[int]:
+    valid_indicator_ids: list[str] = [str(indicator.id) for indicator in get_indicator(profile_id=profile_id)]
+    user_input: Optional[str] = str(indicator_id) if indicator_id is not None else None
 
-    while indicator_ids:
-        if indicator_id is None:
-            indicator_id: Optional[str] = prompt("Enter indicator id: ",
-                                       completer=WordCompleter(words=[str(id) for id in indicator_ids]))
+    while valid_indicator_ids:
+        if user_input is None:
+            user_input = prompt(f"Enter indicator id{' (Optional)' if allow_none else ''}: ",
+                                       completer=WordCompleter(words=[str(indi_id) for indi_id in valid_indicator_ids]))
 
-        try:
-            indicator_id: int = int(indicator_id)
+        if user_input == "" and allow_none:
+            return None
 
-            if indicator_id not in indicator_ids:
-                console.print(
-                    f"[bold red]Error: Indicator '[white underline bold]{indicator_id}[/white underline bold]' not found!")
-                indicator_id = None
-
-            else:
-                return indicator_id
-
-        except ValueError:
+        if user_input not in valid_indicator_ids:
             console.print(
-                f"[bold red]Error: Indicator ID'[white underline bold]{indicator_id}[/white underline bold]' not int!")
-            indicator_id = None
+                f"[bold red]Error: Indicator '[white underline bold]{indicator_id}[/white underline bold]' not found!")
+            user_input = None
 
-def validate_and_prompt_weight(weight: Optional[str] = None) -> int:
+        else:
+            return int(user_input)
+
+
+def validate_and_prompt_weight(weight: Optional[str | int] = None) -> int:
     while True:
         if weight is None:
             weight: Optional[str] = Prompt.ask("Weight", default="1")
 
-        try:
-            weight: int = int(weight)
-            if weight <= 0:
-                console.print("[bold red]Error:[/bold red] Weight must be greater or equal to 0.", style="red")
-                weight = None
-            else:
-                confirmation: str = Prompt.ask(f"Add {weight} to indicator?", choices=["y", "n"], default="y")
-                if confirmation == "y":
-                    return weight
-
-        except ValueError:
+        if not weight.isdigit():
             console.print("[bold red]Error:[/bold red] Weight must be an integer.", style="red")
             weight = None
             continue
+
+        weight: int = int(weight)
+        if weight <= 0:
+            console.print("[bold red]Error:[/bold red] Weight must be greater or equal to 0.", style="red")
+            weight = None
+        else:
+            confirmation: str = Prompt.ask(f"Add {weight} to indicator?", choices=["y", "n"], default="y")
+            if confirmation == "y":
+                return weight
+
 
 
 def validate_and_prompt_ticker_in_wallet(wallet: dict[str, float], ticker: Optional[str] = None) -> str:

@@ -16,7 +16,6 @@
     "auto_rollback": true
   },
   "PROFILE_CONFIG": {
-    "continue_status": false,
-    "sell_on_exit": true
+    "exit_on_crash": true
   }
 }

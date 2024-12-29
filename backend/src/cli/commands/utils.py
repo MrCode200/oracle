@@ -49,7 +49,7 @@ def create_param_table(params: dict[str, any], types: Optional[dict[str, any]] =
     return param_table
 
 
-def create_edit_object_settings(obj: object, settings: Optional[dict[str, any]] = None):
+def create_edit_object_settings(obj: type, settings: Optional[dict[str, any]] = None):
     """
     Initializes an object with a rich console and prompts the user to change the parameters of the object.
 
@@ -67,10 +67,10 @@ def create_edit_object_settings(obj: object, settings: Optional[dict[str, any]] 
         for param_name, param in params.items():
             settings[param_name] = param.default
 
-    types: dict[str, any] = obj.__init__.__annotations__
-
     if settings == {}:
         return settings
+
+    types: dict[str, any] = obj.__init__.__annotations__
 
     console.print(create_param_table(settings, types=types))
 

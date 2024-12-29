@@ -28,7 +28,7 @@ class BaseIndicator(ABC):
             if not required_keys <= set(setting.keys()):  # Checks if all required keys are present
                 raise AttributeError(
                     f"_EA_SETTINGS: dict must contain dictionaries with the keys 'start', 'stop', and 'step'. Argument missing those keys: {key}")"""
-        check_annotations(cls.__init__, ignore=["self"])
+        check_annotations_for_init(cls)
 
         indicator_registry.register(keys=cls.__name__, value=cls)
 

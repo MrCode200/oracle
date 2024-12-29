@@ -23,7 +23,7 @@ class BasePlugin(ABC):
         if not isinstance(cls.job, PluginJob):
             raise TypeError("Plugin job must be of type PluginJob")
 
-        check_annotations(cls.__init__, ignore=["self"])
+        check_annotations_for_init(cls)
 
         plugin_registry.register(keys=cls.__name__, value=cls)
 

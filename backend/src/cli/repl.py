@@ -27,7 +27,16 @@ history = InMemoryHistory()
 
 
 def repl():
-    init_app(repl=True)
+    with Progress(
+            SpinnerColumn(finished_text=":white_check_mark: "),
+            TextColumn("[progress.description]{task.description}"),
+    ) as progress:
+        init_app_task = progress.add_task(description="[bold yellow]Initializing Oracle...", total=1)
+
+        init_app()
+
+        progress.update(init_app_task, description="[bold yellow]Finished initializing Oracle!", completed=1)
+
 
     from src.cli import app
 

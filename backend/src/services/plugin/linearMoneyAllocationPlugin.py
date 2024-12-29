@@ -1,7 +1,6 @@
-from abc import ABC
 from typing import Optional
 
-from backend.src.services.plugin.basePlugin import BasePlugin, PluginJob
+from src.services.plugin.basePlugin import BasePlugin, PluginJob
 
 
 class LinearMoneyAllocationPlugin(BasePlugin):
@@ -15,6 +14,10 @@ class LinearMoneyAllocationPlugin(BasePlugin):
             ticker_confidences[ticker] = sum(indicator_confidences[ticker].values())
 
         confidence_sum: float = sum(ticker_confidences.values())
+
+        if confidence_sum == 0:
+            return order
+
         for ticker, confidence in ticker_confidences.items():
             order[ticker] = confidence / confidence_sum
 
