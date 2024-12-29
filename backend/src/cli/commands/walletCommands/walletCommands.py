@@ -44,14 +44,12 @@ def update_wallet_command(
             list[str], typer.Option("--add-ticker", "-at", help="List of [bold]tickers[/bold] to be added. Must be UPPERCASE")] = [],
         removed_tickers: Annotated[
             list[str], typer.Option("--remove-ticker", "-rt", help="List of [bold]tickers[/bold] to be removed.")] = [],
-        use_paper_wallet: Annotated[
-            bool, typer.Option("--paper-wallet", "-pw", help="Update the paper wallet?")] = False,
         prompt: Annotated[bool, typer.Option("--no-prompt", "-np", help="Prompt for ticker input.")] = True
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
     profile: Profile = profile_registry.get(profile_id)
 
-    started_wallet: dict[str, float] = profile.wallet if not use_paper_wallet else profile.paper_wallet
+    started_wallet: dict[str, float] = profile.wallet
     final_wallet: dict[str, float] = started_wallet.copy()
     invalid_added_tickers: list[str] = []
     invalid_removed_tickers: list[str] = []
@@ -197,14 +195,16 @@ def update_wallet_command(
               title="Wallet Changes", border_style="bold magenta", expand=False))
 
     # Beautiful validation prompt with changes listed
-    validation_prompt = Prompt.ask(f"[bold green]Do you want to update the profile {"Paper Wallet" if use_paper_wallet else "Wallet"}?[/bold green]",
+    validation_prompt = Prompt.ask(f"[bold green]Do you want to update the profile Wallet?[/bold green]",
                                    choices=["y", "n"], default="y")
 
     if validation_prompt != "y":
         typer.Abort()
         return
 
-    if profile.update_wallet(wallet=final_wallet, is_paper_wallet=use_paper_wallet):
+    pw_final_wallet = {ticker: quantity for ticker, quantity in profile.paper_wallet.items() if ticker in final_wallet.keys()}
+
+    if profile.update_wallet(wallet=pw_final_wallet, is_paper_wallet=True) and profile.update_wallet(wallet=final_wallet):
         console.print(f"[bold green]Profile '[bold]{profile_name}; ID: {profile.id}[/bold]' wallet successfully updated![/bold green]")
     else:
         console.print(f"[bold]Error:[/bold] Unable to update profile '[bold]{profile_name}; ID: {profile.id}[/bold]'.\n"
@@ -216,26 +216,22 @@ def update_wallet_command(
 def clear_wallet_command(
         profile_name: Annotated[
             Optional[str], typer.Argument(help="The [bold]name[/bold] of the [bold]profile[/bold] to clear.")] = None,
-        use_paper_wallet: Annotated[bool, typer.Option("--paper-wallet", "-pw", help="Clear the paper wallet?")] = False
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
     profile: Profile = profile_registry.get(profile_id)
 
-    if use_paper_wallet:
-        wallet = profile.paper_wallet
-    else:
-        wallet = profile.wallet
+    wallet = profile.wallet
 
-        i: int = 1
-        for ticker, quantity in wallet.items():
-            i += 1
+    i: int = 1
+    for ticker, quantity in wallet.items():
+        i += 1
 
-            if quantity != 0:
-                console.print(
-                    f"[bold red]Error:[/bold] Unable to clear wallet for profile '[bold]{profile_name}[/bold]'.\n"
-                    f"Wallet contains of {ticker} '[bold]{quantity}[/bold]. Please sell all assets before clearing the wallet.[/bold red]",
-                    style="red")
-                typer.Abort()
+        if quantity != 0:
+            console.print(
+                f"[bold red]Error:[/bold] Unable to clear wallet for profile '[bold]{profile_name}[/bold]'.\n"
+                f"Wallet contains of {ticker} '[bold]{quantity}[/bold]. Please sell all assets before clearing the wallet.[/bold red]",
+                style="red")
+            typer.Abort()
 
     console.print(create_wallet_table(wallet, title="Wallet"))
 
@@ -243,7 +239,7 @@ def clear_wallet_command(
                                    choices=["y", "n"], default="n")
 
     if conformation == "y":
-        if profile.update_wallet({}, is_paper_wallet=use_paper_wallet):
+        if profile.update_wallet({}, is_paper_wallet=True) and profile.update_wallet({}):
             console.print(
                 f"[bold green]Profile '[bold]{profile_name}[/bold]' wallet successfully cleared![/bold green]")
         else:

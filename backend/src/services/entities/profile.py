@@ -116,15 +116,17 @@ class Profile:
 
             for plugin in self.plugins:
                 if plugin.instance.job == PluginJob.AFTER_EVALUATION:
-                    confidences = plugin.instance.run(profile=self, trading_component_confidences=confidences)
+                    confidences = plugin.instance.run(profile=self, tc_confidences=confidences)
 
             for plugin in self.plugins:
                 if plugin.instance.job == PluginJob.CREATE_ORDER:
-                    order: dict[str, float] = plugin.instance.run(profile=self, trading_component_confidences=confidences)
+                    order: dict[str, float] = plugin.instance.run(profile=self, tc_confidences=confidences)
                     break
 
             logger.info(
-                f"Evaluation Finished for Profile with ID {self.id} and name: {self.name}",
+                f"Evaluation Finished for Profile with ID {self.id} and name: {self.name}; "
+                f"Confidence: {confidences}; "
+                f"Order: {order}",
                 extra={"profile_id": self.id},
             )
 
@@ -183,6 +185,9 @@ class Profile:
                 logger.info(
                     f"Profile with id {self.id} Bought {num_of_assets_to_buy} of {ticker} at {ticker_current_price}",
                     extra={"profile_id": self.id, "ticker": ticker})
+
+        if fallback_balance == self.paper_balance and fallback_wallet == self.paper_wallet:
+            return
 
         if not update_profile(self.id, paper_balance=self.paper_balance, paper_wallet=self.paper_wallet):
             self.paper_wallet = fallback_wallet
