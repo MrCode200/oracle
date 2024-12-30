@@ -161,8 +161,11 @@ class Profile:
         fallback_balance: float = self.paper_balance
 
         for ticker, percentage_change in orders.items():
-            # TODO: won't work if ticker is not crypto
-            ticker_current_price = fetch_info_data(ticker)["currentPrice"]
+            if percentage_change == 0:
+                continue
+
+            fetch_info_data(ticker)
+            ticker_current_price = fetch_historical_data("TSLA", period="1d", interval="1m").iloc[-1]["Close"]
 
             if percentage_change < 0 < self.paper_wallet[ticker]:
                 num_of_assets: float = self.paper_wallet[ticker]

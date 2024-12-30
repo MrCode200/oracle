@@ -22,7 +22,7 @@ def fetch_info_data(ticker: str) -> Optional[dict]:  # type: ignore
         # TODO: check if ticker is valid is not 100% sure
         ticker_obj = Ticker(ticker)
         info = ticker_obj.info
-        if "symbol" not in info:
+        if "shortName" not in info:
             logger.warning(
                 f"Failed to fetch info data, probably due to invalid ticker: {ticker}"
             )
@@ -132,9 +132,6 @@ def fetch_historical_data(  # type: ignore
             raise Exception(f"Failed to fetch data. Status code: {response.status_code}")
 
 
-if __name__ == "__main__":
-    info = fetch_info_data("si")
-    print(info)
 
 
 

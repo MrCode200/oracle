@@ -202,7 +202,13 @@ def update_wallet_command(
         typer.Abort()
         return
 
-    pw_final_wallet = {ticker: quantity for ticker, quantity in profile.paper_wallet.items() if ticker in final_wallet.keys()}
+    pw_final_wallet: dict[str, float] = {}
+    for ticker in final_wallet.keys():
+        pw_wallet: dict[str, float] = profile.paper_wallet
+        if ticker in pw_wallet.keys():
+            pw_final_wallet[ticker] = pw_wallet[ticker]
+        else:
+            pw_final_wallet[ticker] = 0
 
     if profile.update_wallet(wallet=pw_final_wallet, is_paper_wallet=True) and profile.update_wallet(wallet=final_wallet):
         console.print(f"[bold green]Profile '[bold]{profile_name}; ID: {profile.id}[/bold]' wallet successfully updated![/bold green]")
