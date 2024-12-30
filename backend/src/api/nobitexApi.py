@@ -1,11 +1,11 @@
 import requests
+import os
 
-# توکن احراز هویت
-token=""
+api_key: str = os.getenv("NOBITEX_API_KEY")
 
 # هدرهای درخواست
 headers = {
-    "Authorization": f"Token {token}"
+    "Authorization": f"Token {api_key}"
 }
 
 # ارسال درخواست GET

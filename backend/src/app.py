@@ -1,5 +1,7 @@
 import logging
+import os.path
 import time
+from dotenv import load_dotenv
 
 from src.custom_logger.loggingManager import setup_logger
 from src.services.constants import Status
@@ -7,6 +9,9 @@ from src.utils.registry import profile_registry
 
 
 def init_app():
+    ENV_PATH: str = os.path.join(os.path.dirname(__file__), "..", "config", ".env")
+    load_dotenv(ENV_PATH)
+
     logger = logging.getLogger("oracle.app")
     if not logger.hasHandlers():
         from src.utils import load_config

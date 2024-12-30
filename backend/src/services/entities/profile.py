@@ -112,7 +112,8 @@ class Profile:
                     continue
 
                 if not BROKER_API:
-                    df = fetch_historical_data(ticker=trading_component.ticker, period="5d", interval=trading_component.interval)
+                    # PERIOD is ignored when using api_name
+                    df = fetch_historical_data(ticker=trading_component.ticker, period="5d", interval=trading_component.interval, api_name="nobitex")
 
                 confidence = trading_component.instance.evaluate(df=df)
                 confidences[trading_component.ticker][trading_component.id] = confidence * trading_component.weight
@@ -155,8 +156,7 @@ class Profile:
         if self.status == Status.PAPER_TRADING:
             self._paper_trade_agent(orders)
         elif self.status == Status.ACTIVE:
-            # self._live_trade_agent(orders)
-            ...
+            self._live_trade_agent(orders)
 
     def _paper_trade_agent(self, orders: dict[str, float]):
         # Fallback in case of db doesn't update
@@ -167,8 +167,7 @@ class Profile:
             if percentage_change == 0:
                 continue
 
-            fetch_info_data(ticker)
-            ticker_current_price = fetch_historical_data("TSLA", period="1d", interval="1m").iloc[-1]["Close"]
+            ticker_current_price = fetch_historical_data(ticker, period="1d", interval="1m").iloc[-1]["Close"]
 
             if percentage_change < 0 < self.paper_wallet[ticker]:
                 num_of_assets: float = self.paper_wallet[ticker]
@@ -192,6 +191,7 @@ class Profile:
                     f"Profile with id {self.id} Bought {num_of_assets_to_buy} of {ticker} at {ticker_current_price}",
                     extra={"profile_id": self.id, "ticker": ticker})
 
+
         if fallback_balance == self.paper_balance and fallback_wallet == self.paper_wallet:
             return
 
@@ -202,6 +202,10 @@ class Profile:
                 f"Failed to update Profile with id: {self.id}; and name: {self.name}; Used Fallback!",
                 extra={"profile_id": self.id},
             )
+
+    def _live_trade_agent(self, orders: dict[str, float]):
+        pass
+        ...  # KIAN HERE
 
     def update_profile(
             self,
@@ -362,7 +366,7 @@ class Profile:
             self._on_job_execution, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR
         )
 
-        self.scheduler.add_job(self.evaluate, "interval", minutes=1)
+        self.scheduler.add_job(self.evaluate, "interval", seconds=20)
         self.scheduler.start()
         self.scheduler.pause()
         self.scheduler_is_paused = True
