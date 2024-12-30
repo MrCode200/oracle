@@ -45,6 +45,7 @@ class Profile:
         self._lock = Lock()
 
         self.scheduler = BackgroundScheduler()
+        self.scheduler_is_paused: bool = True
         self._setup_schedular()
 
         logger.debug(
@@ -53,19 +54,21 @@ class Profile:
         )
 
     def change_status(self, status: Status, run_on_start: bool = False):
-        if status == Status.INACTIVE or status.value >= Status.UNKNOWN_ERROR.value:
-            if self.scheduler.running:
-                self.scheduler.shutdown(wait=True)
+        with self._lock:
+            if status == Status.INACTIVE or status.value >= Status.UNKNOWN_ERROR.value:
+                if not self.scheduler_is_paused:
+                    self.scheduler.pause()
+                    self.scheduler_is_paused = True
 
-        else:
-            if not self._check_status_valid():
-                return
+            else:
+                if not self._check_status_valid():
+                    return
 
-            if run_on_start:
-                self.evaluate()
+                if run_on_start:
+                    self.evaluate()
 
-            if not self.scheduler.running:
-                self.scheduler.start()
+                if self.scheduler_is_paused:
+                    self.scheduler.resume()
 
         self.status = status
 
@@ -359,12 +362,12 @@ class Profile:
             self._on_job_execution, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR
         )
 
-        logger.info(
-            f"Initialized Scheduler for Profile with ID {self.id} and name: {self.name}",
-            extra={"profile_id": self.id},
-        )
+        self.scheduler.add_job(self.evaluate, "interval", minutes=1)
+        self.scheduler.start()
+        self.scheduler.pause()
+        self.scheduler_is_paused = True
 
-        self._update_scheduler()
+        logger.info(f"Scheduler initialized for Profile with id: {self.id}", extra={"profile_id": self.id})
 
     def _update_scheduler(self):
         trading_components: list[TradingComponentDTO] | None = self.trading_components
@@ -397,9 +400,7 @@ class Profile:
 
         smallest_interval: int = min(all_intervals)
 
-        if hasattr(self, 'job') and self.job:
-            self.job.remove()
-
+        self.scheduler.remove_all_jobs()
         self.job = self.scheduler.add_job(self.evaluate, "interval", minutes=smallest_interval)
 
         logger.info(

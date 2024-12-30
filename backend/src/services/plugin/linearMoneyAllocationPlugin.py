@@ -10,23 +10,25 @@ class LinearMoneyAllocationPlugin(BasePlugin):
         order: dict[str, float] = {}
 
         # Calculate ticker confidences
-        confidence_sum: float = 0
+        buy_confidence_sum: float = 0
         ticker_confidences: dict[str, float] = {}
         for ticker, confidences in tc_confidences.items():
-            ticker_confidences[ticker] = sum(confidences.values())
-            if ticker_confidences[ticker] > 0:
-                confidence_sum += ticker_confidences[ticker]
+            if confidences == {}:
+                continue
 
-        if confidence_sum == 0:
-            return order
+            average_ticker_conf: float = sum(confidences.values()) / len(confidences)
+            if average_ticker_conf == 0:
+                continue
+
+            ticker_confidences[ticker] = average_ticker_conf
+            if ticker_confidences[ticker] > 0:
+                buy_confidence_sum += ticker_confidences[ticker]
 
         # Normalize confidence for each ticker based on total sum
         for ticker, confidence in ticker_confidences.items():
-            if confidence == 0:
-                continue
-            elif confidence > 0:
-                order[ticker] = confidence / confidence_sum
-            else:
+            if confidence >= profile.buy_limit:
+                order[ticker] = confidence / buy_confidence_sum
+            elif confidence <= profile.sell_limit:
                 order[ticker] = confidence
 
         return order
