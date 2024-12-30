@@ -137,17 +137,13 @@ def update_wallet_command(
             console.print("[bold red]Ticker must be in uppercase![/bold red]")
             continue
 
-        try:
-            fetch_info_data(ticker_prompt)  # Assuming it fetches the data for the ticker
-            if add_to_wallet(ticker_prompt):
-                console.print(
-                    f"[bold green]Ticker '[bold]{ticker_prompt}[/bold]' added successfully to wallet![/bold green]")
-            else:
-                console.print(
-                    f"[bold yellow]Ticker [bold]{ticker_prompt}[/bold] already exists in wallet.[/bold yellow]")
-        except DataFetchError as e:
-            console.print(f"[bold red]Invalid ticker: [bold]{ticker_prompt}[/bold red]. Please try again.")
-            continue
+        # TODO: VALIDATE TICKER
+        if add_to_wallet(ticker_prompt):
+            console.print(
+                f"[bold green]Ticker '[bold]{ticker_prompt}[/bold]' added successfully to wallet![/bold green]")
+        else:
+            console.print(
+                f"[bold yellow]Ticker [bold]{ticker_prompt}[/bold] already exists in wallet.[/bold yellow]")
 
     if prompt:
         console.print(Panel("[bold yellow]Enter the ticker for each asset you want to [white underline]`remove`[/white underline].\n"

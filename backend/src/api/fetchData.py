@@ -4,9 +4,9 @@ import requests
 from datetime import datetime, timedelta
 from pandas import DataFrame
 import pandas as pd
-from src.api.utils import compress_data, determine_interval  # type: ignore
+from src.api.utils import compress_data, determine_interval
 from src.exceptions import DataFetchError
-from yfinance import Ticker  # type: ignore
+from yfinance import Ticker
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 
@@ -37,10 +37,6 @@ def fetch_info_data(ticker: str) -> Optional[dict]:  # type: ignore
         if not isinstance(e, DataFetchError):
             logger.error(f"Error fetching info data: {e}")
         raise
-
-
-def fetch_ticker_price(ticker: str) -> Optional[float]:
-    ...
 
 
 def fetch_historical_data(  # type: ignore
@@ -131,7 +127,7 @@ def fetch_historical_data(  # type: ignore
         else:
             raise Exception(f"Failed to fetch data. Status code: {response.status_code}")
 
-
+print(fetch_historical_data("btcusd", period="1d", interval="1m"))
 
 
 
