@@ -206,7 +206,7 @@ def update_wallet_command(
         else:
             pw_final_wallet[ticker] = 0
 
-    if profile.update_wallet(wallet=pw_final_wallet, is_paper_wallet=True) and profile.update_wallet(wallet=final_wallet):
+    if profile.update(wallet=final_wallet, paper_wallet=pw_final_wallet):
         console.print(f"[bold green]Profile '[bold]{profile_name}; ID: {profile.id}[/bold]' wallet successfully updated![/bold green]")
     else:
         console.print(f"[bold]Error:[/bold] Unable to update profile '[bold]{profile_name}; ID: {profile.id}[/bold]'.\n"
@@ -241,7 +241,7 @@ def clear_wallet_command(
                                    choices=["y", "n"], default="n")
 
     if conformation == "y":
-        if profile.update_wallet({}, is_paper_wallet=True) and profile.update_wallet({}):
+        if profile.update(wallet={}, paper_wallet={}):
             console.print(
                 f"[bold green]Profile '[bold]{profile_name}[/bold]' wallet successfully cleared![/bold green]")
         else:

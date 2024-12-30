@@ -161,7 +161,7 @@ def update_profile_command(
         console.print("Profile update cancelled.")
         return
 
-    if profile.update_profile(
+    if profile.update(
             name=new_profile_name,
             balance=float(balance),
             paper_balance=float(paper_balance),
@@ -183,9 +183,7 @@ def delete_profile_command(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to delete.")] = None,
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
-    if profile_id is None:
-        Abort()
-        return
+
     confirmation_prompt = Text(
         f"[yellow]Are you sure you want to delete the profile [bold]'{profile_name}'[/bold]? This action is irreversible.[/yellow]",
     )
@@ -195,7 +193,7 @@ def delete_profile_command(
         console.print("[bold green]Operation cancelled.[/bold green]")
         return
 
-    if delete_profile(id=profile_id):
+    if profile_registry.get(profile_id).delete():
         console.print(f"[bold green]Profile '[bold]{profile_name}[/bold]' successfully deleted![/bold green]")
     else:
         console.print(
