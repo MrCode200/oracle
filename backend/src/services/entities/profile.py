@@ -216,7 +216,6 @@ class Profile:
                 self.trading_components.append(new_trading_component)
                 logger.info(f"Added trading_component with ID {new_trading_component.id} to profile with ID {self.id}.",
                             extra={"profile_id": self.id})
-                self._update_scheduler()
 
                 return True
 
