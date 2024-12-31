@@ -87,6 +87,9 @@ def create_edit_object_settings(obj: type, settings: Optional[dict[str, any]] = 
                                                     ignore_case=True))
         if user_input == "VIEW":
             console.print(create_param_table(settings, types=types))
+        elif user_input.startswith("_"):
+            console.print(f"[bold red]Error:[/bold red] Parameter '[underline grey]{user_input}[/underline grey]' is private and cannot be changed.")
+            continue
 
         elif user_input == "":
             empty_parameter_flag: bool = False

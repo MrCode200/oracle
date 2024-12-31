@@ -72,7 +72,7 @@ class Profile:
                     self.scheduler_is_paused = True
 
             else:
-                if not self._check_status_valid():
+                if not self.check_status_valid():
                     return
 
                 if run_on_start:
@@ -103,7 +103,7 @@ class Profile:
             return False
 
     def evaluate(self):
-        if not self._check_status_valid():
+        if not self.check_status_valid():
             return
 
         if not self._check_has_create_order_plugin():
@@ -124,7 +124,8 @@ class Profile:
 
                 if not BROKER_API:
                     # PERIOD is ignored when using api_name
-                    df = fetch_historical_data(ticker=trading_component.ticker, period="5d", interval=trading_component.interval, api_name="nobitex")
+                    df = fetch_historical_data(ticker=trading_component.ticker, period="5d",
+                                               interval=trading_component.interval, api_name="nobitex")
 
                 confidence = trading_component.instance.evaluate(df=df)
                 confidences[trading_component.ticker][trading_component.id] = confidence * trading_component.weight
@@ -148,7 +149,7 @@ class Profile:
         self.trade_agent.trade(orders)
 
     def backtest(self) -> dict[str, float] | None:
-        if not self._check_status_valid():
+        if not self.check_status_valid():
             return
 
         with self._lock:
@@ -202,7 +203,8 @@ class Profile:
 
         return True
 
-    def add_trading_component(self, trading_component: 'Basetrading_component', weight: float, ticker: str, interval: str):
+    def add_trading_component(self, trading_component: 'Basetrading_component', weight: float, ticker: str,
+                              interval: str):
         with self._lock:
             new_trading_component: TradingComponentDTO = create_trading_component(
                 profile_id=self.id,
@@ -223,10 +225,19 @@ class Profile:
                      extra={"profile_id": self.id})
         return False
 
-    def update_trading_component(self, trading_component_id: int, name: str, weight: float, ticker: str, interval: str, settings: dict[str, any]):
+    def update_trading_component(
+            self,
+            trading_component_id: int,
+            name: str, weight: float,
+            ticker: str,
+            interval: str,
+            settings: dict[str, any]
+    ):
         with self._lock:
-            if update_trading_component(trading_component_id=trading_component_id, weight=weight, ticker=ticker, interval=interval, settings=settings):
-                self._trading_components = [trading_component for trading_component in self.trading_components if trading_component.id != trading_component_id]
+            if update_trading_component(trading_component_id=trading_component_id, weight=weight, ticker=ticker,
+                                        interval=interval, settings=settings):
+                self._trading_components = [trading_component for trading_component in self.trading_components if
+                                            trading_component.id != trading_component_id]
                 self.trading_components.append(
                     TradingComponentDTO(
                         id=trading_component_id,
@@ -249,7 +260,8 @@ class Profile:
     def remove_trading_component(self, trading_component_id: int):
         with self._lock:
             if delete_trading_component(trading_component_id=trading_component_id):
-                self._trading_components = [trading_component for trading_component in self.trading_components if trading_component.id != trading_component_id]
+                self._trading_components = [trading_component for trading_component in self.trading_components if
+                                            trading_component.id != trading_component_id]
 
                 logger.info(f"Removed trading_component with ID {trading_component_id} from profile with ID {self.id}.",
                             extra={"profile_id": self.id})
@@ -305,6 +317,17 @@ class Profile:
                      extra={"profile_id": self.id})
         return False
 
+    def check_status_valid(self):
+        if self.status.value >= Status.UNKNOWN_ERROR.value:
+            logger.error(
+                f"Profile with id {self.id} is in error state: {self.status}\nDeactivating Profile",
+                extra={"profile_id": self.id},
+            )
+            self.change_status(Status.INACTIVE)
+            return False
+
+        return True
+
     def _setup_schedular(self):
         self.scheduler.add_listener(
             self._on_job_execution, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR
@@ -329,17 +352,6 @@ class Profile:
         self.change_status(Status.INACTIVE)
 
         return False
-
-    def _check_status_valid(self):
-        if self.status.value >= Status.UNKNOWN_ERROR.value:
-            logger.error(
-                f"Profile with id {self.id} is in error state: {self.status}\nDeactivating Profile",
-                extra={"profile_id": self.id},
-            )
-            self.change_status(Status.INACTIVE)
-            return False
-
-        return True
 
     def _on_job_execution(self, event):
         if event.exception:
