@@ -1,6 +1,6 @@
 from typing import Optional
 
-from src.services.plugin.basePlugin import BasePlugin, PluginJob
+from src.services.entities.plugin.basePlugin import BasePlugin, PluginJob
 
 
 class LinearMoneyAllocationPlugin(BasePlugin):

@@ -5,7 +5,8 @@ from rich.console import Console
 from rich.table import Table
 from src.cli.commands.validation import validate_and_prompt_profile_name, validate_and_prompt_status
 from src.database import get_profile
-from src.services.entities import Profile, Status
+from src.services.entities import Profile
+from src.constants import Status
 from src.utils.registry import profile_registry
 
 console = Console()

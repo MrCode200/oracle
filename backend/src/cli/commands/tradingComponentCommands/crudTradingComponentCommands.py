@@ -17,7 +17,7 @@ from src.cli.commands.tradingComponentCommands.tradingComponentUtils import crea
 from src.cli.commands.utils import create_edit_object_settings, create_param_table
 from src.database import TradingComponentDTO
 from src.services.entities import Profile
-from src.services.tradingComponents import BaseTradingComponent
+from src.services.entities.tradingComponents import BaseTradingComponent
 from src.utils.registry import tc_registry, profile_registry
 
 logger = getLogger("oracle.app")

@@ -2,6 +2,8 @@ import logging
 from typing import Annotated, Optional
 
 import typer
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
 from rich import box
 from rich.columns import Columns
 from rich.console import Console
@@ -9,8 +11,9 @@ from rich.panel import Panel
 from rich.progress import Progress
 from rich.prompt import Prompt
 from rich.table import Table
-from src.api import fetch_info_data
+from src.api import fetch_ticker_price
 from src.cli.commands.validation import validate_and_prompt_profile_name
+from src.constants import VALID_TICKERS
 from src.exceptions import DataFetchError
 from src.services.entities import Profile
 from src.utils.registry import profile_registry
@@ -44,7 +47,7 @@ def update_wallet_command(
             list[str], typer.Option("--add-ticker", "-at", help="List of [bold]tickers[/bold] to be added. Must be UPPERCASE")] = [],
         removed_tickers: Annotated[
             list[str], typer.Option("--remove-ticker", "-rt", help="List of [bold]tickers[/bold] to be removed.")] = [],
-        prompt: Annotated[bool, typer.Option("--no-prompt", "-np", help="Prompt for ticker input.")] = True
+        prompt_user: Annotated[bool, typer.Option("--no-prompt", "-np", help="Prompt for ticker input.")] = True
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
     profile: Profile = profile_registry.get(profile_id)
@@ -53,14 +56,30 @@ def update_wallet_command(
     final_wallet: dict[str, float] = started_wallet.copy()
     invalid_added_tickers: list[str] = []
     invalid_removed_tickers: list[str] = []
-    dublicate_tickers: list[str] = []
+    duplicate_tickers: list[str] = []
 
-    def add_to_wallet(ticker: str) -> bool:
-        nonlocal final_wallet
-        if ticker not in final_wallet:
-            final_wallet[ticker] = 0
-            return True
-        return False
+    def add_to_wallet(ticker: str, add_to_lists: bool = False, echo: bool = False) -> bool:
+        nonlocal final_wallet, duplicate_tickers, invalid_added_tickers
+
+        if ticker != ticker.upper():
+            invalid_added_tickers.append(ticker) if add_to_lists else None
+            console.print("[bold red]Ticker must be in uppercase![/bold red]") if echo else None
+            return False
+
+        if ticker in final_wallet:
+            duplicate_tickers.append(ticker) if add_to_lists else None
+            console.print(f"[bold red]Ticker already in wallet![/bold red]") if echo else None
+            return False
+        else:
+            try:
+                fetch_ticker_price(ticker)
+                final_wallet[ticker] = 0
+                console.print(f"[bold green]Ticker added to wallet![/bold green]") if echo else None
+                return True
+            except DataFetchError:
+                invalid_added_tickers.append(ticker) if add_to_lists else None
+                console.print(f"[bold red]Ticker not found![/bold red]") if echo else None
+                return False
 
     def remove_from_wallet(ticker: str) -> bool:
         nonlocal final_wallet
@@ -92,14 +111,7 @@ def update_wallet_command(
                 progress.update(task, advance=1, description=f"Adding ticker {ticker}... {i}/{total_tickers}")
                 i += 1
 
-                try:
-                    fetch_info_data(ticker)
-                    if not add_to_wallet(ticker):
-                        dublicate_tickers.append(ticker)
-                except DataFetchError as e:
-                    invalid_added_tickers.append(ticker)
-                    continue
-
+                add_to_wallet(ticker, add_to_lists=True)
 
             progress.update(task, completed=total_tickers, description="[bold green]Wallet updated![/bold green]")
 
@@ -108,7 +120,7 @@ def update_wallet_command(
     for invalid_ticker in invalid_added_tickers:
         console.print(f"[bold red]Invalid ticker: '{invalid_ticker}' hasn't been added to wallet[/bold red].")
 
-    for dublicate_ticker in dublicate_tickers:
+    for dublicate_ticker in duplicate_tickers:
         console.print(f"[bold yellow]Ticker [bold]{dublicate_ticker}[/bold] already exists in wallet.")
 
     for invalid_ticker in invalid_removed_tickers:
@@ -116,16 +128,16 @@ def update_wallet_command(
             f"[bold red]Ticker '{invalid_ticker}' doesn't exist in wallet! [/bold red].")
 
 
-    if prompt:
+    if prompt_user:
         console.print(create_wallet_table(wallet=final_wallet, title="Wallet"))
 
         console.print(Panel("[bold yellow]Enter the ticker for each asset you want to [white underline]`track`[/white underline].\n"
                         "To exit, press [white underline]`enter`[/white underline].", expand=False))
 
     # Prompt for adding and removing tickers interactively
-    while prompt:
+    while prompt_user:
         # Use rich prompt for better user interaction
-        ticker_prompt = Prompt.ask("[bold green]Enter ticker[/bold green]")
+        ticker_prompt = prompt("Enter ticker :", completer=WordCompleter(words=VALID_TICKERS, ignore_case=True))
 
         if ticker_prompt.lower() == "":
             break
@@ -133,24 +145,15 @@ def update_wallet_command(
         elif ticker_prompt == "":
             console.print("[bold red]Ticker cannot be empty.[/bold red]")
             continue
-        elif ticker_prompt != ticker_prompt.upper():
-            console.print("[bold red]Ticker must be in uppercase![/bold red]")
-            continue
 
-        # TODO: VALIDATE TICKER
-        if add_to_wallet(ticker_prompt):
-            console.print(
-                f"[bold green]Ticker '[bold]{ticker_prompt}[/bold]' added successfully to wallet![/bold green]")
-        else:
-            console.print(
-                f"[bold yellow]Ticker [bold]{ticker_prompt}[/bold] already exists in wallet.[/bold yellow]")
+        add_to_wallet(ticker_prompt, echo=True)
 
-    if prompt:
+    if prompt_user:
         console.print(Panel("[bold yellow]Enter the ticker for each asset you want to [white underline]`remove`[/white underline].\n"
                             "To exit, type [white underline]`enter`[/white underline].", expand=False))
 
-    while prompt:
-        ticker_prompt = Prompt.ask("[bold red]Enter ticker[/bold red]")
+    while prompt_user:
+        ticker_prompt = prompt("Enter ticker :", completer=WordCompleter(words=final_wallet.keys(), ignore_case=True))
 
         if ticker_prompt.lower() == "":
             break
@@ -159,16 +162,12 @@ def update_wallet_command(
             console.print("[bold red]Ticker cannot be empty.[/bold red]")
             continue
 
-        try:
-            if remove_from_wallet(ticker_prompt):
-                console.print(
-                    f"[bold green]Ticker '[bold]{ticker_prompt}[/bold]' removed successfully from wallet![/bold green]")
-            else:
-                console.print(
-                    f"[bold red]Ticker '{ticker_prompt}' doesn't exist in wallet![/bold red].")
-        except DataFetchError as e:
-            console.print(f"[bold red]Invalid ticker: [bold]{ticker_prompt}[/bold red]. Please try again.")
-            continue
+        if remove_from_wallet(ticker_prompt):
+            console.print(
+                f"[bold green]Ticker '[bold]{ticker_prompt}[/bold]' removed successfully from wallet![/bold green]")
+        else:
+            console.print(
+                f"[bold red]Ticker '{ticker_prompt}' doesn't exist in wallet![/bold red].")
 
     final_wallet_table = create_wallet_table(final_wallet, "Final Wallet", transient=False, print_info=True)
 

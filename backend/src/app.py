@@ -4,7 +4,7 @@ import time
 from dotenv import load_dotenv
 
 from src.custom_logger.loggingManager import setup_logger
-from src.services.constants import Status
+from src.constants import Status
 from src.utils.registry import profile_registry
 
 

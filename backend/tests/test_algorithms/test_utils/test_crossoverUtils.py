@@ -1,5 +1,5 @@
 import pytest
-from src.services.tradingComponents.indicators.utils import check_crossover
+from src.services.entities.tradingComponents import check_crossover
 
 
 @pytest.mark.parametrize(

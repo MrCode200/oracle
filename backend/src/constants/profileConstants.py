@@ -6,6 +6,5 @@ class Status(Enum):
     PAPER_TRADING: int = 2
     # TODO: GRADIANT_EXIT isn't implemented
     GRADIANT_EXIT: int = 3
+    BACKTESTING: int = 4
     UNKNOWN_ERROR = 99
-
-

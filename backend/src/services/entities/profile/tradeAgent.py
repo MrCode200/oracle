@@ -1,6 +1,7 @@
-from src.api import fetch_historical_data
-from src.services.constants import Status
-from src.services.entities import Profile
+from typing import Optional
+
+from src.api import fetch_ticker_price
+from src.constants import Status
 
 from logging import getLogger
 logger = getLogger("oracle.app")
@@ -9,14 +10,21 @@ class TradeAgent:
     def __init__(self, profile):
         self.profile: 'Profile' = profile
 
-    def trade(self, orders: dict[str, float]):
-        pass
-
-    def trade_agent(self, orders: dict[str, float]):
-        if self.profile.status == Status.PAPER_TRADING:
-            self._paper_trade_agent(orders)
-        elif self.profile.status == Status.ACTIVE:
+    def trade(self, orders: dict[str, float], bt_wallet: Optional[dict[str, float]] = None, bt_balance: Optional[float] = None):
+        """
+        Runs the trade agent function based on the profile status
+        :param orders: The orders in the format of {ticker: percentage_change}
+        :param bt_wallet: The backtest wallet
+        :param bt_balance: The backtest balance
+        :return: (If status == BACKTESTING) The updated backtest wallet and balance
+        """
+        if self.profile.status == Status.ACTIVE:
             self._live_trade_agent(orders)
+        elif self.profile.status == Status.PAPER_TRADING:
+            self._paper_trade_agent(orders)
+        elif self.profile.status == Status.BACKTESTING:
+            return self._backtest_trade_agent(orders, bt_wallet, bt_balance)
+
 
     def _paper_trade_agent(self, orders: dict[str, float]):
         # Fallback in case of db doesn't update
@@ -27,7 +35,7 @@ class TradeAgent:
             if percentage_change == 0:
                 continue
 
-            ticker_current_price: float = fetch_historical_data(ticker, period="1d", interval="1m").iloc[-1]["Close"]
+            ticker_current_price: float = fetch_ticker_price(ticker)
 
             if percentage_change < 0 < self.profile.paper_wallet[ticker]:
                 num_of_assets: float = self.profile.paper_wallet[ticker]
@@ -62,6 +70,11 @@ class TradeAgent:
                 f"Failed to update Profile with id: {self.profile.id}; and name: {self.profile.name}; Used Fallback!",
                 extra={"profile_id": self.profile.id},
             )
+
+    # TODO: Add backtesting trade agent
+    @staticmethod
+    def _backtest_trade_agent(orders: dict[str, float], wallet: dict[str, float], balance: float) -> tuple[dict[str, float], float]:
+        return wallet, balance
 
     def _live_trade_agent(self, orders: dict[str, float]):
         ...

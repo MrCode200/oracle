@@ -4,3 +4,5 @@ def isfloat(s: str) -> bool:
         return True
     except ValueError:
         return False
+
+print("0.8".isdecimal())

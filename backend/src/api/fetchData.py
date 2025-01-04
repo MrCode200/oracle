@@ -1,133 +1,155 @@
-import logging
 from typing import Optional
-import requests
-from datetime import datetime, timedelta
-from pandas import DataFrame
-import pandas as pd
-from src.api.utils import compress_data, determine_interval
-from src.exceptions import DataFetchError
-from yfinance import Ticker
+import time
+from requests import Response, get
+from datetime import datetime, timezone
 
-logger: logging.Logger = logging.getLogger("oracle.app")
+from pandas import DataFrame, to_datetime, concat
+from dateutil.relativedelta import relativedelta
 
+from src.api.utils import handle_binance_status
 
-def fetch_info_data(ticker: str) -> Optional[dict]:  # type: ignore
-    """
-    Fetch information about a coin from Yahoo Finance using yfinance.
-    :param ticker: The ticker symbol of the coin (e.g., 'BTC-USD' for Bitcoin)
-    :return: A dictionary containing the fetched information or None on error
-    :raises DataFetchError: If an error occurs while fetching data
-    """
-    try:
-        # TODO: check if ticker is valid is not 100% sure
-        ticker_obj = Ticker(ticker)
-        info = ticker_obj.info
-        if "shortName" not in info:
-            logger.warning(
-                f"Failed to fetch info data, probably due to invalid ticker: {ticker}"
-            )
-            raise DataFetchError(
-                message="Failed to fetch info data, probably due to invalid ticker",
-                ticker=ticker,
-            )
+url_fetch_ticker_price: str = "https://api.binance.com/api/v3/ticker/price"
+url_fetch_klines: str = "https://api.binance.com/api/v3/klines"
+url_fetch_exchange_info: str = "https://api.binance.com/api/v3/exchangeInfo"
 
-        return info
-
-    except Exception as e:
-        if not isinstance(e, DataFetchError):
-            logger.error(f"Error fetching info data: {e}")
-        raise
+columns = [
+    'OpenTime',
+    'Open',
+    'High',
+    'Low',
+    'Close',
+    'Volume',
+    'CloseTime',
+    'QuoteAssetVolume',
+    'NumberOfTrades',
+    'TakerBuyBaseAssetVolume',
+    'TakerBuyQuoteAssetVolume',
+    'unused'
+]
 
 
-def fetch_historical_data(  # type: ignore
+def fetch_ticker_price(ticker) -> float:
+    param: dict = {
+        'symbol': ticker
+    }
+    response: Response = get(url_fetch_ticker_price, params=param)
+    data: dict = response.json()
+
+    handle_binance_status(response.status_code, data)
+
+    return float(data["price"])
+
+
+def fetch_exchange_info(tickers: Optional[list[str]] = None) -> dict:
+    response: Response = get(url_fetch_exchange_info)
+
+    data: dict = response.json()
+
+    handle_binance_status(response.status_code, data)
+
+    return data
+
+
+def fetch_klines(
         ticker: str,
-        period: str = "1m",
-        interval: str = "1d",
-        start: str | None = None,
-        end: str | None = None,
-        api_name:str| None =None
-) -> DataFrame:
+        interval: str,
+        start: Optional[str] = None,
+        end: Optional[str] = None,
+        years: int = 0,
+        months: int = 0,
+        weeks: int = 0,
+        days: int = 0,
+        hours: int = 0,
+        minutes: int = 0,
+        seconds: int = 0
+):
     """
-    Fetch historical market chart data from Yahoo Finance using yfinance.
-    :param ticker: The ticker symbol of the coin (e.g., 'BTC-USD' for Bitcoin)
-    :param period: Number of days of historical data to fetch, this will be ignored if start and end are passed.
-    :param interval: The time interval for each data point (default: '1d')
-    :param start: The start date of the historical data (default: None)
-    :param end: The end date of the historical data (default: None)
-    :return: A DataFrame containing the fetched market chart data or None on error
-    :raises AttributeError: If the ticker is invalid
-    :raises DataFetchError: If an error occurs while fetching data
+    Retrieves klines from Binance
+
+    :param ticker: The ticker of the asset
+    :param interval: The interval of the klines ['1m', '3m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1d', '3d', '1w', '1M']
+    :param start: The start time in the format 'YYYY-MM-DD HH:MM:SS'
+    :param end: The end time in the format 'YYYY-MM-DD HH:MM:SS'
+    :param years: The number of years to go back
+    :param months: The number of months to go back
+    :param weeks: The number of weeks to go back
+    :param days: The number of days to go back
+    :param hours: The number of hours to go back
+    :param minutes: The number of minutes to go back
+    :param seconds: The number of seconds to go back
+    :return: DataFrame
     """
-    if api_name == None :
-        try:
-            ticker_obj = Ticker(ticker)
+    if end is not None and start is None:
+        raise ValueError("start_time cannot be specified without start_time")
 
-            df = ticker_obj.history(
-                period=period, interval=determine_interval(interval), start=start, end=end
-            )
+    if end is None and all(v == 0 for v in [years, months, days, weeks, hours, minutes, seconds]):
+        raise ValueError(
+            "end_time must be specified or any of years, months, days, hours, or minutes should be provided to calculate it")
 
-            if not df.empty:
-                logger.info(f"Fetched Data: {ticker = }; {period = }; {interval = };", extra={"ticker": ticker})
-                df = compress_data(df, interval)
-                return df
-            else:
-                logger.error(
-                    f"Failed to fetch data. Data Frame is empty. Parameters: {ticker = }; {period = }; {interval = }; {start = }; {end = };",
-                    exc_info=True,
-                )
-                raise DataFetchError(
-                    message="Failed to fetch data. Data Frame is empty. No data fetched for the given parameters",
-                    ticker=ticker,
-                    period=period,
-                    interval=interval,
-                    start=start,
-                    end=end,
-                )
+    if end is not None and start is None and all(v == 0 for v in [years, months, weeks, days, hours, minutes, seconds]):
+        raise ValueError(
+            "If end_time is provided, either end_time or a time difference (years, months, etc.) must be provided")
 
-        except Exception as e:
-            if not isinstance(e, DataFetchError):
-                logger.error(f"Error fetching history data: {e}")
-                raise
+    time_format = "%Y-%m-%d %H:%M:%S"
 
+    if end is not None:
+        end_timestamp: datetime = datetime.strptime(end, time_format)
+        end_timestamp = end_timestamp.replace(tzinfo=timezone.utc)
     else:
+        end_timestamp: datetime = datetime.now(timezone.utc)
 
-        # calculating time
-        now = datetime.now()
-        start_time = now - timedelta(days=15)
-        start_timestamp = int(start_time.timestamp())
-        end_timestamp = int(now.timestamp())
+    if start is not None:
+        start_timestamp: datetime = datetime.strptime(start, time_format)
+        start_timestamp = start_timestamp.replace(tzinfo=timezone.utc)
+    else:
+        start_timestamp: datetime = end_timestamp - relativedelta(
+            years=years,
+            months=months,
+            weeks=weeks,
+            days=days,
+            hours=hours,
+            minutes=minutes,
+            seconds=seconds
+        )
 
-        # request to api
-        url = "https://api.nobitex.ir/market/udf/history"
-        params = {
-            "symbol": ticker,
-            "resolution": interval,
-            "from": start_timestamp,
-            "to": end_timestamp
+    # Convert to UNIX timestamp
+    start_timestamp: int = int(time.mktime(start_timestamp.timetuple())) * 1000
+    end_timestamp: int = int(time.mktime(end_timestamp.timetuple())) * 1000
+
+    df: DataFrame = DataFrame(columns=columns)
+
+    while end_timestamp > start_timestamp:
+        params: dict = {
+            'symbol': ticker,
+            'interval': interval,
+            'startTime': start_timestamp,
+            'endTime': end_timestamp,
+            'limit': 1000
         }
 
-        response = requests.get(url, params=params)
+        response: Response = get(url_fetch_klines, params=params)
 
-        if response.status_code == 200:
-            data = response.json()
-            if "t" in data and "c" in data:
-                # convert to dataframe
-                df = pd.DataFrame({
-                    "timestamp": data["t"],
-                    "Open" :data["o"],
-                    "High" : data["h"],
-                    "Low":data["l"],
-                    "Close": data["c"]
-                })
+        data = response.json()
 
-                df["timestamp"] = pd.to_datetime(df["timestamp"], unit='s')
-                return df
-            else:
-                raise ValueError("Invalid data format from API.")
+        handle_binance_status(response.status_code, data)
+
+
+        if len(data) == 0:
+            break
+
+        new_df: DataFrame = DataFrame(data, columns=columns)
+
+        new_df["timestamp"] = to_datetime(new_df["OpenTime"], unit="ms", utc=True)
+        new_df.set_index("timestamp", inplace=True)
+
+        if df.empty:
+            df = new_df
         else:
-            raise Exception(f"Failed to fetch data. Status code: {response.status_code}")
+            df = concat([df, new_df])
 
-print(fetch_historical_data("btcusd", period="1d", interval="1m"))
+        # +1 to start the next request just after the current one ends.
+        start_timestamp = data[-1][6] + 1
 
+    df.drop("unused", axis=1, inplace=True)
 
-
+    return df

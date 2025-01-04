@@ -3,8 +3,8 @@ import logging
 import pandas
 from pandas import DataFrame
 from pandas_ta import sma
-from src.services.tradingComponents import BaseTradingComponent
-from src.services.tradingComponents.indicators.utils import check_crossover
+from src.services.entities.tradingComponents import BaseTradingComponent
+from src.services.entities.tradingComponents.indicators.utils import check_crossover
 
 logger: logging.Logger = logging.getLogger("oracle.app")
 

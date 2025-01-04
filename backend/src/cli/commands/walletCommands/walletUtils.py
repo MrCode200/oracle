@@ -5,23 +5,12 @@ from rich import box
 from rich.console import Console
 from rich.progress import Progress
 from rich.table import Table
-from src.api import fetch_info_data
+
+from src.api import fetch_ticker_price
 
 console = Console()
 
 logger = logging.getLogger("oracle.app")
-
-def get_ticker_price(ticker: str) -> float | None:
-    info = fetch_info_data(ticker)
-    current_price = info.get("currentPrice", None)
-
-    if current_price is None:
-        current_price = info.get("regularMarketPreviousClose", None)
-
-    if current_price is None:
-        logger.warning(f"{ticker} has been identified as an invalid ticker. INFO: {info}")
-
-    return current_price
 
 
 def create_wallet_table(wallet: dict[str, float], title: str, transient: bool = True, print_info: bool = True) -> Table:
@@ -46,7 +35,7 @@ def create_wallet_table(wallet: dict[str, float], title: str, transient: bool = 
             progress.update(final_wallet_task, description=f"Fetching prices of {ticker}... {i}/{len(final_wallet)}",
                             advance=1)
 
-            current_price: Optional[float] = get_ticker_price(ticker)
+            current_price: Optional[float] = fetch_ticker_price(ticker)
 
             if current_price is None:
                 invalid_tickers.append(ticker)

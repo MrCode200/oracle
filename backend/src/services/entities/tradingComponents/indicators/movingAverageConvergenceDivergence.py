@@ -2,8 +2,8 @@ from logging import getLogger
 
 import numpy as np
 from pandas import DataFrame, Series
-from src.services.tradingComponents import BaseTradingComponent
-from src.services.tradingComponents.indicators.utils import check_crossover, trend_based_pullback
+from src.services.entities.tradingComponents import BaseTradingComponent
+from src.services.entities.tradingComponents.indicators.utils import check_crossover, trend_based_pullback
 
 logger = getLogger("oracle.app")
 

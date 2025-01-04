@@ -3,3 +3,4 @@ from .tradingComponentValidations import (validate_and_prompt_tc_id, validate_an
                                           validate_and_prompt_weight, validate_and_prompt_ticker_in_wallet,
                                           validate_and_prompt_tc_name)
 from .pluginValidations import validate_and_prompt_plugin_name, validate_and_prompt_plugin_id
+from .walletValidations import validate_and_prompt_ticker

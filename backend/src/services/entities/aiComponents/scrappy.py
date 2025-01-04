@@ -1,16 +1,19 @@
 from typing import Optional
 from datetime import datetime, timedelta
-import feedparser
-import pytz
+import logging
 
 import feedparser
 import pytz
 from transformers import BertTokenizer, BertForSequenceClassification
 from transformers import pipeline
 
-from src.services.plugin import BasePlugin, PluginJob
+from src.constants import Status
+from src.services.entities.plugin import BasePlugin, PluginJob
+
+logger = logging.getLogger("oracle.app")
 
 MODEL_ID = "kk08/CryptoBERT"
+logger.info(f"Loading Model {MODEL_ID}...")
 tokenizer = BertTokenizer.from_pretrained(MODEL_ID)
 model = BertForSequenceClassification.from_pretrained(MODEL_ID)
 classifier = pipeline("sentiment-analysis", model=MODEL_ID, tokenizer=tokenizer)
@@ -23,12 +26,15 @@ class Scrappy(BasePlugin):
                  days_passed: Optional[int] = None, weight: int = 1, cache_days: float = 1, _last_cached: Optional[datetime] = None,
                  _cached_values: Optional[dict[str, dict[int, float]]] = None):
         """
-        Scraps news from yfinance
+        Scraps news from yfinance.
 
-        :param ticker_whitelist:
-        :param keyword:
-        :param days_passed:
-        :param weight:
+        :param ticker_whitelist: List of tickers to scrape news from.
+        :param keyword: List of keywords to filter news by.
+        :param days_passed: Number of days to go back in time.
+        :param weight: Weight of the plugin.
+        :param cache_days: Number of days to cache the results.
+        :param _last_cached: Last time the results were cached.
+        :param _cached_values: Cached results.
         """
         self.ticker_whitelist: Optional[list[str]] = ticker_whitelist
         self.keyword: Optional[list[str]] = keyword
@@ -37,28 +43,45 @@ class Scrappy(BasePlugin):
 
         self.cache_days: float = cache_days
         self.last_cached: Optional[datetime] = _last_cached
-        self.cached_values: dict[str, dict[int, float]] = _cached_values if _cached_values is not None else {}
+        self.cached_values: dict[str, float] = _cached_values if _cached_values is not None else {}
 
     def run(self, profile: 'Profile', tc_confidences: Optional[dict[str, dict[int, float]]] = None) -> dict[str, dict[int, float]]:
+        if profile.status == Status.BACKTESTING:
+            return tc_confidences
+
+        if self.last_cached is None:
+            self.last_cached = datetime.now(pytz.UTC)
+
+        if self.last_cached + timedelta(days=self.cache_days) < datetime.now(pytz.UTC):
+            self.last_cached = datetime.now(pytz.UTC)
+            self.cached_values: dict[str, float] = {}
+
         for ticker in self.ticker_whitelist:
             if ticker not in tc_confidences:
                 continue
 
-            articles: list[str] = self.extract_yfinance_content(ticker)
+            if ticker not in self.cached_values:
+                self.cached_values[ticker] = self.sentiment_analysis(ticker)
 
-            confidences: list[float] = []
-            sentiments: list[dict[str, float | str]] = classifier(articles)
-
-            for sentiment in sentiments:
-                if sentiment["label"] == "LABEL_0":
-                    confidences.append(-sentiment["score"])
-                else:
-                    confidences.append(sentiment["score"])
-
-            average_confidence: float = sum(confidences) / len(confidences)
-            tc_confidences[ticker][len(tc_confidences[ticker])] = average_confidence * self.weight
+            tc_confidences[ticker][len(tc_confidences[ticker])] = self.cached_values[ticker]
 
         return tc_confidences
+
+    def sentiment_analysis(self, ticker) -> float:
+        articles: list[str] = self.extract_yfinance_content(ticker)
+
+        confidences: list[float] = []
+        sentiments: list[dict[str, float | str]] = classifier(articles)
+
+        for sentiment in sentiments:
+            if sentiment["label"] == "LABEL_0":
+                confidences.append(-sentiment["score"])
+            else:
+                confidences.append(sentiment["score"])
+
+        average_confidence: float = sum(confidences) / len(confidences)
+
+        return average_confidence
 
     def extract_yfinance_content(self, ticker: str) -> list[str]:
         date_limit: Optional[datetime] = None

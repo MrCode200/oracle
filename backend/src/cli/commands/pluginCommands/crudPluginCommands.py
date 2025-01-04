@@ -6,13 +6,13 @@ from rich.prompt import Prompt
 from rich.console import Console
 from rich.status import Status
 from rich.table import Table
-from typer import Argument, Option
+from typer import Argument
 
 from src.database import PluginDTO
 from src.utils.registry import plugin_registry, profile_registry
 from src.cli.commands.validation import validate_and_prompt_profile_name, validate_and_prompt_plugin_name, \
     validate_and_prompt_plugin_id
-from src.services.plugin import BasePlugin, PluginJob
+from src.services.entities.plugin import BasePlugin, PluginJob
 from src.cli.commands.utils import create_edit_object_settings, create_param_table
 
 console = Console()

@@ -8,7 +8,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.history import InMemoryHistory
 
-from src.services.constants import Status
+from src.constants import Status
 from src.utils.registry import profile_registry
 from src.cli import command_list
 

@@ -1,12 +1,11 @@
 from typing import Optional, Type
 
-import typer
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from rich.console import Console
 
 from src.database.operations.profileOperations import get_profile
-from src.services.entities import Status
+from src.constants import Status
 
 console = Console()
 
