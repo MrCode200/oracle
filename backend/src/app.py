@@ -1,3 +1,4 @@
+import atexit
 import logging
 import os.path
 import time
@@ -27,15 +28,20 @@ def init_app():
             log_config.get("log_in_json"),
         )
 
+    atexit.register(stop_app)
+
     from src.services import init_service
 
     logger.info("Initializing Oracle...")
+
+    from src.services.entities.tradingComponents import BaseTradingComponent
 
     logger.info("All Indicators Registered Successfully...")
 
     init_service()
 
     logger.info("All Profiles Registered Successfully...")
+
 
 
 def stop_app():
@@ -57,8 +63,3 @@ def stop_app():
     time.sleep(5)
 
     logger.info("Oracle Stopped Successfully!")
-
-
-if __name__ == "__main__":
-    from src.cli import repl
-    repl()

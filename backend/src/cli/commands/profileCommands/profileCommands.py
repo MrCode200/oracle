@@ -1,5 +1,7 @@
 from typing import Annotated, Optional, Type
 
+from rich.status import Status as st
+from rich.box import ROUNDED
 import typer
 from rich.console import Console
 from rich.table import Table
@@ -57,7 +59,8 @@ def list_profiles_command():
 
 def change_status_command(
         profile_name: Annotated[Optional[str], typer.Argument(help="The name of the profile to delete.")] = None,
-        status: Annotated[Optional[str], typer.Argument(help="The status to set the profile to. Has Autocompletes Option when not provided.")] = None,
+        status: Annotated[Optional[str], typer.Argument(
+            help="The status to set the profile to. Has Autocompletes Option when not provided.")] = None,
         run_on_start: Annotated[bool, typer.Option("--run-on-start", "-r", help="Run the strategy on start")] = False
 ):
     profile_id: int = validate_and_prompt_profile_name(profile_name)
@@ -65,8 +68,9 @@ def change_status_command(
 
     profile: Profile = profile_registry.get(profile_id)
     if not profile:
-        console.print(f"[bold red]Error: Profile '[white underline bold]{profile_name}; ID {profile_id}[/white underline bold]' not found!\n"
-                      f"The bot may not be running or the profile may have been deleted.")
+        console.print(
+            f"[bold red]Error: Profile '[white underline bold]{profile_name}; ID {profile_id}[/white underline bold]' not found!\n"
+            f"The bot may not be running or the profile may have been deleted.")
         return
 
     if not profile_registry.get(profile_id).change_status(status=status, run_on_start=run_on_start):
@@ -74,4 +78,61 @@ def change_status_command(
             f"[bold red]Error: Profile '[white underline bold]{profile_name}; ID {profile_id}[/white underline bold]' couldn't change status to '[white underline bold]{status}[/white underline bold]'!")
         return
 
-    console.print(f"[bold green]Profile '[white underline bold]{profile_name}; ID {profile_id}[/white underline bold]' changed status to '[white underline bold]{status}[/white underline bold]' successfully!")
+    console.print(
+        f"[bold green]Profile '[white underline bold]{profile_name}; ID {profile_id}[/white underline bold]' changed status to '[white underline bold]{status}[/white underline bold]' successfully!")
+
+
+def backtest_profile_command(
+        profile_name: Annotated[Optional[str], typer.Argument(help="The name of the profile to backtest.")] = None,
+        balance: Annotated[
+            Optional[float], typer.Option("--balance", "-b", help="The balance to use for the backtest.",
+                                          min=1, prompt="Enter balance")] = 1_000_000,
+        days: Annotated[Optional[int], typer.Option("--days", "-d", help="The number of days to backtest.", min=1,
+                                                    prompt="Enter past number of days to backtest")] = 7,
+        partition_amount: Annotated[Optional[int], typer.Option("--partitions", "-p", min=1,
+                help="The number of partitions to divide the data into for recalculating the Return on Investment (ROI).",
+                prompt="Enter number of partitions")] = 1):
+    profile_id: int = validate_and_prompt_profile_name(profile_name)
+    profile: Profile = profile_registry.get(profile_id)
+
+    if not profile:
+        console.print(
+            f"[bold red]Error: Profile '[white underline bold]{profile_name}; ID {profile_id}[/white underline bold]' not found!\n"
+            f"The bot may not be running or the profile may have been deleted.")
+        return
+
+    with st("Backtesting...", spinner="dots") as status:
+        results: Optional[list[float]] = profile.backtest(balance=balance, days=days, partition_amount=partition_amount)
+
+        status.update("Done!")
+
+    if not results:
+        console.print(
+            f"[bold red]Error: Profile '[white underline bold]{profile_name}; ID {profile_id}[/white underline bold]' couldn't backtest!")
+        return
+
+    backtest_table: Table = Table(show_header=True, header_style="bold cyan", box=ROUNDED, style="bold")
+    backtest_table.add_column("Parition", style="bold magenta")
+    backtest_table.add_column("Liquidity", style="bold green")
+    backtest_table.add_column("Return on Investment (ROI)")
+
+    liquidity: list[float] = []
+    for i, result in enumerate(results):
+        if i == 0:
+            liquidity.append(balance * result)
+            continue
+
+        liquidity.append(liquidity[i-1] * result)
+
+    partition_date_len: float = round((days / partition_amount), 3)
+    print(results)
+    print(liquidity)
+    for i in range(len(results)):
+        if results[i] < 1:
+            clr: str = f"[bold red]"
+        else:
+            clr: str = f"[bold green]"
+
+        backtest_table.add_row(str(partition_date_len * i + 1) + " days", clr + str(liquidity[i]), f"{clr}{results[i]:.2%}")
+
+    console.print(backtest_table)

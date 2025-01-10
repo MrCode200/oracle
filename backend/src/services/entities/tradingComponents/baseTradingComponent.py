@@ -60,8 +60,8 @@ class BaseTradingComponent(ABC):
         """
         tc_name = self.__class__.__name__
 
-        base_balance: float = 1_000_000
-        balance: float = base_balance
+        base_liquidity: float = 1_000_000
+        balance: float = base_liquidity
         shares: float = 0
         net_worth_history: list[float] = []
 
@@ -74,8 +74,8 @@ class BaseTradingComponent(ABC):
             is_partition_cap_reached: bool = (
                     (i + 1) % partition_amount == 0) if partition_amount > 1 else False
 
-            base_balance, balance, shares = BaseTradingComponent.process_trade_signal(
-                base_balance, balance, shares,
+            base_liquidity, balance, shares = BaseTradingComponent.process_trade_signal(
+                base_liquidity, balance, shares,
                 df.iloc[i].Close, df.index[i] ,trade_signal,
                 buy_limit, sell_limit,
                 net_worth_history, is_partition_cap_reached,
@@ -84,7 +84,7 @@ class BaseTradingComponent(ABC):
 
         if not is_partition_cap_reached:
             total_net_worth = balance + shares * df.iloc[-1].Close
-            net_worth_history.append(total_net_worth / base_balance)
+            net_worth_history.append(total_net_worth / base_liquidity)
 
         logger.info(f"Backtest completed with Return on Investment of {[str(roi * 100) for roi in net_worth_history]}",
                     extra={"Trading Component": tc_name})

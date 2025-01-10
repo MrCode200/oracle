@@ -58,33 +58,30 @@ def update_wallet_command(
     invalid_removed_tickers: list[str] = []
     duplicate_tickers: list[str] = []
 
-    def add_to_wallet(ticker: str, add_to_lists: bool = False, echo: bool = False) -> bool:
+    def add_to_wallet(tckr: str, add_to_lists: bool = False, echo: bool = False) -> bool:
         nonlocal final_wallet, duplicate_tickers, invalid_added_tickers
 
-        if ticker != ticker.upper():
-            invalid_added_tickers.append(ticker) if add_to_lists else None
-            console.print("[bold red]Ticker must be in uppercase![/bold red]") if echo else None
-            return False
+        tckr = tckr.upper()
 
-        if ticker in final_wallet:
-            duplicate_tickers.append(ticker) if add_to_lists else None
+        if tckr in final_wallet:
+            duplicate_tickers.append(tckr) if add_to_lists else None
             console.print(f"[bold red]Ticker already in wallet![/bold red]") if echo else None
             return False
         else:
             try:
-                fetch_ticker_price(ticker)
-                final_wallet[ticker] = 0
+                fetch_ticker_price(tckr)
+                final_wallet[tckr] = 0
                 console.print(f"[bold green]Ticker added to wallet![/bold green]") if echo else None
                 return True
             except DataFetchError:
-                invalid_added_tickers.append(ticker) if add_to_lists else None
+                invalid_added_tickers.append(tckr) if add_to_lists else None
                 console.print(f"[bold red]Ticker not found![/bold red]") if echo else None
                 return False
 
-    def remove_from_wallet(ticker: str) -> bool:
+    def remove_from_wallet(tckr: str) -> bool:
         nonlocal final_wallet
-        if ticker in final_wallet:
-            del final_wallet[ticker]
+        if tckr in final_wallet:
+            del final_wallet[tckr]
             return True
         return False
 
@@ -120,8 +117,8 @@ def update_wallet_command(
     for invalid_ticker in invalid_added_tickers:
         console.print(f"[bold red]Invalid ticker: '{invalid_ticker}' hasn't been added to wallet[/bold red].")
 
-    for dublicate_ticker in duplicate_tickers:
-        console.print(f"[bold yellow]Ticker [bold]{dublicate_ticker}[/bold] already exists in wallet.")
+    for duplicate_ticker in duplicate_tickers:
+        console.print(f"[bold yellow]Ticker [bold]{duplicate_ticker}[/bold] already exists in wallet.")
 
     for invalid_ticker in invalid_removed_tickers:
         console.print(

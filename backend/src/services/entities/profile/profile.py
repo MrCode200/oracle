@@ -2,6 +2,7 @@ import os
 from contextlib import nullcontext
 from logging import getLogger
 from threading import Lock
+from concurrent.futures import ProcessPoolExecutor
 from typing import Optional
 from math import ceil
 
@@ -11,7 +12,7 @@ from pandas import DataFrame
 
 from src.database import get_plugin, delete_profile
 
-from src.api import fetch_klines
+from src.api import fetch_klines, fetch_ticker_price
 from src.database import (TradingComponentDTO, PluginDTO, ProfileDTO, get_trading_component,
                           update_profile, delete_plugin, update_trading_component,
                           create_plugin, create_trading_component, update_plugin, delete_trading_component)
@@ -107,14 +108,14 @@ class Profile:
 
             return False
 
-    def prep_dfs(self) -> dict[int, DataFrame]:
+    def prep_dfs(self, days: int) -> dict[int, DataFrame]:
         tc_dfs: dict[int, DataFrame] = {}
 
         for trading_component in self.trading_components:
             tc_dfs[trading_component.id] = fetch_klines(
                 ticker=trading_component.ticker,
                 interval=trading_component.interval,
-                days=7
+                days=days
             )
 
         return tc_dfs
@@ -134,7 +135,7 @@ class Profile:
             confidences[ticker] = {}
 
         # Use lock only if not backtesting as backtesting already locks
-        with self._lock if self.status == Status.BACKTESTING else nullcontext():
+        with self._lock if self.status != Status.BACKTESTING else nullcontext():
             # Running plugins before evaluation
             for plugin in self.plugins:
                 if plugin.instance.job == PluginJob.BEFORE_EVALUATION:
@@ -144,7 +145,6 @@ class Profile:
             for trading_component in self.trading_components:
                 if trading_component.weight == 0:
                     continue
-
                 confidence = trading_component.instance.evaluate(df=tc_dfs[trading_component.id])
                 confidences[trading_component.ticker][trading_component.id] = confidence * trading_component.weight
 
@@ -180,47 +180,53 @@ class Profile:
         if not self.check_status_valid():
             return
 
-        # TODO: finish function
         def liquidate_wallet(wallet: dict[str, float]) -> float:
-            ...
+            value: float = 0
+            for ticker, amount in wallet.items():
+                value += fetch_ticker_price(ticker=ticker) * amount
+            return  value
 
         starting_status: Status = self.status
 
         base_liquidity: float = balance
-        balance: float = base_liquidity
+        balance: float = balance
         backtest_wallet: dict[str, float] = {t: 0 for t in self.paper_wallet.keys()}
         net_worth_history: list[float] = []
 
-        # TODO: not efficient ot fetch data for length only
-        max_candles: int = len(fetch_klines(ticker="BTC-USD", interval="1m", days=days))
-        tc_dfs: dict[int, DataFrame] = self.prep_dfs()
+        tc_dfs: dict[int, DataFrame] = self.prep_dfs(days=days)
+        max_candles: int = len(max(tc_dfs.values(), key=len))
+
+        parsed_tc_intervals: dict[int, int] = {t.id: parse_interval(t.interval) for t in self._trading_components}
+        min_parsed_interval: int = parse_interval(min([t.interval for t in self._trading_components], key=parse_interval))
 
         partition_amount: int = ceil(max_candles / partition_amount) if partition_amount > 1 else 1
 
-        is_partition_cap_reached = False
         with self._lock:
             self.status = Status.BACKTESTING
 
             # Main Loop
             iter_tc_dfs: dict[int, DataFrame] = {}
+
             for i in range(max_candles):
+                print(f"Iteration: {i}/{max_candles}")
                 for tc_id, df in tc_dfs.items():
-                    iter_tc_dfs[tc_id] = df[0:int(i / parse_interval(self._trading_components[0].interval))]
+                    iter_tc_dfs[tc_id] = df[0:int((i * min_parsed_interval) / parsed_tc_intervals[tc_id])]
 
                 orders: dict[str, float] = self.evaluate(tc_dfs=iter_tc_dfs)
 
-                is_partition_cap_reached = (i + 1) % partition_amount == 0
+                is_partition_cap_reached: bool = (i + 1) % partition_amount == 0
 
-                backtest_wallet, balance = self.trade_agent.trade(
+                backtest_wallet, balance = self.trade_agent.process_order(
                     orders=orders,
-                    bt_wallet=backtest_wallet,
-                    bt_balance=balance
+                    wallet=backtest_wallet,
+                    balance=balance
                 )
 
                 if is_partition_cap_reached:
                     liquidity: float = balance + liquidate_wallet(backtest_wallet)
                     net_worth_history.append(liquidity / base_liquidity)
                     base_liquidity = liquidity
+
                     logger.info(
                         f"Partition reached with liquidity: {liquidity}, net_worth_gain: {liquidity / base_liquidity}",
                         extra={"profile_id": self.id}
@@ -438,3 +444,11 @@ class Profile:
                 f"Job {event.job_id} for profile {self.name} with id {self.id} executed successfully.",
                 extra={"profile_id": self.id},
             )
+
+    def __repr__(self):
+        return (f"Profile(id={self.id}, name={self.name}, status={self.status}, balance={self.balance})\n"
+                f"Wallet: {self.wallet}\n"
+                f"Paper Wallet: {self.paper_wallet}\n"
+                f"Balance: {self.balance};Paper Balance: {self.paper_balance}\n"
+                f"TCs: {self.trading_components}\n"
+                f"Plugins: {self.plugins}")

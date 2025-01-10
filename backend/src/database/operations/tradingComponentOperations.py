@@ -24,6 +24,7 @@ def convert_to_dto(trading_component: TradingComponentModel) -> TradingComponent
     )
 
 
+
 def create_trading_component(
         profile_id: int,
         name: str,

@@ -1,7 +1,6 @@
 from logging import getLogger
 
 from src.services.entities import Profile
-from src.constants import Status
 
 logger = getLogger("oracle.app")
 
