@@ -3,6 +3,7 @@ from contextlib import nullcontext
 from logging import getLogger
 from threading import Lock
 from concurrent.futures import ProcessPoolExecutor
+import time
 from typing import Optional
 from math import ceil
 
@@ -120,6 +121,10 @@ class Profile:
 
         return tc_dfs
 
+    @staticmethod
+    def worker(tc_dto: TradingComponentDTO, df: DataFrame) -> tuple[TradingComponentDTO, float]:
+        return tc_dto, tc_dto.instance.evaluate(df=df) * tc_dto.weight
+
     def evaluate(self, tc_dfs: Optional[dict[int, DataFrame]] = None):
         if not self.check_status_valid():
             return
@@ -128,11 +133,15 @@ class Profile:
             return
 
         if tc_dfs is None:
-            tc_dfs: dict[int, DataFrame] = self.prep_dfs()
+            tc_dfs: dict[int, DataFrame] = self.prep_dfs(days=7)
 
         confidences: dict[str, dict[int, float]] = {}
         for ticker in self.wallet.keys():
             confidences[ticker] = {}
+
+        worker_inputs: list[tuple[TradingComponentDTO, DataFrame]] = [
+            (tc, tc_dfs[tc.id]) for tc in self.trading_components
+        ]
 
         # Use lock only if not backtesting as backtesting already locks
         with self._lock if self.status != Status.BACKTESTING else nullcontext():
@@ -141,13 +150,16 @@ class Profile:
                 if plugin.instance.job == PluginJob.BEFORE_EVALUATION:
                     plugin.instance.run(profile=self)
 
-            # Running evaluation
-            for trading_component in self.trading_components:
-                if trading_component.weight == 0:
-                    continue
-                confidence = trading_component.instance.evaluate(df=tc_dfs[trading_component.id])
-                confidences[trading_component.ticker][trading_component.id] = confidence * trading_component.weight
+            # Running Evaluation in Parallel
+            """with ProcessPoolExecutor() as executor:
+                results: list[tuple[TradingComponentDTO, float]] = list(executor.map(Profile.worker, *zip(*worker_inputs)))
 
+                for tc, weighted_confidence in results:
+                    confidences[tc.ticker][tc.id] = weighted_confidence"""
+            for tc, df in worker_inputs:
+                confidences[tc.ticker][tc.id] = tc.instance.evaluate(df=df) * tc.weight
+
+            orders: dict[str, float] = {}
             # Running plugins after evaluation and creating order
             for plugin in self.plugins:
                 if plugin.instance.job == PluginJob.AFTER_EVALUATION:

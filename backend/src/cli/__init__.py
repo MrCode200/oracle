@@ -1,1 +1,1 @@
-from .interface import app, command_list, repl
+from .repl import repl
