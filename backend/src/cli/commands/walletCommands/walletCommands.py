@@ -24,7 +24,7 @@ console = Console()
 
 logger = logging.getLogger("oracle.app")
 
-
+# TODO: Performance fetches prices for both wallet and paper wallet
 def view_wallet_command(
         profile_name: Annotated[str, typer.Argument(
             help="The [bold]name[/bold] of the [bold]profile[/bold] to view.")] = None

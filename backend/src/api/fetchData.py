@@ -152,4 +152,7 @@ def fetch_klines(
 
     df.drop("unused", axis=1, inplace=True)
 
+    for column in df.columns:
+        df[column] = df[column].astype(float)
+
     return df

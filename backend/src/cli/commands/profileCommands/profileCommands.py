@@ -1,6 +1,6 @@
 from typing import Annotated, Optional, Type
 
-from rich.status import Status as st
+from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.box import ROUNDED
 import typer
 from rich.console import Console
@@ -101,10 +101,15 @@ def backtest_profile_command(
             f"The bot may not be running or the profile may have been deleted.")
         return
 
-    with st("Backtesting...", spinner="dots") as status:
+    with Progress(
+            SpinnerColumn(finished_text=":white_check_mark: "),
+            TextColumn("[progress.description]{task.description}"),
+    ) as progress:
+        backtest_progress = progress.add_task("Backtesting...", total=1)
+
         results: Optional[list[float]] = profile.backtest(balance=balance, days=days, partition_amount=partition_amount)
 
-        status.update("Done!")
+        progress.update(backtest_progress, description="Backtesting...", completed=1)
 
     if not results:
         console.print(
@@ -125,8 +130,6 @@ def backtest_profile_command(
         liquidity.append(liquidity[i-1] * result)
 
     partition_date_len: float = round((days / partition_amount), 3)
-    print(results)
-    print(liquidity)
     for i in range(len(results)):
         if results[i] < 1:
             clr: str = f"[bold red]"

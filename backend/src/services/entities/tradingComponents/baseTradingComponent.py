@@ -25,7 +25,7 @@ class BaseTradingComponent(ABC):
         for key, setting in cls._EA_SETTINGS.items():
             if not required_keys <= set(setting.keys()):  # Checks if all required keys are present
                 raise AttributeError(
-                    f"_EA_SETTINGS: dict must contain dictionaries with the keys 'start', 'stop', and 'step'. Argument missing those keys: {key}")"""
+                    f"_GA_SETTINGS: dict must contain dictionaries with the keys 'start', 'stop', and 'step'. Argument missing those keys: {key}")"""
         check_annotations_for_init(cls)
 
         tc_registry.register(keys=cls.__name__, value=cls)
@@ -34,8 +34,8 @@ class BaseTradingComponent(ABC):
 
 
     @classmethod
-    def EA_SETTINGS(cls) -> dict[str, dict[str, int | float]]:
-        return cls._EA_SETTINGS
+    def GA_SETTINGS(cls) -> dict[str, dict[str, int | float]]:
+        return cls._GA_SETTINGS
 
     @abstractmethod
     def evaluate(self, df: DataFrame) -> float:
@@ -92,7 +92,7 @@ class BaseTradingComponent(ABC):
         return net_worth_history
 
     @staticmethod
-    def _process_trade_signal(
+    def process_trade_signal(
             base_balance: float,
             balance: float,
             shares: float,

@@ -35,9 +35,9 @@ class SimpleMovingAverage(BaseTradingComponent):
         Backtests the strategy using historical data and calculates the Return on Investment (ROI).
     """
 
-    _EA_SETTINGS: dict[str, dict[str, int | float]] = {
-        "short_period": {"start": 10, "stop": 100, "step": 1, "type": "int"},
-        "long_period": {"start": 50, "stop": 200, "step": 1, "type": "int"},
+    _GA_SETTINGS: dict[str, dict[str, int | float]] = {
+        "short_period": {"start": 10, "stop": 50, "step": 1, "type": "int"},
+        "long_period": {"start": 50, "stop": 100, "step": 1, "type": "int"},
     }
 
     def __init__(
@@ -77,11 +77,14 @@ class SimpleMovingAverage(BaseTradingComponent):
 
         :return: The trade confidence (1 for Buy, -1 for Sell, or 0 for Hold).
         """
-        if len(df) < self.long_period:
+        valid_df_range: int = self.long_period + 1
+        if len(df) < valid_df_range:
             return 0
 
-        short_sma_series: pandas.Series = sma(close=df.Close, length=self.short_period)
-        long_sma_series: pandas.Series = sma(close=df.Close, length=self.long_period)
+        self_df = df.copy().iloc[-valid_df_range:]
+
+        short_sma_series: pandas.Series = sma(close=self_df.Close, length=self.short_period)
+        long_sma_series: pandas.Series = sma(close=self_df.Close, length=self.long_period)
 
         short_sma_latest: float = short_sma_series.iloc[-1]
         long_sma_latest: float = long_sma_series.iloc[-1]

@@ -98,15 +98,7 @@ class Scrappy(BasePlugin):
                 continue
 
             if date_limit is not None and date_limit > datetime.strptime(entry.published, "%a, %d %b %Y %H:%M:%S %z"):
-                print("Date limit reached")
                 continue
-
-            print(f"Title: {entry.title}")
-            print(f"Link: {entry.link}")
-            print(f"Published: {entry.published}")
-            print(f"Summary: {entry.summary}")
-
-            print("=" * 50)
 
             articles.append(entry.title + entry.summary)
 
