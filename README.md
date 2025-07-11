@@ -165,6 +165,8 @@ The platform provides comprehensive CRUD operations for all entities:
 4. **External API Limits**: Binance API Endpoints have limits, which we cannot bypass!
     
 5. **Testing Coverage**: Not everything is covered by tests yet!
+
+6. **Frontend**: To Date, The backend has to be written first, so no code availalbe currently!
   
 ### Security Notes  
   
