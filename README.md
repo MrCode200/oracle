@@ -63,7 +63,6 @@ The system manages four core entities:
    Inside Oralce/backend:
    ```bash
    poetry install
-   poetry shell
    ```  
   
 2. **Setup MySQL Database**:  
@@ -81,6 +80,7 @@ The platform implements several sophisticated technical indicators:
 ### Available Indicators 
 - **MACD**: Moving Average Convergence Divergence
 - **SMA**: Simple Moving Average
+
 And many more...
 
 Each indicator inherits from a base class and implements standardized methods for evaluation and backtesting.
@@ -94,8 +94,10 @@ The platform's core strength lies in its evolutionary optimization capabilities.
 - **Mutation and crossover**: Generates offspring with improved characteristics  
 - **Performance-based selection**: Retains top performers for reproduction  
 - **Configurable parameters**: Adjustable population size, generations, and mutation rates
+  
 `❗ Combination of some Settings may result in Overfitting!`
-`❗ Under Development`
+
+`❗ WIP`
   
 ## 📈 Data Sources  
   
@@ -119,8 +121,10 @@ The platform includes comprehensive testing coverage:
 - `test_algorithms/`: Tests for technical indicators and optimization  
 - `test_api/`: Tests for data fetching and API integration  
 - `test_database/`: Tests for database operations and models  
-- `test_exceptions/`: Tests for error handling and edge cases 
+- `test_exceptions/`: Tests for error handling and edge cases
+
 `❗ Not Finished`
+
 ### Running Tests  
 ```bash  
 pytest backend/tests/  
@@ -129,7 +133,12 @@ pytest backend/tests/
 ## 🎯 Usage Examples  
   
 ### Basic Application Initialization  
-The application starts with the `init_app()` function after running `oracle` command in shell, which orchestrates system initialization:  
+The application starts with the `init_app()` function after running 
+```bash
+poetry shell
+oracle
+```
+command which orchestrates system initialization:  
   
 1. **Logger Setup**: Configures application logging  
 2. **Indicator Registration**: Loads all technical indicators  
