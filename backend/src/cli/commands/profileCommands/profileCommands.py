@@ -107,35 +107,36 @@ def backtest_profile_command(
     ) as progress:
         backtest_progress = progress.add_task("Backtesting...", total=1)
 
-        results: Optional[list[float]] = profile.backtest(balance=balance, days=days, partition_amount=partition_amount)
+        net_worth_his, order_his = profile.backtest(balance=balance, days=days, partition_amount=partition_amount)
 
         progress.update(backtest_progress, description="Backtesting...", completed=1)
 
-    if not results:
-        console.print(
-            f"[bold red]Error: Profile '[white underline bold]{profile_name}; ID {profile_id}[/white underline bold]' couldn't backtest!")
-        return
-
     backtest_table: Table = Table(show_header=True, header_style="bold cyan", box=ROUNDED, style="bold")
-    backtest_table.add_column("Parition", style="bold magenta")
+    backtest_table.add_column("Partition", style="bold magenta")
     backtest_table.add_column("Liquidity", style="bold green")
     backtest_table.add_column("Return on Investment (ROI)")
+    backtest_table.add_column("Orders Done in Partition", style="bold yellow")
 
     liquidity: list[float] = []
-    for i, result in enumerate(results):
+    for i, net_worth in enumerate(net_worth_his):
         if i == 0:
-            liquidity.append(balance * result)
+            liquidity.append(balance * net_worth)
             continue
 
-        liquidity.append(liquidity[i-1] * result)
+        liquidity.append(liquidity[i-1] * net_worth)
 
     partition_date_len: float = round((days / partition_amount), 3)
-    for i in range(len(results)):
-        if results[i] < 1:
+    for i in range(len(net_worth_his)):
+        if net_worth_his[i] < 1:
             clr: str = f"[bold red]"
         else:
             clr: str = f"[bold green]"
 
-        backtest_table.add_row(str(partition_date_len * i + 1) + " days", clr + str(liquidity[i]), f"{clr}{results[i]:.2%}")
+        backtest_table.add_row(str(partition_date_len * i + 1) + " days", clr + str(liquidity[i]), f"{clr}{net_worth_his[i]:.2%}", str(order_his[i]))
+
+    print(f"Total Orders: {sum(order_his)} \n"
+          f"Avg OpP: {sum(order_his) / len(order_his)}\n"
+          f"Avg ROI: {sum(net_worth_his) / len(net_worth_his):.2%}")
+
 
     console.print(backtest_table)

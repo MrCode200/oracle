@@ -195,23 +195,38 @@ class Profile:
         def liquidate_wallet(wallet: dict[str, float]) -> float:
             value: float = 0
             for ticker, amount in wallet.items():
-                value += fetch_ticker_price(ticker=ticker) * amount
-            return  value
+                if amount == 0:
+                    continue
+
+                value += fetch_klines(
+                    ticker,
+                    "1s",
+                    start=str(df.index[i])[:-6],
+                    max_klines=1,
+                    is_utc_time=True
+                )['Close'].iloc[0] * amount
+            return value
 
         starting_status: Status = self.status
 
         base_liquidity: float = balance
         balance: float = balance
         backtest_wallet: dict[str, float] = {t: 0 for t in self.paper_wallet.keys()}
+
         net_worth_history: list[float] = []
+        order_history: list[int] = []
+        orders_done: int = 0
 
         tc_dfs: dict[int, DataFrame] = self.prep_dfs(days=days)
-        max_candles: int = len(max(tc_dfs.values(), key=len))
+        longest_df: DataFrame = max(tc_dfs.values(), key=len)
+        max_candles: int = len(longest_df)
 
         parsed_tc_intervals: dict[int, int] = {t.id: parse_interval(t.interval) for t in self._trading_components}
         min_parsed_interval: int = parse_interval(min([t.interval for t in self._trading_components], key=parse_interval))
 
         partition_amount: int = ceil(max_candles / partition_amount) if partition_amount > 1 else 1
+
+
 
         with self._lock:
             self.status = Status.BACKTESTING
@@ -228,16 +243,39 @@ class Profile:
 
                 is_partition_cap_reached: bool = (i + 1) % partition_amount == 0
 
-                backtest_wallet, balance = self.trade_agent.process_order(
-                    orders=orders,
-                    wallet=backtest_wallet,
-                    balance=balance
-                )
+                if orders:
+                    prices: dict[str, float] = {}
+                    for ticker, order_conf in orders.items():
+                        if order_conf == 0 or order_conf < 0 and backtest_wallet[ticker] == 0:
+                            continue
+
+                        prices[ticker] = fetch_klines(
+                            ticker,
+                            "1s",
+                            start=str(df.index[i])[:-6],
+                            max_klines=1,
+                            is_utc_time=True
+                        )['Close'].iloc[0]
+
+                    old_wallet = backtest_wallet.copy()
+
+                    backtest_wallet, balance = self.trade_agent.process_order(
+                        orders=orders,
+                        wallet=backtest_wallet,
+                        balance=balance,
+                        prices=prices
+                    )
+
+                    if old_wallet != backtest_wallet:
+                        orders_done += 1
 
                 if is_partition_cap_reached:
                     liquidity: float = balance + liquidate_wallet(backtest_wallet)
                     net_worth_history.append(liquidity / base_liquidity)
                     base_liquidity = liquidity
+
+                    order_history.append(orders_done)
+                    orders_done = 0
 
                     logger.info(
                         f"Partition reached with liquidity: {liquidity}, net_worth_gain: {liquidity / base_liquidity}",
@@ -250,7 +288,7 @@ class Profile:
                 f"Backtesting for Profile with ID {self.id} and name: {self.name}",
                 extra={"profile_id": self.id}, )
 
-        return net_worth_history
+        return net_worth_history, order_history
 
     def update(
             self,

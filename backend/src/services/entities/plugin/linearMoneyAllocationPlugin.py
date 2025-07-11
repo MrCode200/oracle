@@ -19,10 +19,11 @@ class LinearMoneyAllocationPlugin(BasePlugin):
             average_ticker_conf: float = sum(confidences.values()) / len(confidences)
             if average_ticker_conf == 0:
                 continue
-
-            ticker_confidences[ticker] = average_ticker_conf
-            if ticker_confidences[ticker] > 0:
+            elif average_ticker_conf > 0:
+                ticker_confidences[ticker] = average_ticker_conf
                 buy_confidence_sum += ticker_confidences[ticker]
+            else:
+                ticker_confidences[ticker] = -1
 
         # Normalize confidence for each ticker based on total sum
         for ticker, confidence in ticker_confidences.items():
