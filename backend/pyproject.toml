@@ -30,7 +30,7 @@ black = "^24.10.0"
 isort = "^5.13.2"
 
 [tool.poetry.scripts]
-bot = "src.interface:main"
+oracle = "src.interface:main"
 
 [build-system]
 requires = ["setuptools>=42", "wheel"]
