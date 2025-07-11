@@ -177,7 +177,7 @@ The platform provides comprehensive CRUD operations for all entities:
 ---  
   
 *For more detailed implementation guides and advanced usage scenarios, visit [https://app.devin.ai/wiki/MrCode200/oracle](https://app.devin.ai/wiki/MrCode200/oracle)*  
-`❗ The detailed Documentation is written by AI, and not all is covered correctly or 100% correct! (Most of the Information is correct though)`
+`❗ The detailed Documentation is written by AI, and not all is covered correctly (~95% correct)! (Most of the Information is correct though)`
   
 ## Notes  
     
