@@ -1,5 +1,3 @@
-[GeckoPointAPI-EndPoints](https://docs.coingecko.com/reference/endpoint-overview)
-
 namingconventions
 files: fileName
 class: ClassName
@@ -19,3 +17,7 @@ if the macd histogramm is small and smaller than the last histogram that it will
 - Finish Algorithm Strategy and Plugin
 - Make Profile based on the new structure
 - Make database based profile
+
+REMAKE: plans
+- No shadow names
+- confirmation.lower() != "y" than == "n"

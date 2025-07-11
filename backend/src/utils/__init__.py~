@@ -1,2 +1,0 @@
-from .registry import (register_plugin, register_indicator, register_profile,
-                       get_plugin, get_indicator, get_profile)

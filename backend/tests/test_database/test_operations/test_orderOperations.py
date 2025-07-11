@@ -1,13 +1,13 @@
 import pytest
+from src.database import (OrderDTO, ProfileDTO, create_order, create_profile,
+                          delete_profile, get_order, get_profile)
 
-from backend.src.database import create_order, select_orders, add_profile, delete_profile, select_profile
-
-PROFILE_NAME = "test_profile_delta"
+PROFILE_NAME = "test_profile_beta"
+UPDATED_PROFILE_NAME = "updated_test_profile_beta"
 BALANCE = 1000
-PROFILE_SETTINGS = {"sell_limit": 0.5, "buy_limit": 0.5, "stop_loss": 0.5, "limit": 0.5}
+STRATEGY_SETTINGS = {"sell_limit": 0.5, "buy_limit": 0.5, "stop_loss": 0.5, "limit": 0.5}
 WALLET = {"BTC": 100}
-ALGORITHM_SETTINGS = {"SimpleMovingAverage": {"crossover_weight_impact": 0.5}}
-FETCH_SETTINGS = {"period": "1d", "interval": "1d"}
+
 
 ORDER_TYPE = "BUY"
 TICKER = "BTC-USD"
@@ -17,45 +17,52 @@ QUANTITY = 1
 
 @pytest.fixture
 def cleanup():
-    if select_profile(profile_name=PROFILE_NAME) is not None:
-        raise Exception("Profile already exists, with the test name ``test_profile_delta``")
+    if get_profile(name=PROFILE_NAME) is not None:
+        raise Exception(f"Profile already exists, with the test name ``{PROFILE_NAME}``")
 
     yield
 
-    delete_profile(profile_name=PROFILE_NAME)
+    delete_profile(name=PROFILE_NAME)
 
 
 def test_crud_operations_order(cleanup):
-    add_profile(
-        profile_name=PROFILE_NAME,
+    new_profile_dto: ProfileDTO = create_profile(
+        name=PROFILE_NAME,
         balance=BALANCE,
-        profile_settings=PROFILE_SETTINGS,
         wallet=WALLET,
-        algorithm_settings=ALGORITHM_SETTINGS,
-        fetch_settings=FETCH_SETTINGS,
+        strategy_settings=STRATEGY_SETTINGS
     )
 
-    profile_id = select_profile(profile_name=PROFILE_NAME).profile_id
+    new_order_dto_1: OrderDTO = create_order(
+        profile_id=new_profile_dto.id,
+        order_type=ORDER_TYPE,
+        ticker=TICKER,
+        price=PRICE,
+        quantity=QUANTITY
+    )
 
-    create_order(profile_id=profile_id, order_type=ORDER_TYPE, ticker=TICKER, price=PRICE, quantity=QUANTITY)
+    new_order_dto_2: OrderDTO = create_order(
+        profile_id=new_profile_dto.id,
+        order_type=ORDER_TYPE,
+        ticker=TICKER,
+        price=PRICE,
+        quantity=QUANTITY
+    )
 
-    orders = select_orders(profile_id=profile_id)
+    get_order_dto: OrderDTO = get_order(id=new_order_dto_1.id)
+    assert get_order_dto == new_order_dto_1
+    assert get_order_dto.id == new_order_dto_1.id
+    assert get_order_dto.profile_id == new_order_dto_1.profile_id
+    assert get_order_dto.type == new_order_dto_1.type
+    assert get_order_dto.ticker == new_order_dto_1.ticker
+    assert get_order_dto.quantity == new_order_dto_1.quantity
+    assert get_order_dto.price == new_order_dto_1.price
 
-    assert len(orders) == 1
-    assert orders[0].profile_id == profile_id
-    assert orders[0].type == ORDER_TYPE
-    assert orders[0].ticker == TICKER
-    assert orders[0].quantity == QUANTITY
-    assert orders[0].price == PRICE
+    assert len(get_order(profile_id=new_profile_dto.id)) == 2
+    for order in get_order(profile_id=new_profile_dto.id):
+        assert order.profile_id == new_profile_dto.id
 
-    create_order(profile_id=profile_id, order_type=ORDER_TYPE, ticker=TICKER, price=PRICE, quantity=QUANTITY)
+    delete_profile(name=PROFILE_NAME)
 
-    orders = select_orders(profile_id=profile_id)
+    assert get_order(id=new_order_dto_1.id) is None
 
-    assert len(orders) == 2
-
-    delete_profile(profile_name=PROFILE_NAME)
-
-    orders = select_orders(profile_id=profile_id)
-
-    assert len(orders) == 0

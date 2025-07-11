@@ -1,36 +1,52 @@
 from logging import getLogger
 
-from sqlalchemy import create_engine, text, Engine
-import json
+from sqlalchemy import Engine, create_engine
+from sqlalchemy.engine import URL
+from sqlalchemy.sql import text
 
+from src.utils import load_config
 
 logger = getLogger("oracle.app")
 
 logger.info("Initializing Database...")
 
-with open('backend/config/config.json', 'r') as f:
-    DB_CONFIG = json.load(f).get('DB_CONFIG')
-DATABASE_URL = f"mysql+mysqlconnector://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}/{DB_CONFIG['database']}"
-BASE_URL = f"mysql+mysqlconnector://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}"
+DB_CONFIG = load_config("DB_CONFIG")
+
+DATABASE_URL = URL.create(
+    drivername="postgresql+psycopg",
+    username=DB_CONFIG["user"],
+    password=DB_CONFIG["password"],
+    host=DB_CONFIG["host"],
+    port=DB_CONFIG["port"],
+    database=DB_CONFIG["database"],
+)
+BASE_URL = URL.create(
+    drivername="postgresql+psycopg",
+    username=DB_CONFIG["user"],
+    password=DB_CONFIG["password"],
+    host=DB_CONFIG["host"],
+    port=DB_CONFIG["port"],
+)
 
 base_engine: Engine = create_engine(BASE_URL)
 
 with base_engine.connect() as conn:
-    result = conn.execute(text(f"CREATE DATABASE IF NOT EXISTS `{DB_CONFIG['database']}`;"))
-    logger.info("Ensured Database Exists...")
-    base_engine.dispose()
+    result = conn.execute(text("SELECT 1 FROM pg_database WHERE datname = 'oracle'"))
+    if result.fetchone() is None:
+        conn.execute(text("CREATE DATABASE oracle"))
+        logger.info("Database Successfully Created!")
 
 engine: Engine = create_engine(DATABASE_URL)
 
 
-from .models import Base, Profile, Order, Plugin, Indicator
-from .operations import (get_profile, get_order, get_plugin, get_indicator,
-                         create_profile, create_order, create_plugin, create_indicator,
-                         delete_plugin, delete_profile, delete_indicator,
-                         update_profile, update_plugin, update_indicator)
-
+from .dtos import TradingComponentDTO, OrderDTO, PluginDTO, ProfileDTO
+from .models import Base, TradingComponentModel, OrderModel, PluginModel, ProfileModel
+from .operations import (create_trading_component, create_order, create_plugin,
+                         create_profile, delete_trading_component, delete_plugin,
+                         delete_profile, get_trading_component, get_order, get_plugin,
+                         get_profile, update_trading_component, update_plugin,
+                         update_profile)
 
 Base.metadata.create_all(engine)
 
 logger.info("Database Successfully Initialized!")
-

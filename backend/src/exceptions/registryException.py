@@ -5,6 +5,7 @@ class RegistryError(Exception):
     """
     Custom exception raised when there is an error in registering data.
     """
+
     def __init__(self, message: str, registry_name: str = "BaseRegistry"):
         """
         Initializes the RegistryError with a message.
@@ -21,7 +22,13 @@ class DuplicateError(RegistryError):
     Custom exception raised when there is an attempt to register a duplicate entry.
     Inherits from RegistryError and adds specific behavior for duplicate errors.
     """
-    def __init__(self, message: str = None, registry_name: str = "BaseRegistry", duplicate_item: Hashable = ''):
+
+    def __init__(
+        self,
+        message: str | None = None,
+        registry_name: str = "BaseRegistry",
+        duplicate_item: Hashable = "",
+    ):
         """
         Initializes the DuplicateError with a message and optional information about the duplicate item.
 
@@ -29,9 +36,13 @@ class DuplicateError(RegistryError):
         :param registry_name: The name of the registry where the duplicate item is registered (optional).
         :param duplicate_item: The name or identifier of the duplicate item (optional).
         """
-        self.message = f"{registry_name}: Duplicate item = {duplicate_item}" if message is None else message
+        self.message: str = (
+            f"{registry_name}: Duplicate item = {duplicate_item}"
+            if message is None
+            else message
+        )
         self.duplicate_item = duplicate_item
-        super().__init__(message, registry_name)
+        super().__init__(self.message, registry_name)
 
     def __str__(self):
         if self.duplicate_item:
@@ -44,7 +55,13 @@ class MissingKeyError(RegistryError):
     Custom exception raised when a requested entry is not found in the registry.
     Inherits from RegistryError and adds specific behavior for not registered errors.
     """
-    def __init__(self, message: str = None, registry_name:str = "BaseRegistry", missing_key: Hashable = ''):
+
+    def __init__(
+        self,
+        message: str | None = None,
+        registry_name: str = "BaseRegistry",
+        missing_key: Hashable = "",
+    ):
         """
         Initializes the NotRegisteredError with a message and optional information about the not registered item.
 
@@ -52,9 +69,13 @@ class MissingKeyError(RegistryError):
         :param registry_name: The name of the registry where the duplicate item is registered (optional).
         :param missing_key: The name or identifier of the not registered item (optional).
         """
-        self.message = f"{registry_name}: Not registered item = {missing_key}" if message is None else message
+        self.message: str = (
+            f"{registry_name}: Not registered item = {missing_key}"
+            if message is None
+            else message
+        )
         self.not_registered_item = missing_key
-        super().__init__(message, registry_name)
+        super().__init__(self.message, registry_name)
 
     def __str__(self):
         if self.not_registered_item:

@@ -1,0 +1,21 @@
+{
+  "LOG_CONFIG": {
+    "level": 10,
+    "path": "logs/app.jsonl",
+    "add_stream_handler": false,
+    "add_file_handler": true,
+    "stream_in_color": true,
+    "log_in_json": true
+  },
+  "DB_CONFIG": {
+    "host": "localhost",
+    "user": "postgres",
+    "password": "root",
+    "database": "oracle",
+    "port": 5432,
+    "auto_rollback": true
+  },
+  "PROFILE_CONFIG": {
+    "exit_on_crash": true
+  }
+}

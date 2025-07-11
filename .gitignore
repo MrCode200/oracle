@@ -75,5 +75,10 @@ Thumbs.db
 ehthumbs.db
 Icon?
 
+# IDE files
+*.py~
+
+# Local files
 playground/
 logs/app.jsonl
+

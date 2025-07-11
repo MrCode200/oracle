@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "Oracle"
+version = "0.1.0"
+description = "A trading bot"
+authors = ["MrCode200 <navidyaghmaei@gmail.com>", "kian19955 <kiansharifi84@gmail.com>"]
+readme = "README.md"
+packages = [{ include = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "^2.2.3"
+yfinance = "^0.2.50"
+pandas-ta = "^0.3.14b0"
+python-dotenv = "^1.0.1"
+apscheduler = "^3.11.0"
+rich = "^13.9.4"
+typer = {extras = ["all"], version = "^0.15.1"}
+prompt-toolkit = "^3.0.48"
+psutil = "^6.1.0"
+sqlalchemy = "^2.0.36"
+psycopg = {extras = ["binary"], version="^3.2.3"}
+python-dateutil = "^2.9.0.post0"
+pydantic = "^2.10.4"
+beautifulsoup4 = "^4.12.3"
+numpy = "^2.2.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+black = "^24.10.0"
+isort = "^5.13.2"
+
+[tool.poetry.scripts]
+oracle = "src.interface:main"
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+

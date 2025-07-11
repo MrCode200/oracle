@@ -1,1 +1,2 @@
-from .models import Base, Profile, Order, Plugin, Indicator
+from .models import (Base, TradingComponentModel, OrderModel,  # type: ignore
+                     PluginModel, ProfileModel)

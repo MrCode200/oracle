@@ -1,2 +1,2 @@
-from .fetchDataExceptions import DataFetchError
-from .registryException import RegistryError, DuplicateError, MissingKeyError
+from .fetchDataException import DataFetchError
+from .registryException import DuplicateError, MissingKeyError, RegistryError
